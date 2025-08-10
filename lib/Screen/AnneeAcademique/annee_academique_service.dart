@@ -1,0 +1,135 @@
+import 'dart:convert';
+
+import 'package:school_management_system/Screen/AnneeAcademique/annee_academique.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+
+class AnneeAcademiqueService {
+  final String baseUrl = 'http://192.168.1.15:9000/api/admin/annees';
+
+  //Get
+  Future<List<AnneeAcademique>> getSessions() async {
+    try {
+      final pref = await SharedPreferences.getInstance();
+      final token = pref.getString('token');
+      print("token:$token");
+      if (token == null) {
+        throw Exception("Token non trouvé");
+      }
+      final response = await http.get(Uri.parse(baseUrl), headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      });
+
+      if (response.statusCode == 200) {
+        Iterable jsonResponse = json.decode(response.body);
+        return List<AnneeAcademique>.from(
+            jsonResponse.map((model) => AnneeAcademique.fromJson(model)));
+      } else {
+        throw Exception(
+            'Failed to load Année Academiques:${response.statusCode}');
+      }
+    } catch (e) {
+      print("Erreur lors de la Mise a jour des Rôles");
+      throw Exception("Erreur lors de la Mise a jour des Rôles");
+    }
+  }
+
+  //Create
+  Future<AnneeAcademique> createSession(AnneeAcademique session) async {
+    try {
+      final pref = await SharedPreferences.getInstance();
+      final token = pref.getString('token');
+      print("token:$token");
+      if (token == null) {
+        throw Exception("Token non trouvé");
+      }
+      final response = await http.post(
+        Uri.parse('$baseUrl/save'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+        body: json.encode(session
+            .toJson()), 
+      );
+
+      print("Mise a jour d'une  annee");
+      print(response.statusCode);
+      print(response.body);
+
+      print("Statut de la réponse: ${response.statusCode}");
+      print("Réponse: ${response.body}");
+      print("JSON envoyé : ${jsonEncode(session.toJson())}");
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return AnneeAcademique.fromJson(
+            json.decode(response.body)); 
+      } else {
+        throw Exception('Échec de la  mise a jour : ${response.body}');
+      }
+    } catch (e) {
+      print("Erreur lors de la Mise a jour des Rôles");
+      throw Exception("Erreur lors de la Mise a jour des Rôles");
+    }
+  }
+
+  //Mise a jour 
+  Future<AnneeAcademique> updateSession(AnneeAcademique annee)async{
+    try {
+      final pref = await SharedPreferences.getInstance();
+      final token = pref.getString('token');
+      if (token == null) {
+        throw Exception("Token non trouvé");
+      }
+      final response = await http.post(
+        Uri.parse('$baseUrl/update/${annee.id}'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+        body: json.encode(annee
+            .toJson()),
+      );
+
+      print("creation d'une nouvelle annee");
+      print(response.statusCode);
+      print(response.body);
+
+      print("Statut de la réponse: ${response.statusCode}");
+      print("Réponse: ${response.body}");
+      print("JSON envoyé : ${jsonEncode(annee.toJson())}");
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return AnneeAcademique.fromJson(
+            json.decode(response.body)); // Parse la réponse en objet Session
+      } else {
+        throw Exception('Échec de l\'ajout de la session : ${response.body}');
+      }
+    } catch (e) {
+      print("Erreur lors de la Mise a jour des Rôles");
+      throw Exception("Erreur lors de la Mise a jour des Rôles");
+    }
+
+  }
+
+  //Delete
+  Future<void> deleteSession(int id) async {
+    try {
+      final pref = await SharedPreferences.getInstance();
+      final token = pref.getString('token');
+      final response = await http.delete(
+        Uri.parse('$baseUrl/$id'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
+      if (response.statusCode != 204) {
+        throw Exception('Échec de la suppression de la session');
+      }
+    } on Exception catch (e) {
+      throw Exception("Erreur lors de la suppression de l'année $e");
+    }
+  }
+}
