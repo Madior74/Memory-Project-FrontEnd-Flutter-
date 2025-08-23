@@ -40,7 +40,6 @@ class AnneeAcademiqueService {
     try {
       final pref = await SharedPreferences.getInstance();
       final token = pref.getString('token');
-      print("token:$token");
       if (token == null) {
         throw Exception("Token non trouvé");
       }
@@ -50,55 +49,39 @@ class AnneeAcademiqueService {
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token',
         },
-        body: json.encode(session
-            .toJson()), 
+        body: json.encode(session.toJson()),
       );
 
-      print("Mise a jour d'une  annee");
-      print(response.statusCode);
-      print(response.body);
-
-      print("Statut de la réponse: ${response.statusCode}");
-      print("Réponse: ${response.body}");
-      print("JSON envoyé : ${jsonEncode(session.toJson())}");
+      
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return AnneeAcademique.fromJson(
-            json.decode(response.body)); 
+        return AnneeAcademique.fromJson(json.decode(response.body));
       } else {
         throw Exception('Échec de la  mise a jour : ${response.body}');
       }
     } catch (e) {
-      print("Erreur lors de la Mise a jour des Rôles");
       throw Exception("Erreur lors de la Mise a jour des Rôles");
     }
   }
 
-  //Mise a jour 
-  Future<AnneeAcademique> updateSession(AnneeAcademique annee)async{
+  //Mise a jour
+  Future<AnneeAcademique> updateSession(int id, AnneeAcademique annee) async {
     try {
       final pref = await SharedPreferences.getInstance();
       final token = pref.getString('token');
       if (token == null) {
         throw Exception("Token non trouvé");
       }
-      final response = await http.post(
-        Uri.parse('$baseUrl/update/${annee.id}'),
+      final response = await http.put(
+        Uri.parse('$baseUrl/update/$id'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token',
         },
-        body: json.encode(annee
-            .toJson()),
+        body: json.encode(annee.toJson()),
       );
 
-      print("creation d'une nouvelle annee");
-      print(response.statusCode);
-      print(response.body);
-
-      print("Statut de la réponse: ${response.statusCode}");
-      print("Réponse: ${response.body}");
-      print("JSON envoyé : ${jsonEncode(annee.toJson())}");
+     
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return AnneeAcademique.fromJson(
@@ -107,10 +90,8 @@ class AnneeAcademiqueService {
         throw Exception('Échec de l\'ajout de la session : ${response.body}');
       }
     } catch (e) {
-      print("Erreur lors de la Mise a jour des Rôles");
       throw Exception("Erreur lors de la Mise a jour des Rôles");
     }
-
   }
 
   //Delete
@@ -130,6 +111,32 @@ class AnneeAcademiqueService {
       }
     } on Exception catch (e) {
       throw Exception("Erreur lors de la suppression de l'année $e");
+    }
+  }
+
+
+  
+//Exist
+  Future<bool> anneeExists(String nomAnnee) async {
+    try {
+      final pref = await SharedPreferences.getInstance();
+      final token = pref.getString('token');
+      final response = await http.get(
+        Uri.parse('$baseUrl/exists?nomAnnee=$nomAnnee'),
+        headers: {
+          "Authorization": "Bearer $token",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body) as bool;
+      } else {
+        throw Exception(
+            'Erreur lors de la vérification de de lannee${response.statusCode}');
+      }
+    } catch (e) {
+      print('Erreur lors de la vérification des lannee : $e');
+      throw Exception('Erreur lors de la vérification des lannee');
     }
   }
 }

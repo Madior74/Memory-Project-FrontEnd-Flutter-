@@ -11,7 +11,10 @@ class MyBackButton extends StatelessWidget {
         Navigator.maybePop(
             context); // Cela évite que l'app se ferme si aucune page précédente
       },
-      icon: const FaIcon(FontAwesomeIcons.arrowLeft),
+      icon: const FaIcon(
+        FontAwesomeIcons.arrowLeft,
+        color: Colors.white,
+      ),
     );
   }
 }

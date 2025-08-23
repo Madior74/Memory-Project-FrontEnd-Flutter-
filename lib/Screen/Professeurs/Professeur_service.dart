@@ -1,26 +1,34 @@
 import 'dart:convert';
-import 'dart:io';
 
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:school_management_system/Screen/Professeurs/model_professeur.dart';
 import 'package:school_management_system/Screen/Specialite/model_specialite.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfesseurService {
-  static const String baseUrl = 'http://localhost:9000';
-
+  static const String baseUrl =
+      'http://192.168.1.15:9000/api/admin/professeurs';
   Future<List<Professeur>> fetchprofesseurs() async {
-    final response = await http.get(Uri.parse('$baseUrl/professeurs'));
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('token');
+    final response = await http.get(Uri.parse('$baseUrl'), headers: {
+      "Authorization": "Bearer $token",
+    });
 
     print("Recuperation des Professeurs");
     print(response.statusCode);
-    print(response.body); // <-- Ajout pour voir la structure JSON reçue
+    print(response.body);
 
+   
     if (response.statusCode == 200 || response.statusCode == 201) {
-      List<dynamic> data = json.decode(response.body);
-      return data.map((json) => Professeur.fromJson(json)).toList();
+      List<dynamic> jsonResponse = json.decode(response.body);
+
+      return jsonResponse
+          .map((prof) => Professeur.fromJson(prof as Map<String, dynamic>))
+          .toList();
     } else {
-      throw Exception('Failed to load professeurs');
+      throw Exception(
+          "Erreur lors de la récupération des Etudiants ${response.statusCode}");
     }
   }
 
@@ -40,52 +48,45 @@ class ProfesseurService {
     }
   }
 
-  Future<Professeur> createProfesseur({
-    required Map<String, dynamic> professeurData,
-    List<int>? modulesIds,
-  }) async {
-    final params = <String, String>{};
+//Nouveau Professeur
+  Future<Professeur> createProfesseur(Professeur prof) async {
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('token');
+    final response = await http.put(Uri.parse('$baseUrl'),
+        headers: {
+          'Content-Type': 'application/json',
+          "Authorization": "Bearer $token",
+        },
+        body: json.encode(prof.toJson()));
 
-    if (modulesIds != null) {
-      for (var id in modulesIds) {
-        params.addAll({'modulesIds': id.toString()});
-      }
+    if (response.statusCode == 200) {
+      return Professeur.fromJson(json.decode(response.body));
+    } else {
+      throw Exception("Echec lors de l'ajout du professeur :${response.body}");
     }
+  }
 
-    final url = Uri.http('localhost:9000', '/professeurs/save', params);
+//Mise a jour dun prof
+  Future<Professeur> updateProfesseur(int profId, Professeur professeur) async {
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('token');
+    final response =
+        await http.put(Uri.parse('$baseUrl/professeurs/update/$profId'),
+            headers: {
+              'Content-Type': 'application/json',
+              "Authorization": "Bearer $token",
+            },
+            body: json.encode(professeur.toJson()));
+    print("donnees envoyes ${professeur.toJson()}");
 
-    try {
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(professeurData),
-      );
+    print("Mise a jour du prof ${response.statusCode}");
+    print("Mise a jour du prof ${response.body}");
 
-      print("Creation du Professeur");
-      print(response.statusCode);
-      print(response.body); // <-- Ajout pour voir la structure JSON reçue
-      print("ProfesseurData");
-      print(professeurData); // <-- Ajout pour voir la structure JSON reçue
-      print("modulesIds");
-      print(modulesIds); // <-- Ajout pour voir la structure JSON reçue
-      print("params");
-      print(params); // <-- Ajout pour voir la structure JSON reçue
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        return Professeur.fromJson(jsonDecode(response.body));
-      } else {
-        final error = jsonDecode(response.body);
-        throw Exception('Échec de création : $error');
-      }
-    } on SocketException {
-      throw Exception("Aucune connexion Internet");
-    } on HttpException {
-      throw Exception("Serveur injoignable");
-    } on FormatException {
-      throw Exception("Données reçues invalides");
-    } catch (e) {
-      throw Exception("Erreur lors de la création : $e");
-    }
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return Professeur.fromJson(json.decode(response.body));
+    } else
+      throw Exception(
+          "Erreur lors de la mise a jour du professeur ${response.statusCode}");
   }
 
   //Suppression d'un Professeur
@@ -119,8 +120,12 @@ class ProfesseurService {
 
   //Specialite d'un Professeur
   Future<List<Specialite>> getSpecialitesByProfesseurId(int id) async {
-    final response =
-        await http.get(Uri.parse('$baseUrl/professeurs/$id/specialites'));
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('token');
+    final response = await http
+        .get(Uri.parse('$baseUrl/professeurs/$id/specialites'), headers: {
+      "Authorization": "Bearer $token",
+    });
     print("Recuperation des Specialites");
     print(response.statusCode);
     print(response.body); // <-- Ajout pour voir la structure JSON reçue
@@ -138,12 +143,15 @@ class ProfesseurService {
   //Ajouter des specialites à un Professeur
   Future<void> addSpecialiteToProfesseur(
       int profId, List<int> specialiteIds) async {
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('token');
     final url = '$baseUrl/professeurs/$profId/specialites';
 
     final response = await http.post(
       Uri.parse(url),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
+        "Authorization": "Bearer $token",
       },
       body: jsonEncode(specialiteIds),
     );

@@ -7,7 +7,7 @@ import 'package:school_management_system/Screen/Niveaux/model_niveau.dart';
 
 class Inscription {
   final int? id;
-  final Etudiant? etudiant;
+  final CandidatPreInscrit? etudiant;
   final Filiere? filiere;
   final Niveau? niveau;
   final AnneeAcademique? anneeAcademique;
@@ -36,7 +36,7 @@ class Inscription {
       montantVerse: json['montantVerse']?.toDouble() ?? 0.0,
       niveau: json['niveau'] != null ? Niveau.fromJson(json['niveau']) : null,
       etudiant:
-          json['etudiant'] != null ? Etudiant.fromJson(json['etudiant']) : null,
+          json['etudiant'] != null ? CandidatPreInscrit.fromJson(json['etudiant']) : null,
     );
   }
 

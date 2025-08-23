@@ -42,6 +42,13 @@ class _ModuleByUeState extends State<ModuleByUe> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          addModule(ue: widget.ue);
+          _nomModuleController.clear();
+          _volumeHoraireController.clear();
+        },
+      ),
       backgroundColor: myBackgroound,
       body: Row(
         children: [
@@ -50,13 +57,8 @@ class _ModuleByUeState extends State<ModuleByUe> {
             child: Column(
               children: [
                 MyAppbar(
-                    title: "UE ${widget.ue.nomUE} Listes des Modules",
-                    onTap: () {
-                      addModule(ue: widget.ue);
-                      _nomModuleController.clear();
-                      _volumeHoraireController.clear();
-                    },
-                    boutonName: "Ajouter Module"),
+                  title: "UE ${widget.ue.nomUE} Listes des Modules",
+                ),
                 Expanded(
                     child: FutureBuilder(
                   future: futureModules,

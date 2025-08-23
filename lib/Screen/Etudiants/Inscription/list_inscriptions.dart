@@ -28,6 +28,15 @@ class _ListInscriptionsState extends State<ListInscriptions> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => GestionDesAdmissions(),
+              ));
+        },
+      ),
       backgroundColor: Colors.grey.shade200,
       body: Row(
         children: [
@@ -37,80 +46,75 @@ class _ListInscriptionsState extends State<ListInscriptions> {
             children: [
               MyAppbar(
                 title: "Listes des Inscriptions",
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => GestionDesAdmissions(),
-                      ));
-                },
-                boutonName: "Nouvelle Inscription",
               ),
-           Expanded(
-  child: Padding(
-    padding: const EdgeInsets.only(top: 10.0),
-    child: FutureBuilder<List<Inscription>>(
-      future: futureInscriptions,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          print("Erreur : ${snapshot.error}");
-          return Center(
-            child: Text(
-              "Erreur : ${snapshot.error}",
-              style: const TextStyle(color: Colors.red),
-            ),
-          );
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Center(
-            child: Text(
-              "Aucun étudiant trouvé",
-              style: TextStyle(color: Colors.grey),
-            ),
-          );
-        } else {
-          List<Inscription> items = snapshot.data!;
-
-          return Column(
-            children: [
-              // En-tête du tableau
-              buildTableHeader(),
-              const Divider(height: 1), // Ligne de séparation
-
-              // Liste des lignes de données
               Expanded(
-                child: ListView.builder(
-                  itemCount: items.length,
-                  itemBuilder: (context, index) {
-                    final inscription = items[index];
-                    return InscriptionTableRow(
-                      nomEtudiant:
-                          "${inscription.etudiant?.prenom} ${inscription.etudiant?.nom}",
-                      nomFiliere: inscription.filiere!.nomFiliere,
-                      nomNiveau: inscription.niveau!.nomNiveau,
-                      onEdit: () async {
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => DetailEtudiant(etudiant: inscription.etudiant!),
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 10.0),
+                  child: FutureBuilder<List<Inscription>>(
+                    future: futureInscriptions,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        print("Erreur : ${snapshot.error}");
+                        return Center(
+                          child: Text(
+                            "Erreur : ${snapshot.error}",
+                            style: const TextStyle(color: Colors.red),
                           ),
                         );
-                        // Rafraîchir la liste après modification
-                        futureInscriptions = InscriptionService().getAllInscriptions();
-                      },
-                      onDelete: () => _confirmDelete(inscription.id!),
-                    );
-                  },
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return const Center(
+                          child: Text(
+                            "Aucun étudiant trouvé",
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        );
+                      } else {
+                        List<Inscription> items = snapshot.data!;
+
+                        return Column(
+                          children: [
+                            // En-tête du tableau
+                            buildTableHeader(),
+                            const Divider(height: 1), // Ligne de séparation
+
+                            // Liste des lignes de données
+                            Expanded(
+                              child: ListView.builder(
+                                itemCount: items.length,
+                                itemBuilder: (context, index) {
+                                  final inscription = items[index];
+                                  return InscriptionTableRow(
+                                    nomEtudiant:
+                                        "${inscription.etudiant?.prenom} ${inscription.etudiant?.nom}",
+                                    nomFiliere: inscription.filiere!.nomFiliere,
+                                    nomNiveau: inscription.niveau!.nomNiveau,
+                                    onEdit: () async {
+                                      await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => DetailEtudiant(
+                                              etudiant: inscription.etudiant!),
+                                        ),
+                                      );
+                                      // Rafraîchir la liste après modification
+                                      futureInscriptions = InscriptionService()
+                                          .getAllInscriptions();
+                                    },
+                                    onDelete: () =>
+                                        _confirmDelete(inscription.id!),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+                    },
+                  ),
                 ),
-              ),
-            ],
-          );
-        }
-      },
-    ),
-  ),
-)
+              )
             ],
           ))
         ],
@@ -167,19 +171,30 @@ class _ListInscriptionsState extends State<ListInscriptions> {
     );
   }
 
-
   Widget buildTableHeader() {
-  return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 12.0),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Expanded(flex: 3, child: Text("Étudiant", style: TextStyle(fontWeight: FontWeight.bold))),
-        Expanded(flex: 2, child: Text("Filière", style: TextStyle(fontWeight: FontWeight.bold))),
-        Expanded(flex: 1, child: Text("Niveau", style: TextStyle(fontWeight: FontWeight.bold))),
-        Expanded(flex: 1, child: Text("Actions", style: TextStyle(fontWeight: FontWeight.bold))),
-      ],
-    ),
-  );
-}
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+              flex: 3,
+              child: Text("Étudiant",
+                  style: TextStyle(fontWeight: FontWeight.bold))),
+          Expanded(
+              flex: 2,
+              child: Text("Filière",
+                  style: TextStyle(fontWeight: FontWeight.bold))),
+          Expanded(
+              flex: 1,
+              child: Text("Niveau",
+                  style: TextStyle(fontWeight: FontWeight.bold))),
+          Expanded(
+              flex: 1,
+              child: Text("Actions",
+                  style: TextStyle(fontWeight: FontWeight.bold))),
+        ],
+      ),
+    );
+  }
 }

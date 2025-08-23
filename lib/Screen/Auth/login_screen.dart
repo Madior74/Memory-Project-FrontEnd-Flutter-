@@ -47,7 +47,10 @@ class _LoginScreenState extends State<LoginScreen> {
         }
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Connexion réussie')),
+          SnackBar(
+            content: Text('Connexion réussie'),
+            backgroundColor: Colors.green,
+          ),
         );
       } catch (e) {
         print("Erreur $e");
@@ -129,7 +132,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     return null;
                                   },
                                 ),
-                                SizedBox(height: 16),
+                                SizedBox(height: 15),
                                 TextFormField(
                                   controller: _passwordController,
                                   decoration: InputDecoration(
@@ -156,7 +159,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     return null;
                                   },
                                 ),
-                                SizedBox(height: 20),
+                                SizedBox(height: 15),
                                 ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                       backgroundColor: myDrawerColol),

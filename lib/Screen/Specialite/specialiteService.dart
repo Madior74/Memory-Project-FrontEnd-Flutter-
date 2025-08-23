@@ -2,12 +2,17 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:school_management_system/Screen/Specialite/model_specialite.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SpecialiteService {
-  final String baseUrl = 'http://localhost:9000/specialites';
+  final String baseUrl = 'http://192.168.1.15:9000/api/admin/specialites';
   //get All Specialites
   Future<List<Specialite>> getAllSpecialites() async {
-    final response = await http.get(Uri.parse(baseUrl));
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('token');
+    final response = await http.get(Uri.parse(baseUrl), headers: {
+      "Authorization": "Bearer $token",
+    });
     if (response.statusCode == 200 || response.statusCode == 201) {
       List<dynamic> jResponse = json.decode(response.body);
       return jResponse.map((model) => Specialite.fromJson(model)).toList();
@@ -18,9 +23,14 @@ class SpecialiteService {
 
   //Nouvelle specialite
   Future<void> addSpecialite(Specialite specialite) async {
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('token');
     final response = await http.post(
       Uri.parse('$baseUrl/save'),
-      headers: {'Content-Type': 'application/json'},
+      headers: {
+        'Content-Type': 'application/json',
+        "Authorization": "Bearer $token",
+      },
       body: json.encode({
         'nom': specialite.nom,
         'description': specialite.description,
@@ -78,9 +88,11 @@ class SpecialiteService {
 
   Future<bool> specialiteExist(String nom) async {
     try {
-      final response = await http.get(
-        Uri.parse('$baseUrl?nom=$nom'),
-      );
+      final pref = await SharedPreferences.getInstance();
+      final token = pref.getString('token');
+      final response = await http.get(Uri.parse('$baseUrl?nom=$nom'), headers: {
+        "Authorization": "Bearer $token",
+      });
 
       if (response.statusCode == 200) {
         List<dynamic> specs = json.decode(response.body);

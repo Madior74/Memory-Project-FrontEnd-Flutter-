@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:school_management_system/Screen/Etudiants/Prinscription/model_prinscription.dart';
 import 'package:school_management_system/Screen/Filieres/filiere.dart';
 import 'package:school_management_system/Screen/Niveaux/list_niveau.dart';
-import 'package:school_management_system/Screen/Niveaux/niveauxPage.dart';
-import 'package:school_management_system/Screen/Etudiants/Prinscription/prinscription_service.dart';
 import 'package:school_management_system/Screen/Filieres/filiere_service.dart';
 import 'package:school_management_system/Widgets/drawer.dart';
 import 'package:school_management_system/Widgets/filiere_caard.dart';
@@ -26,7 +24,7 @@ class _ListFilieresState extends State<ListFilieres> {
   final TextEditingController _descriptionController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   //Recuperation de la liste des Etudiants
-  late Future<List<Etudiant>> etudiants;
+  late Future<List<CandidatPreInscrit>> etudiants;
   late Future<int> count;
 
   @override
@@ -61,6 +59,12 @@ class _ListFilieresState extends State<ListFilieres> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          addDialog();
+          _nomFiliereController.clear();
+        },
+      ),
       backgroundColor: Colors.grey[300],
       body: Row(
         children: [
@@ -71,11 +75,6 @@ class _ListFilieresState extends State<ListFilieres> {
               children: [
                 MyAppbar(
                   title: "Listes des Filieres",
-                  onTap: () {
-                    addDialog();
-                    _nomFiliereController.clear();
-                  },
-                  boutonName: "Nouvelle Filiere",
                 ),
                 Expanded(
                   child: Padding(
@@ -259,7 +258,7 @@ class _ListFilieresState extends State<ListFilieres> {
             content: Text("Une filière avec ce nom existe déjà"),
           ),
         );
-        return; // Sortir si elle existe déjà
+        return;
       }
 
       await FiliereService().createFiliere(filiere);

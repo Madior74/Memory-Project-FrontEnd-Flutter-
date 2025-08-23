@@ -18,14 +18,12 @@ class ListeDesModules extends ConsumerWidget {
     return Scaffold(
       body: Row(
         children: [
-           MyDrawer(),
+          MyDrawer(),
           Expanded(
             child: Column(
               children: [
                 MyAppbar(
                   title: "Liste de tous les Modules",
-                  onTap: () {},
-                  boutonName: "Ajouter un Module",
                 ),
                 Expanded(
                   child: modulesAsync.when(

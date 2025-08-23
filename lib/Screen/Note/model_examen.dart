@@ -6,7 +6,7 @@ class Examen {
   final int? id;
   final double note;
   final DateTime dateAttribution;
-  final Etudiant etudiant;
+  final CandidatPreInscrit etudiant;
   final Professeur professeur;
   final Module courseModule;
 
@@ -24,7 +24,7 @@ class Examen {
       id: json['id'],
       note: json['note'].toDouble(),
       dateAttribution: DateTime.parse(json['dateAttribution']),
-      etudiant: Etudiant.fromJson(json['etudiant']),
+      etudiant: CandidatPreInscrit.fromJson(json['etudiant']),
       professeur: Professeur.fromJson(json['professeur']),
       courseModule: Module.fromJson(json['courseModule']),
     );

@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:school_management_system/Screen/Professeurs/model_professeur.dart';
-import 'package:school_management_system/Screen/Professeurs/detail_professeur.dart';
 import 'package:school_management_system/Screen/Professeurs/nouveau_professeur.dart';
 import 'package:school_management_system/Screen/Professeurs/Professeur_service.dart';
 import 'package:school_management_system/Widgets/button_annuler.dart';
 import 'package:school_management_system/Widgets/drawer.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:school_management_system/Widgets/my_appbar.dart';
-import 'package:school_management_system/Widgets/professeur_card.dart';
-import 'package:school_management_system/theme/colors.dart';
-import 'package:school_management_system/theme/my_styles.dart';
+import 'package:school_management_system/Screen/Professeurs/professeur_card.dart';
+
 
 class ListeDesProfesseurs extends StatefulWidget {
   const ListeDesProfesseurs({super.key});
@@ -30,7 +28,15 @@ class _ListeDesProfesseursState extends State<ListeDesProfesseurs> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: MyAppbar(title: "Liste des professeurs"),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const NouveauProfesseur(),
+              ));
+        },
+      ),
       body: Row(
         children: [
           MyDrawer(),
@@ -38,15 +44,8 @@ class _ListeDesProfesseursState extends State<ListeDesProfesseurs> {
             child: Column(
               children: [
                 MyAppbar(
-                    title: "Professeurs",
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const NouveauProfesseur(),
-                          ));
-                    },
-                    boutonName: "Nouveau Professeur "),
+                  title: "Professeurs",
+                ),
                 Expanded(
                   child: FutureBuilder<List<Professeur>>(
                     future: futurProfesseurs,
@@ -87,6 +86,12 @@ class _ListeDesProfesseursState extends State<ListeDesProfesseurs> {
                           itemCount: items.length,
                           itemBuilder: (context, index) {
                             final prof = items[index];
+                            String statutProf;
+                            if (prof.status == null) {
+                              statutProf = "Vacataire";
+                            } else {
+                              statutProf = prof.status;
+                            }
 
                             return ProfesseurCard(
                               onDelete: () {
@@ -96,15 +101,14 @@ class _ListeDesProfesseursState extends State<ListeDesProfesseurs> {
                               departement: prof.departement!.nomDepartement,
                               email: prof.email,
                               prenomEtNom: "${prof.prenom} ${prof.nom}",
-                              estPermanent: prof.estPermanent,
+                              status: statutProf,
                               detail: () async {
-                                await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        ProfesseurDetails(professeur: prof),
-                                  ),
-                                );
+                                // await Navigator.push(
+                                //   context,
+                                //   MaterialPageRoute(
+                                //     builder: (context) =>
+                                //   ),
+                                // );
 
                                 // Recharger les données du professeur depuis le backend après retour
                                 final updatedProf = await ProfesseurService()
@@ -115,55 +119,11 @@ class _ListeDesProfesseursState extends State<ListeDesProfesseurs> {
                                 });
                               },
                               region: prof.region!,
-                              specialites: prof.specialites!,
+                              specialites: prof.specialites,
                             );
                           },
                         );
                       }
-                      //
-                      //
-                      // LayoutBuilder(
-                      //   builder: (context, constraints) {
-                      //     double cardWidth =
-                      //         250; // Largeur approximative d'une carte
-                      //     int nbCardsParLigne =
-                      //         (constraints.maxWidth ~/ cardWidth).clamp(1, 5);
-
-                      //     return Wrap(
-                      //       spacing:
-                      //           20, // Espacement horizontal entre les cartes
-                      //       runSpacing:
-                      //           20, // Espacement vertical entre les cartes
-                      //       alignment: WrapAlignment.start,
-                      //       children: professeurs.map((professeur) {
-                      //         return SizedBox(
-                      //           width: constraints.maxWidth /
-                      //                   nbCardsParLigne -
-                      //               20, // Ajuste la taille de chaque carte
-                      //           child: ProfesseurCard(
-                      //             detail: () {
-                      //               Navigator.push(
-                      //                   context,
-                      //                   MaterialPageRoute(
-                      //                     builder: (context) =>
-                      //                         ProfesseurDetails(
-                      //                             professeur: professeur),
-                      //                   ));
-                      //             },
-                      //             imagePath: professeur.imagePath!,
-                      //             prenomEtNom:
-                      //                 "${professeur.prenom} ${professeur.nom}",
-                      //             email: professeur.email,
-                      //             adresse: professeur.adresse,
-                      //             specialites: professeur.specialites!,
-                      //             region: professeur.region!,
-                      //             departement: professeur.departement!,
-                      //           ),
-                      //         );
-                      //       }).toList(),
-                      //     );
-                      //   },
-                      // );
                     },
                   ),
                 ),

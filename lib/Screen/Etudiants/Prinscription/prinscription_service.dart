@@ -10,7 +10,7 @@ class EtudiantService {
       "http://192.168.1.15:9000/api/admin/candidat-pre-inscrit";
 
   //Get all Etudiants
-  Future<List<Etudiant>> getAllEtudiant() async {
+  Future<List<CandidatPreInscrit>> getAllEtudiant() async {
     try {
       final pref = await SharedPreferences.getInstance();
       final token = pref.getString('token');
@@ -23,16 +23,13 @@ class EtudiantService {
 
         return jsonResponse
             .map((etudiant) =>
-                Etudiant.fromJson(etudiant as Map<String, dynamic>))
+                CandidatPreInscrit.fromJson(etudiant as Map<String, dynamic>))
             .toList();
       } else {
-        print(
-            "Erreur lors de la récupération des Etudiants ${response.statusCode}");
         throw Exception(
             "Erreur lors de la récupération des Etudiants ${response.statusCode}");
       }
     } catch (e) {
-      print("Erreur lors de la requête : $e");
       throw Exception('Erreur lors de la récupération des Etudiants ');
     }
   }
@@ -53,14 +50,6 @@ class EtudiantService {
         },
         body: jsonEncode(etudiantData),
       );
-      print("Ajout d'un nouveau etudiant");
-      print(response.statusCode);
-      print(response.body);
-      print(response);
-      print("envoyes");
-      print(json.encode(etudiantData));
-      print(baseUrl);
-      print('Réponse complète du serveur: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body) as Map<String, dynamic>;
@@ -73,7 +62,7 @@ class EtudiantService {
   }
 
   //dossier complet
-  Future<List<Etudiant>> getEtudiantsAvecTroisDocuments() async {
+  Future<List<CandidatPreInscrit>> getEtudiantsAvecTroisDocuments() async {
     try {
       final pref = await SharedPreferences.getInstance();
       final token = pref.getString('token');
@@ -81,21 +70,20 @@ class EtudiantService {
           await http.get(Uri.parse('$baseUrl/three-documents'), headers: {
         "Authorization": "Bearer $token",
       });
-      print("Statut de la réponse: ${response.statusCode}");
-      print("Corps de la réponse: ${response.body}");
 
       if (response.statusCode == 200) {
         List<dynamic> jsonResponse = json.decode(response.body);
         return jsonResponse
             .map((etudiant) =>
-                Etudiant.fromJson(etudiant as Map<String, dynamic>))
+                CandidatPreInscrit.fromJson(etudiant as Map<String, dynamic>))
             .toList();
       } else {
         throw Exception(
             "Erreur lors de la récupération des étudiants avec trois documents");
       }
     } catch (e) {
-      print("Erreur: $e");
+      print(
+          "Erreur lors de la récupération des étudiants avec trois documents: $e");
       throw Exception(
           "Erreur lors de la récupération des étudiants avec trois documents: $e");
     }
@@ -109,9 +97,7 @@ class EtudiantService {
         'Content-type': 'application/json;charset=UTF-8',
       },
     );
-    print("Suppression de l'etudiant");
-    print(response.statusCode);
-    print(response.body);
+
     if (response.statusCode != 200 && response.statusCode != 201) {
       throw Exception("Erreur lors de la suppression de l'etudiant");
     }
@@ -127,8 +113,6 @@ class EtudiantService {
     });
     print(" Existence de l'etudiant par son email");
 
-    print(response.statusCode);
-    print(response);
     if (response.statusCode == 200 || response.statusCode == 201) {
       return json.decode(response.body) as bool;
     } else {
@@ -137,7 +121,7 @@ class EtudiantService {
   }
 
   //mise a jour d'un etudiant
-  Future<Etudiant> updateEtudiant(Etudiant etudiant) async {
+  Future<CandidatPreInscrit> updateEtudiant(CandidatPreInscrit etudiant) async {
     final response = await http.put(Uri.parse('$baseUrl/${etudiant.id}'),
         headers: {'Content-type': 'application/json;charset=UTF-8'},
         body: json.encode(etudiant.toJson()));
@@ -148,7 +132,7 @@ class EtudiantService {
     print(response.body);
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return Etudiant.fromJson(json.decode(response.body));
+      return CandidatPreInscrit.fromJson(json.decode(response.body));
     } else {
       throw Exception(
           "Echec lors de  la mise a jour de l'etudiant ${response.body}");
@@ -156,13 +140,14 @@ class EtudiantService {
   }
 
   //recuperer les etudiants d'une Filiere
-  Future<List<Etudiant>> getEtudiantsByFiliereId(int filiereId) async {
+  Future<List<CandidatPreInscrit>> getEtudiantsByFiliereId(
+      int filiereId) async {
     final response = await http.get(Uri.parse('$baseUrl/filiere/$filiereId'));
 
     if (response.statusCode == 200) {
       List<dynamic> jsonResponse = json.decode(response.body);
       return jsonResponse
-          .map((etudiant) => Etudiant.fromJson(etudiant))
+          .map((etudiant) => CandidatPreInscrit.fromJson(etudiant))
           .toList();
     } else {
       throw Exception('Échec de la récupération des étudiants');
@@ -181,7 +166,7 @@ class EtudiantService {
   }
 
 // Récupérer les étudiants d'un niveau
-  Future<List<Etudiant>> getEtudiantsByNiveauId(int niveauId) async {
+  Future<List<CandidatPreInscrit>> getEtudiantsByNiveauId(int niveauId) async {
     try {
       final response = await http.get(Uri.parse('$baseUrl/niveau/$niveauId'));
       print("Récupération des étudiants par niveau");
@@ -192,7 +177,7 @@ class EtudiantService {
         List<dynamic> jsonResponse = json.decode(response.body);
         return jsonResponse
             .map((etudiant) =>
-                Etudiant.fromJson(etudiant as Map<String, dynamic>))
+                CandidatPreInscrit.fromJson(etudiant as Map<String, dynamic>))
             .toList();
       } else if (response.statusCode == 204) {
         print("Aucun étudiant trouvé pour ce niveau.");
@@ -212,13 +197,14 @@ class EtudiantService {
   }
 
   //recuperer les etudiants d'une session
-  Future<List<Etudiant>> getEtudiantsBySessionId(int sessionId) async {
+  Future<List<CandidatPreInscrit>> getEtudiantsBySessionId(
+      int sessionId) async {
     final response = await http.get(Uri.parse('$baseUrl/session/$sessionId'));
 
     if (response.statusCode == 200) {
       List<dynamic> jsonResponse = json.decode(response.body);
       return jsonResponse
-          .map((etudiant) => Etudiant.fromJson(etudiant))
+          .map((etudiant) => CandidatPreInscrit.fromJson(etudiant))
           .toList();
     } else {
       throw Exception('Échec de la récupération des étudiants');

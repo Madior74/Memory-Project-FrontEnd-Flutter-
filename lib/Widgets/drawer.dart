@@ -271,8 +271,10 @@ class MyDrawer extends StatelessWidget {
                 onTap: () async {
                   final pref = await SharedPreferences.getInstance();
                   await pref.remove('user');
-                  Navigator.pushReplacement(context,
-                      MaterialPageRoute(builder: (_) => LoginScreen()));
+                  Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginScreen()),
+                      (route) => false);
                 },
               ),
             ],

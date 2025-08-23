@@ -1,13 +1,16 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:school_management_system/Screen/Document/documentScreen.dart';
 import 'package:school_management_system/Screen/Etudiants/Admission/gestion_des_admissions.dart';
 import 'package:school_management_system/Screen/Etudiants/Prinscription/model_prinscription.dart';
 import 'package:school_management_system/Screen/Etudiants/Prinscription/update_prinscrit.dart';
+import 'package:school_management_system/Widgets/image_help.dart';
 import 'package:school_management_system/theme/colors.dart';
 
 class DetailEtudiant extends StatelessWidget {
-  final Etudiant etudiant;
+  final CandidatPreInscrit etudiant;
 
   const DetailEtudiant({super.key, required this.etudiant});
 
@@ -61,10 +64,9 @@ class DetailEtudiant extends StatelessWidget {
             //Pour la photo
 
             CircleAvatar(
-                radius: 100,
-                backgroundImage: etudiant.imagePath!.startsWith('http')
-                    ? NetworkImage(etudiant.imagePath!)
-                    : AssetImage(etudiant.imagePath!)),
+              radius: 90,
+              backgroundImage: ImageHelper.getImageProvider(etudiant.imagePath),
+            ),
             // Section : Informations personnelles
             Card(
               shape: RoundedRectangleBorder(
@@ -99,7 +101,8 @@ class DetailEtudiant extends StatelessWidget {
                     ListTile(
                       leading: const Icon(Icons.home, color: Colors.green),
                       title: const Text('Adresse'),
-                      subtitle: Text(etudiant.adresse!),
+                      subtitle: Text(
+                          utf8.decode(etudiant.adresse.toString().codeUnits)),
                     ),
                     ListTile(
                       leading: const Icon(Icons.phone, color: Colors.orange),
@@ -203,7 +206,7 @@ class DetailEtudiant extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                             builder: (context) => Documentscreen(
-                              etudiantId: etudiant.id!,
+                              student: etudiant,
                             ),
                           ),
                         );

@@ -8,7 +8,7 @@ class Devoir {
   final int? id;
   final double note;
   final DateTime? dateAttribution;
-  final Etudiant etudiant;
+  final CandidatPreInscrit etudiant;
   final Professeur professeur;
   final Module courseModule;
 
@@ -28,7 +28,7 @@ class Devoir {
       dateAttribution: json['dateAttribution'] != null
           ? DateTime.parse(json['dateAttribution'])
           : null,
-      etudiant: Etudiant.fromJson(json['etudiant']),
+      etudiant: CandidatPreInscrit.fromJson(json['etudiant']),
       professeur: Professeur.fromJson(json['professeur']),
       courseModule: Module.fromJson(json['courseModule']),
     );

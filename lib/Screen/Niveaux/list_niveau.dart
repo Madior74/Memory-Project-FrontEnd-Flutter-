@@ -62,18 +62,20 @@ class _ListesNiveauxState extends State<ListesNiveaux> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          addDialog();
+        },
+      ),
       body: Row(
         children: [
-        MyDrawer(),
+          MyDrawer(),
           Expanded(
             child: Column(
               children: [
                 MyAppbar(
-                    title: " ${widget.filiere.nomFiliere} Liste des Niveaux ",
-                    onTap: () {
-                      addDialog();
-                    },
-                    boutonName: "Nouveau Niveau"),
+                  title: "${widget.filiere.nomFiliere} Liste des Niveaux",
+                ),
                 Expanded(
                   child: FutureBuilder<List<Niveau>>(
                     future: futureNiveau,

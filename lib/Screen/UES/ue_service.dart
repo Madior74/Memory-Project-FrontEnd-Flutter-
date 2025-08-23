@@ -2,13 +2,18 @@ import 'dart:convert';
 
 import 'package:school_management_system/Screen/UES/model_ue.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UeService {
-  final String baseUrl = 'http://localhost:9000/ues';
+  final String baseUrl = 'http://192.168.1.15:9000/api/admin/ues';
 
   //Get
   Future<List<UE>> getUes() async {
-    final response = await http.get(Uri.parse(baseUrl));
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('token');
+    final response = await http.get(Uri.parse(baseUrl), headers: {
+      'Authorization': 'Bearer $token',
+    });
 
     print("Recuperation des UES");
     print(response.statusCode);
@@ -21,23 +26,13 @@ class UeService {
     }
   }
 
-  //get Ues by semestre
-  // Future<List<UE>> getUesBySemestre(int semestreId) async {
-  //   final response = await http.get(Uri.parse('$baseUrl/semestre/$semestreId'));
-  //   print("Recuperation des UES");
-  //   print(response.statusCode);
-  //   print(response.body);
-  //   print(response);
-
-  //   if (response.statusCode == 200 || response.statusCode == 201) {
-  //     List<dynamic> data = json.decode(response.body);
-  //     return data.map((ue) => UE.fromJson(ue)).toList();
-  //   } else {
-  //     throw Exception('Failed to load ues');
-  //   }
-  // }
   Future<List<UE>> getUesBySemestre(int semestreId) async {
-    final response = await http.get(Uri.parse('$baseUrl/semestre/$semestreId'));
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('token');
+    final response =
+        await http.get(Uri.parse('$baseUrl/semestre/$semestreId'), headers: {
+      'Authorization': 'Bearer $token',
+    });
     print("Recuperation des UES");
     print(response.statusCode);
     print(response.body);

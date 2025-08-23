@@ -22,13 +22,13 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
   final DevoirService devoirService = DevoirService();
   final _formKey = GlobalKey<FormState>();
 
-  Etudiant? selectedEtudiant;
+  CandidatPreInscrit? selectedEtudiant;
   Professeur? selectedProfesseur;
   Module? selectedModule;
   double noteDevoir = 0.0;
   double? noteExamen;
   DateTime? _selectedDate;
-  List<Etudiant> etudiants = [];
+  List<CandidatPreInscrit> etudiants = [];
   List<Professeur> professeurs = [];
   List<Module> modules = [];
 
@@ -49,7 +49,7 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
 
   void _fetchData() async {
     try {
-      List<Etudiant> etudiantData = await EtudiantService().getAllEtudiant();
+      List<CandidatPreInscrit> etudiantData = await EtudiantService().getAllEtudiant();
       List<Professeur> professeurData =
           await ProfesseurService().fetchprofesseurs();
       List<Module> moduleData = await ModuleService().getAllModules();
@@ -131,7 +131,7 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    DropdownButtonFormField<Etudiant>(
+                    DropdownButtonFormField<CandidatPreInscrit>(
                       decoration: InputDecoration(
                           labelText: "Sélectionner un étudiant"),
                       items: etudiants.map((etudiant) {

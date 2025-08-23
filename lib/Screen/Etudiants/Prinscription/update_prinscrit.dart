@@ -10,18 +10,16 @@ import 'package:school_management_system/Screen/Etudiants/Prinscription/model_pr
 import 'package:school_management_system/Screen/Filieres/filiere.dart';
 import 'package:school_management_system/Screen/Niveaux/model_niveau.dart';
 import 'package:school_management_system/Screen/Region/model_region.dart';
-import 'package:school_management_system/Screen/AnneeAcademique/annee_academique.dart';
 import 'package:school_management_system/Screen/Etudiants/Prinscription/liste_des_prinscrits.dart';
 import 'package:school_management_system/Screen/Region/Departements/departementService.dart';
 import 'package:school_management_system/Screen/Etudiants/Prinscription/prinscription_service.dart';
 import 'package:school_management_system/Screen/Filieres/filiere_service.dart';
 import 'package:school_management_system/Screen/Niveaux/niveau_service.dart';
 import 'package:school_management_system/Screen/Region/regionService.dart';
-import 'package:school_management_system/Screen/AnneeAcademique/annee_academique_service.dart';
 import 'package:school_management_system/theme/colors.dart';
 
 class UpdatePrinscription extends StatefulWidget {
-  final Etudiant etudiant;
+  final CandidatPreInscrit etudiant;
   const UpdatePrinscription({super.key, required this.etudiant});
 
   @override
@@ -216,7 +214,7 @@ class _UpdatePrinscriptionState extends State<UpdatePrinscription> {
       // Vérification de la session choisie
 
       // Création de l'objet Etudiant
-      final etudiant = Etudiant(
+      final etudiant = CandidatPreInscrit(
           id: widget.etudiant.id,
           prenom: _prenomEditController.text,
           nom: _nomEditController.text,

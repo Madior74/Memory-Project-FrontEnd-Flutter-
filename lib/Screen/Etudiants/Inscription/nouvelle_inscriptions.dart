@@ -18,7 +18,7 @@ import 'package:school_management_system/Screen/Filieres/filiere_service.dart';
 import 'package:school_management_system/Screen/Niveaux/niveau_service.dart'; // Pour formater les dates
 
 class NouvelleInscriptions extends StatefulWidget {
-  final Etudiant? etudiantAInscrire;
+  final CandidatPreInscrit? etudiantAInscrire;
   const NouvelleInscriptions({super.key, required this.etudiantAInscrire});
 
   @override
@@ -29,7 +29,7 @@ class _NouvelleInscriptionsState extends State<NouvelleInscriptions> {
   final _formKey = GlobalKey<FormState>();
 
   // Données chargées depuis l'API
-  List<Etudiant> futuresEtudiants = [];
+  List<CandidatPreInscrit> futuresEtudiants = [];
   List<DossierAdmission> futuresDossiers = [];
   List<Filiere> futuresFiliere = [];
   List<Niveau> futuresNiveau = [];
@@ -69,13 +69,14 @@ class _NouvelleInscriptionsState extends State<NouvelleInscriptions> {
   // Récupère tous les étudiants validés
   void _fetchEtudiants() async {
     try {
-      List<Etudiant> etudiantData = await EtudiantService().getAllEtudiant();
+      List<CandidatPreInscrit> etudiantData =
+          await EtudiantService().getAllEtudiant();
       List<DossierAdmission> dossiers =
           await DossierAdmissionService().getAllDossiers();
 
       final etudiantsAvecDossierValide = etudiantData.where((etudiant) {
         final dossier = dossiers.firstWhereOrNull(
-          (d) => d.etudiant?.id == etudiant.id,
+          (d) => d.candidat?.id == etudiant.id,
         );
         return dossier != null && dossier.statut == 'valide';
       }).toList();

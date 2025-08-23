@@ -22,7 +22,7 @@ class _ListeDesRegionsState extends State<ListeDesRegions> {
 
   final TextEditingController _nomRegionController = TextEditingController();
   //Recuperation de la liste des Etudiants
-  late Future<List<Etudiant>> etudiants;
+  late Future<List<CandidatPreInscrit>> etudiants;
   late Future<int> count;
 
   @override
@@ -57,6 +57,12 @@ class _ListeDesRegionsState extends State<ListeDesRegions> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          addDialog();
+          _nomRegionController.clear();
+        },
+      ),
       backgroundColor: Colors.grey[300],
       body: Row(
         children: [
@@ -67,11 +73,6 @@ class _ListeDesRegionsState extends State<ListeDesRegions> {
               children: [
                 MyAppbar(
                   title: "Listes des Regions",
-                  onTap: () {
-                    addDialog();
-                    _nomRegionController.clear();
-                  },
-                  boutonName: "Nouvelle Region",
                 ),
                 Expanded(
                   child: Padding(

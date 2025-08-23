@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:school_management_system/Screen/Region/Departements/departement.dart';
 import 'package:school_management_system/Screen/Specialite/model_specialite.dart';
 import 'package:school_management_system/Screen/Region/model_region.dart';
@@ -15,10 +16,9 @@ class Professeur {
   final String telephone;
   final String sexe;
   final String email;
-  final String? password; // facultatif, envoyé seulement à l'inscription
-  final String grade;
-  final bool estPermanent;
-  List<Specialite>? specialites;
+  final String? password;
+  final String status;
+  final List<Specialite> specialites;
   final Region? region;
   final Departement? departement;
   final DateTime dateAjout;
@@ -37,12 +37,11 @@ class Professeur {
     required this.sexe,
     required this.email,
     this.password,
-    required this.grade,
-    required this.estPermanent,
-    this.specialites,
+    required this.status,
     required this.region,
     required this.departement,
     required this.dateAjout,
+    required this.specialites,
   });
 
   factory Professeur.fromJson(Map<String, dynamic> json) {
@@ -61,43 +60,40 @@ class Professeur {
       email: json['email'],
       // 👇 password non présent dans les réponses JSON (sécurité)
       password: null,
-      grade: json['grade'],
-      estPermanent: json['estPermanent'],
-      specialites: (json['specialites'] as List)
-          .map((s) => Specialite.fromJson(s))
+      status: json['status'],
+      specialites: (json['specialites'] as List<dynamic>)
+          .map((e) => Specialite.fromJson(e))
           .toList(),
       region: Region.fromJson(json['region']),
       departement: Departement.fromJson(json['departement']),
       dateAjout: DateTime.parse(json['dateAjout']),
     );
   }
-
   Map<String, dynamic> toJson() {
-    final data = {
-      'id': id,
-      'nom': nom,
-      'prenom': prenom,
-      'adresse': adresse,
-      'paysDeNaissance': paysDeNaissance,
-      'dateDeNaissance': dateDeNaissance.toIso8601String(),
-      'imagePath': imagePath,
-      'cni': cni,
-      'ine': ine,
-      'telephone': telephone,
-      'sexe': sexe,
-      'email': email,
-      'grade': grade,
-      'estPermanent': estPermanent,
-      'specialites': specialites?.map((s) => s.toJson()).toList(),
-      'region': region?.toJson(),
-      'departement': departement?.toJson(),
-      'dateAjout': dateAjout.toIso8601String(),
-    };
-
-    if (password != null) {
-      data['password'] = password;
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = this.id;
+    data['nom'] = this.nom;
+    data['prenom'] = this.prenom;
+    data['adresse'] = this.adresse;
+    data['paysDeNaissance'] = this.paysDeNaissance;
+    data['dateDeNaissance'] = this.dateDeNaissance;
+    data['imagePath'] = this.imagePath;
+    data['cni'] = this.cni;
+    data['ine'] = this.ine;
+    data['telephone'] = this.telephone;
+    data['sexe'] = this.sexe;
+    data['email'] = this.email;
+    data['status'] = this.status;
+    if (this.specialites != null) {
+      data['specialites'] = this.specialites!.map((v) => v.toJson()).toList();
     }
-
+    if (this.region != null) {
+      data['region'] = this.region!.toJson();
+    }
+    if (this.departement != null) {
+      data['departement'] = this.departement!.toJson();
+    }
+    data['dateAjout'] = this.dateAjout;
     return data;
   }
 }

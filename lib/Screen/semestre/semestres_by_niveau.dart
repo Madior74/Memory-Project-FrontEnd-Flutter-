@@ -146,6 +146,11 @@ class _SemestreByNiveauState extends State<SemestreByNiveau> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          addSemestre();
+        },
+      ),
       backgroundColor: myBackgroound,
       body: Row(
         children: [
@@ -157,10 +162,6 @@ class _SemestreByNiveauState extends State<SemestreByNiveau> {
                 MyAppbar(
                   title:
                       "${widget.niveau.nomNiveau} Etudiants et Liste des Semestres",
-                  onTap: () {
-                    addSemestre();
-                  },
-                  boutonName: "Ajouter Semestre",
                 ),
                 Expanded(
                   child: DefaultTabController(

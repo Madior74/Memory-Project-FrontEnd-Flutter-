@@ -169,7 +169,7 @@ class _NouvellePriscriptionState extends State<NouvellePriscription> {
       // Vérification de la session choisie
 
       // Création de l'objet Etudiant
-      final etudiant = Etudiant(
+      final etudiant = CandidatPreInscrit(
         prenom: _prenomEditController.text,
         nom: _nomEditController.text,
         adresse: _adresseEditController.text,

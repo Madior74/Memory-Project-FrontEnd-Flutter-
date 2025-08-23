@@ -57,6 +57,13 @@ class _ListeDesSpecialiteState extends State<ListeDesSpecialite> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          addDialog();
+          _nomSpecialiteController.clear();
+          _descriptionSpecialiteController.clear();
+        },
+      ),
       body: Row(
         children: [
           MyDrawer(),
@@ -65,12 +72,6 @@ class _ListeDesSpecialiteState extends State<ListeDesSpecialite> {
               children: [
                 MyAppbar(
                   title: "  Liste des Specialites ",
-                  onTap: () {
-                    addDialog();
-                    _nomSpecialiteController.clear();
-                    _descriptionSpecialiteController.clear();
-                  },
-                  boutonName: "Nouvelle  Specialite",
                 ),
                 const SizedBox(height: 20),
                 Expanded(

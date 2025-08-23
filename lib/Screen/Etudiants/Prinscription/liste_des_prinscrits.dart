@@ -6,8 +6,9 @@ import 'package:school_management_system/Screen/Etudiants/Prinscription/prinscri
 import 'package:school_management_system/Widgets/button_annuler.dart';
 import 'package:school_management_system/Widgets/drawer.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:school_management_system/Widgets/etudiant_card.dart';
+import 'package:school_management_system/Widgets/prinscription_card.dart';
 import 'package:school_management_system/Widgets/my_appbar.dart';
+import 'package:school_management_system/theme/colors.dart';
 
 class ListeDesPrinscrits extends StatefulWidget {
   const ListeDesPrinscrits({super.key});
@@ -17,7 +18,7 @@ class ListeDesPrinscrits extends StatefulWidget {
 }
 
 class _ListeDesPrinscritsState extends State<ListeDesPrinscrits> {
-  late Future<List<Etudiant>> futuresEtudiants;
+  late Future<List<CandidatPreInscrit>> futuresEtudiants;
 
   @override
   void initState() {
@@ -28,7 +29,16 @@ class _ListeDesPrinscritsState extends State<ListeDesPrinscrits> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade300,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => NouvellePriscription(),
+              ));
+        },
+      ),
+      backgroundColor: myBackgroound,
       // appBar: MyAppbar(title: "Liste des Etudiants"),
       body: Row(
         children: [
@@ -37,15 +47,8 @@ class _ListeDesPrinscritsState extends State<ListeDesPrinscrits> {
             child: Column(
               children: [
                 MyAppbar(
-                    title: "Etudiants Prinscrits",
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => NouvellePriscription(),
-                          ));
-                    },
-                    boutonName: "Nouveau Etudiant "),
+                  title: "Etudiants Prinscrits",
+                ),
                 Expanded(
                     child: FutureBuilder(
                   future: futuresEtudiants,
@@ -71,10 +74,10 @@ class _ListeDesPrinscritsState extends State<ListeDesPrinscrits> {
                         ],
                       ));
                     } else {
-                      List<Etudiant> items = snapshot.data!;
+                      List<CandidatPreInscrit> items = snapshot.data!;
                       return GridView.builder(
                         gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                            maxCrossAxisExtent: 450, mainAxisExtent: 200),
+                            maxCrossAxisExtent: 450, mainAxisExtent: 250),
                         itemCount: items.length,
                         itemBuilder: (context, index) {
                           final etudiant = items[index];
@@ -91,7 +94,7 @@ class _ListeDesPrinscritsState extends State<ListeDesPrinscrits> {
                             statutAdmission = "Incomplet";
                           }
 
-                          return EtudiantCard(
+                          return PrinscriptionCard(
                               nomEudiant: '${etudiant.prenom} ${etudiant.nom}',
                               filiereSouhaitee:
                                   etudiant.filiereSouhaitee!.nomFiliere,
@@ -111,6 +114,8 @@ class _ListeDesPrinscritsState extends State<ListeDesPrinscrits> {
                                       EtudiantService().getAllEtudiant();
                                 });
                               },
+                              onDelete: () =>
+                                  _confirmerSuppression(etudiant.id!),
                               nbreDocument: nbreDocuments);
                         },
                       );
@@ -132,7 +137,7 @@ class _ListeDesPrinscritsState extends State<ListeDesPrinscrits> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          content: const Text("Voulez-vous Vraiment supprimer cet Etudiant ??"),
+          content: const Text("Voulez-vous Vraiment supprimer cet Etudiant ?"),
           actions: [
             const ButtonAnnuler(),
             TextButton(

@@ -4,10 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:school_management_system/Screen/Region/Departements/departement.dart';
 import 'package:school_management_system/Screen/Region/model_region.dart';
 import 'package:school_management_system/Screen/Region/Departements/departementService.dart';
-import 'package:school_management_system/Widgets/back_bouton.dart';
 import 'package:school_management_system/Widgets/drawer.dart';
 import 'package:school_management_system/Widgets/my_appbar.dart';
-import 'package:school_management_system/main.dart';
 import 'package:school_management_system/theme/colors.dart';
 
 class ListeDesDepartements extends StatefulWidget {
@@ -68,17 +66,12 @@ class _ListeDesDepartementsState extends State<ListeDesDepartements> {
       ),
       body: Row(
         children: [
-        MyDrawer(),
+          MyDrawer(),
           Expanded(
             child: Column(
               children: [
                 MyAppbar(
                   title: "Liste des Departements de ${widget.region.nomRegion}",
-                  onTap: () {
-                    addDialog();
-                    _nomDepartementController.clear();
-                  },
-                  boutonName: "Nouveau Departement",
                 ),
                 Expanded(
                   child: FutureBuilder<List<Departement>>(

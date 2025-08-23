@@ -22,8 +22,7 @@ class Document {
       type: json['type'],
       cheminFichier: json['cheminFichier'],
       dateDepot: DateTime.parse(json['dateDepot']),
-      etudiantId:
-          json['etudiantId'], 
+      etudiantId: json['etudiantId'],
     );
   }
 

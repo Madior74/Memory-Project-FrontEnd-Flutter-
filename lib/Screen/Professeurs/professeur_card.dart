@@ -1,10 +1,8 @@
-import 'dart:convert';
-import 'dart:math';
+
 
 import 'package:flutter/material.dart';
 import 'package:school_management_system/Screen/Specialite/model_specialite.dart';
 import 'package:school_management_system/Screen/Region/model_region.dart';
-import 'package:flutter/material.dart';
 
 class ProfesseurCard extends StatelessWidget {
   final String prenomEtNom;
@@ -12,10 +10,10 @@ class ProfesseurCard extends StatelessWidget {
   final String email;
   final String departement;
   final String adresse;
-  final List<Specialite> specialites;
+  final List<Specialite>? specialites;
   final void Function()? detail;
   final void Function()? onDelete;
-  final bool estPermanent;
+  final String status;
 
   const ProfesseurCard({
     super.key,
@@ -27,7 +25,7 @@ class ProfesseurCard extends StatelessWidget {
     required this.departement,
     required this.detail,
     required this.onDelete,
-    required this.estPermanent,
+    required this.status,
   });
 
   String getInitials(String name) {
@@ -77,18 +75,16 @@ class ProfesseurCard extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: estPermanent
+                      color: status == "Permanent"
                           ? Colors.green.shade100
                           : Colors.orange.shade100,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      estPermanent ? "Permanent" : "Vacataire",
+                      status == "" ? "Permanent" : "Vacataire",
                       style: TextStyle(
                         fontSize: 12,
-                        color: estPermanent
-                            ? Colors.green.shade800
-                            : Colors.orange.shade800,
+                        color: statusColor(status),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -106,18 +102,8 @@ class ProfesseurCard extends StatelessWidget {
               // _buildInfoRow(Icons.account_tree, "Département", departement),
               _buildInfoRow(Icons.map, "Région", region.nomRegion),
               const SizedBox(height: 10),
-              const Text(
-                "Spécialités",
-                style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.indigo),
-              ),
-              Wrap(
-                spacing: 4,
-                runSpacing: 4,
-                children: _buildLimitedSpecialites(context),
-              ),
+
+            
             ],
           ),
         ),
@@ -149,35 +135,15 @@ class ProfesseurCard extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildLimitedSpecialites(BuildContext context) {
-    List<Widget> chips = [];
-    int maxChips = 2;
+ 
 
-    for (int i = 0; i < specialites.length && i < maxChips; i++) {
-      chips.add(
-        Chip(
-          label: Text(
-            utf8.decode((specialites[i].nom ?? "").codeUnits),
-            style: const TextStyle(color: Colors.white, fontSize: 12),
-          ),
-          backgroundColor: Colors.indigoAccent,
-        ),
-      );
+
+  Color statusColor(String status) {
+    if (status == "Permanent") {
+      return Colors.green.shade800;
+    } else {
+      return Colors.orange.shade800;
     }
-
-    if (specialites.length > maxChips) {
-      chips.add(
-        Chip(
-          label: Text(
-            "+${specialites.length - maxChips} autres",
-            style: const TextStyle(color: Colors.white, fontSize: 12),
-          ),
-          backgroundColor: Colors.grey,
-        ),
-      );
-    }
-
-    return chips;
   }
 }
 

@@ -22,26 +22,6 @@ class _NotesScreenState extends State<NotesScreen> {
     futureNotes = DevoirService().getAllDevoir();
   }
 
-  // void _updateNoteDevoir(int id) async {
-  //   double? newNote = await _showNoteDialog();
-  //   if (newNote != null) {
-  //     await devoirService.updateNoteDevoir(id, newNote);
-  //     setState(() {
-  //       futureNotes = devoirService.getAllNotes();
-  //     });
-  //   }
-  // }
-
-  // void _updateNoteExamen(int id) async {
-  //   double? newNote = await _showNoteDialog();
-  //   if (newNote != null) {
-  //     await devoirService.updateNoteExamen(id, newNote);
-  //     setState(() {
-  //       futureNotes = devoirService.getAllNotes();
-  //     });
-  //   }
-  // }
-
   Future<double?> _showNoteDialog() async {
     double? value;
     return showDialog<double>(
@@ -71,6 +51,15 @@ class _NotesScreenState extends State<NotesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AddNoteScreen(),
+              ));
+        },
+      ),
       body: Row(
         children: [
           MyDrawer(),
@@ -79,15 +68,8 @@ class _NotesScreenState extends State<NotesScreen> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 MyAppbar(
-                    title: "Liste des Notes ",
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => AddNoteScreen(),
-                          ));
-                    },
-                    boutonName: "Nouvelle Note"),
+                  title: "Liste des Notes ",
+                ),
                 Expanded(
                   child: FutureBuilder<List<Devoir>>(
                     future: futureNotes,

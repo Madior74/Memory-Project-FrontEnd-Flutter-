@@ -6,7 +6,7 @@ import 'package:school_management_system/Screen/Niveaux/model_niveau.dart';
 import 'package:school_management_system/Screen/Region/Departements/departement.dart';
 import 'package:school_management_system/Screen/Region/model_region.dart';
 
-class Etudiant {
+class CandidatPreInscrit {
   final int? id;
   final String? prenom;
   final String? nom;
@@ -28,7 +28,7 @@ class Etudiant {
   final Filiere? filiereSouhaitee;
   final Niveau? niveauSouhaite;
 
-  Etudiant(
+  CandidatPreInscrit(
       {this.id,
       required this.prenom,
       required this.nom,
@@ -50,8 +50,8 @@ class Etudiant {
       this.documents,
       this.dossierAdmission});
 
-  factory Etudiant.fromJson(Map<String, dynamic> json) {
-    return Etudiant(
+  factory CandidatPreInscrit.fromJson(Map<String, dynamic> json) {
+    return CandidatPreInscrit(
       id: json['id'],
       prenom: json['prenom'],
       nom: json['nom'],

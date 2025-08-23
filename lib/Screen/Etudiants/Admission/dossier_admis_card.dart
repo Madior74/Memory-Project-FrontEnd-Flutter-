@@ -1,28 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:school_management_system/theme/colors.dart';
 import 'package:school_management_system/theme/my_styles.dart';
 
-class DossierAdmissionCard extends StatelessWidget {
+class DossierAdmisCard extends StatelessWidget {
   final void Function()? supprimer;
   final void Function()? modifier;
   final void Function()? detail;
   final String nomEtudiant;
   final String remarque;
   final String status;
+  final double noteTest;
+  final double noteEntretien;
 
-  const DossierAdmissionCard(
-      {super.key,
-      this.supprimer,
-      this.modifier,
-      required this.nomEtudiant,
-      required this.remarque,
-      required this.detail,
-      required this.status});
+  const DossierAdmisCard({
+    super.key,
+    this.supprimer,
+    this.modifier,
+    required this.nomEtudiant,
+    required this.remarque,
+    required this.detail,
+    required this.status,
+    required this.noteEntretien,
+    required this.noteTest,
+  });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: detail,
       child: Card(
+        color: myCardColor,
         elevation: 4,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
@@ -64,6 +71,59 @@ class DossierAdmissionCard extends StatelessWidget {
                 children: [
                   Row(
                     children: [
+                      Icon(
+                        Icons.edit_note,
+                        color: Colors.blue,
+                        size: 20,
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Text(
+                        "Note Test :",
+                        style: titleStyle,
+                      ),
+                    ],
+                  ),
+                  Text(
+                    noteTest.toString(),
+                    style: valueStyle,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.record_voice_over,
+                        color: Colors.blue,
+                        size: 20,
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Text(
+                        "Note Entretien :",
+                        style: titleStyle,
+                      ),
+                    ],
+                  ),
+                  Text(
+                    noteEntretien.toString(),
+                    style: valueStyle,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
                       Icon(Icons.av_timer, color: Colors.blue, size: 20),
                       const SizedBox(width: 8),
                       Text(
@@ -80,39 +140,8 @@ class DossierAdmissionCard extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.info,
-                        color: Colors.blue,
-                        size: 20,
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Text(
-                        "Remarque :",
-                        style: titleStyle,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                  Text(
-                    remarque,
-                    style: TextStyle(color: Colors.grey[700]),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: 15,
-              ),
+              const SizedBox(height: 12),
+
               // Buttons Row
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -106,10 +106,14 @@ class SemestreService {
 
   Future<bool> semestreExist(String semestreName, int niveauId) async {
     try {
+      final pref = await SharedPreferences.getInstance();
+      final token = pref.getString('token');
       final response = await http.get(
-        Uri.parse(
-            '$baseUrl/exists?nomSemestre=$semestreName&niveauId=$niveauId'),
-      );
+          Uri.parse(
+              '$baseUrl/exists?nomSemestre=$semestreName&niveauId=$niveauId'),
+          headers: {
+            'Authorization': 'Bearer $token',
+          });
 
       print("Statut de la réponse : ${response.statusCode}");
       print("Réponse du serveur : ${response.body}");

@@ -37,6 +37,7 @@ class _NouveauProfesseurState extends State<NouveauProfesseur> {
   int _index = 0;
   int value = 1;
   int selectedOption = 1;
+  late Specialite _selectedSpecialite;
 
 //Domaines
   List<Specialite> _splt = [];
@@ -66,7 +67,12 @@ class _NouveauProfesseurState extends State<NouveauProfesseur> {
   final _formKey = GlobalKey<FormState>();
   File? _image;
   final picker = ImagePicker();
-  bool _estPermanent = false;
+  List<String> listeStatus = [
+    "Vacataire",
+    "Permanent",
+  ];
+
+  String? selectedStatus;
 
   Future getImageGallery() async {
     final pickedFile =
@@ -128,9 +134,6 @@ class _NouveauProfesseurState extends State<NouveauProfesseur> {
       _index = value;
     });
   }
-
-  //les modules du profs
-  List<int> _selectedSpecialite = [];
 
   //Departement
   Future<void> _loadSpecialite() async {
@@ -268,6 +271,15 @@ class _NouveauProfesseurState extends State<NouveauProfesseur> {
   void _submit() async {
     if (_formKey.currentState!.validate()) {
       print(_selectedSpecialite);
+      if (_selectedSpecialite == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Veuillez sélectionner une spécialité."),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
       try {
         final professeur = Professeur(
             prenom: _prenomEditController.text,
@@ -284,11 +296,8 @@ class _NouveauProfesseurState extends State<NouveauProfesseur> {
             dateDeNaissance: _selectedDate ?? DateTime.now(),
             departement: departementChoisi,
             dateAjout: DateTime.now(),
-            grade: _selectedGrade,
-            estPermanent: _estPermanent,
-            specialites: _selectedSpecialite.map((id) {
-              return _splt.firstWhere((specialite) => specialite.id == id);
-            }).toList(),
+            status: selectedStatus ?? "Vacataire",
+            specialites: _selectedSpecialite ,
             region: regionChoisie);
 
         // Conversion simple en JSON
@@ -301,10 +310,7 @@ class _NouveauProfesseurState extends State<NouveauProfesseur> {
         professeurJson['dateAjout'] =
             DateTime.now().toString().replaceFirst('T', ' ').split('.')[0];
 
-        await ProfesseurService().createProfesseur(
-          professeurData: professeurJson,
-          modulesIds: _selectedSpecialite ?? [],
-        );
+        await ProfesseurService().createProfesseur(professeur);
         showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -835,22 +841,22 @@ class _NouveauProfesseurState extends State<NouveauProfesseur> {
                 const SizedBox(height: 25),
 
                 //Liste des Modules
-                ..._splt.map((splt) {
-                  return CheckboxListTile(
-                    title: Text(fixDoubleEncoding(
-                        splt.nom!)), // Remove utf8.decode here
-                    value: _selectedSpecialite.contains(splt.id),
-                    onChanged: (bool? selected) {
-                      setState(() {
-                        if (selected == true) {
-                          _selectedSpecialite.add(splt.id!);
-                        } else {
-                          _selectedSpecialite.remove(splt.id);
-                        }
-                      });
-                    },
-                  );
-                }).toList(),
+                // ..._splt.map((splt) {
+                //   return CheckboxListTile(
+                //     title: Text(fixDoubleEncoding(
+                //         splt.nom!)), // Remove utf8.decode here
+                //     value: _selectedSpecialite.contains(splt.id),
+                //     onChanged: (bool? selected) {
+                //       setState(() {
+                //         if (selected == true) {
+                //           _selectedSpecialite.add(splt.id!);
+                //         } else {
+                //           _selectedSpecialite.remove(splt.id);
+                //         }
+                //       });
+                //     },
+                //   );
+                // }).toList(),
 
                 const Center(
                   child: Text(
@@ -862,19 +868,19 @@ class _NouveauProfesseurState extends State<NouveauProfesseur> {
                   ),
                 ),
 
-                Wrap(
-                  spacing: 8,
-                  children: _selectedSpecialite.map((moduleId) {
-                    final module = _splt.firstWhere((m) => m.id == moduleId);
-                    return Chip(
-                      label: Text(
-                        module.nom!, // Remove utf8.decode here
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      backgroundColor: Colors.blue.shade800,
-                    );
-                  }).toList(),
-                ),
+                // Wrap(
+                //   spacing: 8,
+                //   children: _selectedSpecialite.map((moduleId) {
+                //     final module = _splt.firstWhere((m) => m.id == moduleId);
+                //     return Chip(
+                //       label: Text(
+                //         module.nom!, // Remove utf8.decode here
+                //         style: TextStyle(color: Colors.white),
+                //       ),
+                //       backgroundColor: Colors.blue.shade800,
+                //     );
+                //   }).toList(),
+                // ),
               ],
             ),
           ),

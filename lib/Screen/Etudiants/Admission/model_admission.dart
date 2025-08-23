@@ -6,8 +6,10 @@ class DossierAdmission {
   final bool releveNotes;
   final bool diplome;
   final String statut;
+  final double noteTest;
+  final double noteEntretien;
   final String remarque;
-  final Etudiant? etudiant;
+  final CandidatPreInscrit? candidat;
 
   DossierAdmission({
     this.id,
@@ -16,7 +18,9 @@ class DossierAdmission {
     required this.diplome,
     required this.statut,
     required this.remarque,
-    required this.etudiant,
+    required this.noteEntretien,
+    required this.noteTest,
+    required this.candidat,
   });
 
   factory DossierAdmission.fromJson(Map<String, dynamic> json) {
@@ -26,9 +30,12 @@ class DossierAdmission {
       releveNotes: json['releveNotes'],
       diplome: json['diplome'],
       statut: json['statut'],
+      noteEntretien: json['noteEntretien'],
+      noteTest: json['noteTest'],
       remarque: json['remarque'],
-      etudiant:
-          json['etudiant'] != null ? Etudiant.fromJson(json['etudiant']) : null,
+      candidat: json['candidat'] != null
+          ? CandidatPreInscrit.fromJson(json['candidat'])
+          : null,
     );
   }
 
@@ -40,7 +47,9 @@ class DossierAdmission {
       'diplome': diplome,
       'statut': statut,
       'remarque': remarque,
-      'etudiant': {'id': etudiant?.id},
+      'noteTest': noteTest,
+      'noteEntretien': noteEntretien,
+      'candidatId': candidat?.id,
     };
   }
 }

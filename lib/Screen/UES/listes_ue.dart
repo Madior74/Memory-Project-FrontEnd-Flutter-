@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:school_management_system/Screen/Niveaux/model_niveau.dart';
 import 'package:school_management_system/Screen/UES/model_ue.dart';
 import 'package:school_management_system/Screen/Modules/module_by_ue.dart';
-import 'package:school_management_system/Screen/UES/add_ue_Screen.dart';
-import 'package:school_management_system/Screen/UES/detail_ue.dart';
-import 'package:school_management_system/Screen/semestre/semestre_service.dart';
 import 'package:school_management_system/Screen/UES/ue_service.dart';
 import 'package:school_management_system/Widgets/drawer.dart';
 import 'package:school_management_system/Widgets/my_appbar.dart';
@@ -48,21 +45,7 @@ class _ListeDesUESState extends State<ListeDesUES> {
               children: [
                 MyAppbar(
                   title: "Liste des UE",
-                  onTap: () async {
-                    final result = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const AddUEPage(),
-                      ),
-                    );
-
-                    if (result == true) {
-                      setState(() {
-                        futuresUES = UeService().getUes();
-                      });
-                    }
-                  },
-                  boutonName: "Ajouter une UE",
+               
                 ),
                 Expanded(
                   child: RefreshIndicator(

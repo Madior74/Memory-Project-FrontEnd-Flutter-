@@ -28,6 +28,14 @@ class _ListSessionState extends State<ListSession> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: myDrawerColol,
+        child: Icon(
+          Icons.add,
+          color: Colors.white,
+        ),
+        onPressed: () => _openSessionDiaog(),
+      ),
       backgroundColor: myBackgroound,
       body: Row(
         children: [
@@ -36,11 +44,8 @@ class _ListSessionState extends State<ListSession> {
             child: Column(
               children: [
                 MyAppbar(
-                    title: "Années Académiques",
-                    onTap: () {
-                      addSession();
-                    },
-                    boutonName: "Nouvelle Année"),
+                  title: "Années Académiques",
+                ),
                 Expanded(
                   child: FutureBuilder<List<AnneeAcademique>>(
                       future: futureSessions,
@@ -73,7 +78,9 @@ class _ListSessionState extends State<ListSession> {
                                     padding: const EdgeInsets.all(8.0),
                                     child: AnneeAcademiqueCard(
                                       annee: annees,
-                                      onEdit: () {},
+                                      onEdit: () {
+                                        _openSessionDiaog(annee: annees);
+                                      },
                                       onDelete: () =>
                                           _confirmDelete(annees.id!),
                                     ));
@@ -89,176 +96,24 @@ class _ListSessionState extends State<ListSession> {
     );
   }
 
-  DateTime? _selectedDateDebut;
-  DateTime? _selectedDateFin;
-
-  void addSession() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(builder: (context, setStateDialog) {
-          return AlertDialog(
-            title: const Text("Nouvelle Année Académique"),
-            content: Form(
-              key: _formKey,
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    // Date de Début
-                    InkWell(
-                      onTap: () async {
-                        final DateTime? picked = await showDatePicker(
-                          context: context,
-                          initialDate: _selectedDateDebut ?? DateTime.now(),
-                          firstDate: DateTime(2000),
-                          lastDate: DateTime(3000),
-                        );
-                        if (picked != null && picked != _selectedDateDebut) {
-                          setStateDialog(() {
-                            _selectedDateDebut = picked;
-                          });
-                        }
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 15, horizontal: 10),
-                        decoration: BoxDecoration(
-                          border: Border.all(),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.calendar_today),
-                            const SizedBox(width: 10),
-                            Text(
-                              _selectedDateDebut == null
-                                  ? 'Date de Début'
-                                  : '${_selectedDateDebut!.day}/${_selectedDateDebut!.month}/${_selectedDateDebut!.year}',
-                              style: const TextStyle(
-                                color: Colors.black,
-                                fontSize: 18,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Date de Fin
-                    InkWell(
-                      onTap: () async {
-                        final DateTime? picked = await showDatePicker(
-                          context: context,
-                          initialDate: _selectedDateFin ?? DateTime.now(),
-                          firstDate: DateTime(2000),
-                          lastDate: DateTime(3000),
-                        );
-                        if (picked != null && picked != _selectedDateFin) {
-                          setStateDialog(() {
-                            _selectedDateFin = picked;
-                          });
-                        }
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 15, horizontal: 10),
-                        decoration: BoxDecoration(
-                          border: Border.all(),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.calendar_today),
-                            const SizedBox(width: 10),
-                            Text(
-                              _selectedDateFin == null
-                                  ? 'Date de Fin'
-                                  : '${_selectedDateFin!.day}/${_selectedDateFin!.month}/${_selectedDateFin!.year}',
-                              style: const TextStyle(
-                                color: Colors.black,
-                                fontSize: 18,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(); // Ferme la boîte de dialogue
-                },
-                child: const Text(
-                  'Annuler',
-                  style: TextStyle(color: Colors.red),
-                ),
-              ),
-              TextButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    String sessionName = _selectedDateDebut!.year.toString() +
-                        '/' +
-                        _selectedDateFin!.year.toString();
-                    print(sessionName);
-                    DateTime? dateDebutChoisie = _selectedDateDebut;
-                    DateTime? dateFinChoisie = _selectedDateFin;
-
-                    if (dateDebutChoisie != null &&
-                        dateFinChoisie != null &&
-                        _selectedDateDebut!.month != _selectedDateFin!.month) {
-                      saveAnne(sessionName, dateDebutChoisie, dateFinChoisie)
-                          .then((_) {
-                        Navigator.of(context)
-                            .pop(); // Ferme la boîte de dialogue
-                      });
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          backgroundColor: Colors.red,
-                          content: Text(
-                            "Veuillez entrer un nom de session et Vérifier les dates",
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      );
-                    }
-                  }
-                },
-                child: const Text(
-                  'Enregistrer',
-                  style: TextStyle(color: Colors.black),
-                ),
-              ),
-            ],
-          );
-        });
-      },
-    );
-  }
-
-  Future<void> updateSession(
-      String sessionName, DateTime? dateDebut, DateTime? dateFin) async {
+  Future<void> updateSession(int idSession, String sessionName,
+      DateTime? dateDebut, DateTime? dateFin) async {
     try {
       //creation de l'instance
       AnneeAcademique anneeajour = AnneeAcademique(
           nomAnnee: sessionName, dateDebut: dateDebut, dateFin: dateFin);
 
       //Appel du service
-      await AnneeAcademiqueService().updateSession(anneeajour);
+      await AnneeAcademiqueService().updateSession(idSession, anneeajour);
 
       setState(() {
         futureSessions = AnneeAcademiqueService().getSessions();
       });
-// Afficher un message de succès
+      // Afficher un message de succès
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
             backgroundColor: Colors.green,
-            content: Text("Session ajoutée avec succès")),
+            content: Text("Session Mise à jour avec succès")),
       );
     } catch (error) {
       print("Errors lors de la Mise a jour");
@@ -324,6 +179,18 @@ class _ListSessionState extends State<ListSession> {
       AnneeAcademique newSession = AnneeAcademique(
           dateFin: dateFin, dateDebut: dateDebut, nomAnnee: sessionName);
 
+      //Verification de l'existence de l'annee
+      bool exists = await AnneeAcademiqueService().anneeExists(sessionName);
+      if (exists) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: Colors.red,
+            content: Text("Une Année avec ce nom existe déjà"),
+          ),
+        );
+        return;
+      }
+
       // Appeler le service pour ajouter la session
       await AnneeAcademiqueService().createSession(newSession);
 
@@ -349,7 +216,7 @@ class _ListSessionState extends State<ListSession> {
   }
 
   //Methode d'ajout et de Modification
-  void _openSessionDiaog(AnneeAcademique? annee) {
+  void _openSessionDiaog({AnneeAcademique? annee}) {
     DateTime? _selectedDateDebut = annee?.dateDebut;
     DateTime? _selectedDateFin = annee?.dateFin;
 
@@ -482,27 +349,16 @@ class _ListSessionState extends State<ListSession> {
                           '${_selectedDateDebut?.year}/${_selectedDateFin?.year}';
 
                       if (isEditMode) {
-                        updateSession(sessionName, _selectedDateDebut,
-                                _selectedDateFin)
+                        updateSession(sessionId!, sessionName,
+                                _selectedDateDebut, _selectedDateFin)
                             .then((_) {
                           Navigator.of(context).pop();
-
-                          ScaffoldMessenger.of(context)
-                              .showSnackBar(const SnackBar(
-                            content: Text("Année Mise à jour"),
-                            backgroundColor: Colors.blue,
-                          ));
                         });
                       } else {
                         saveAnne(sessionName, _selectedDateDebut,
                                 _selectedDateFin)
                             .then((_) {
                           Navigator.of(context).pop();
-                          ScaffoldMessenger.of(context)
-                              .showSnackBar(const SnackBar(
-                            content: Text("Année Ajoutée"),
-                            backgroundColor: Colors.blue,
-                          ));
                         });
                       }
                     },
