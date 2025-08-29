@@ -182,36 +182,6 @@ class _GestionDesAdmissionsState extends State<GestionDesAdmissions> {
                     }
 
                     return DossierAdmisCard(
-                        detail: () {
-                          final statut = dossier.statut?.toLowerCase();
-
-                          if (statut == "valide") {
-                            if (dossier.candidat?.id != null) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => NouvelleInscriptions(
-                                    etudiantAInscrire: dossier.candidat,
-                                  ),
-                                ),
-                              );
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content:
-                                        Text("Erreur : étudiant introuvable")),
-                              );
-                            }
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                    "Impossible d'inscrire un étudiant non validé."),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          }
-                        },
                         nomEtudiant:
                             '${dossier.candidat!.prenom!} ${dossier.candidat!.nom!}',
                         remarque: dossier.remarque,

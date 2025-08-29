@@ -19,9 +19,8 @@ class ProfesseurService {
     print(response.statusCode);
     print(response.body);
 
-   
     if (response.statusCode == 200 || response.statusCode == 201) {
-      List<dynamic> jsonResponse = json.decode(response.body);
+      List<dynamic> jsonResponse = json.decode(utf8.decode(response.bodyBytes));
 
       return jsonResponse
           .map((prof) => Professeur.fromJson(prof as Map<String, dynamic>))
@@ -70,13 +69,12 @@ class ProfesseurService {
   Future<Professeur> updateProfesseur(int profId, Professeur professeur) async {
     final pref = await SharedPreferences.getInstance();
     final token = pref.getString('token');
-    final response =
-        await http.put(Uri.parse('$baseUrl/professeurs/update/$profId'),
-            headers: {
-              'Content-Type': 'application/json',
-              "Authorization": "Bearer $token",
-            },
-            body: json.encode(professeur.toJson()));
+    final response = await http.put(Uri.parse('$baseUrl/update/$profId'),
+        headers: {
+          'Content-Type': 'application/json',
+          "Authorization": "Bearer $token",
+        },
+        body: json.encode(professeur.toJson()));
     print("donnees envoyes ${professeur.toJson()}");
 
     print("Mise a jour du prof ${response.statusCode}");
@@ -109,9 +107,12 @@ class ProfesseurService {
   //supprimer la specialite d'un prof
   Future<void> removeSpecialiteFromProfesseur(
       int profId, int specialiteId) async {
-    final url = '$baseUrl/professeurs/$profId/specialites/$specialiteId';
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('token');
+    final url = '$baseUrl/$profId/specialites/$specialiteId';
 
-    final response = await http.delete(Uri.parse(url));
+    final response = await http
+        .delete(Uri.parse(url), headers: {'Authorization': 'Bearer $token'});
 
     if (response.statusCode != 200) {
       throw Exception('Échec de la suppression de la spécialité');
@@ -122,8 +123,8 @@ class ProfesseurService {
   Future<List<Specialite>> getSpecialitesByProfesseurId(int id) async {
     final pref = await SharedPreferences.getInstance();
     final token = pref.getString('token');
-    final response = await http
-        .get(Uri.parse('$baseUrl/professeurs/$id/specialites'), headers: {
+    final response =
+        await http.get(Uri.parse('$baseUrl/$id/specialites'), headers: {
       "Authorization": "Bearer $token",
     });
     print("Recuperation des Specialites");
@@ -145,7 +146,7 @@ class ProfesseurService {
       int profId, List<int> specialiteIds) async {
     final pref = await SharedPreferences.getInstance();
     final token = pref.getString('token');
-    final url = '$baseUrl/professeurs/$profId/specialites';
+    final url = '$baseUrl/$profId/specialites';
 
     final response = await http.post(
       Uri.parse(url),
@@ -155,12 +156,6 @@ class ProfesseurService {
       },
       body: jsonEncode(specialiteIds),
     );
-
-    print("Ajout de la specialite au Professeur");
-    print(response.statusCode);
-    print(response.body); // <-- Ajout pour voir la structure JSON reçue
-    print("specialiteIds");
-    print(specialiteIds); // <-- Ajout pour voir la structure JSON reçue
 
     if (response.statusCode != 200 && response.statusCode != 201) {
       throw Exception('Échec de l\'ajout de la spécialité');

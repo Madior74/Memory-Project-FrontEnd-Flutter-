@@ -172,8 +172,8 @@ class _ListInscriptionsState extends State<ListInscriptions> {
   }
 
   Widget buildTableHeader() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 12.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

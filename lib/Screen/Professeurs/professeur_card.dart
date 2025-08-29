@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:school_management_system/Screen/Specialite/model_specialite.dart';
 import 'package:school_management_system/Screen/Region/model_region.dart';
@@ -98,12 +96,18 @@ class ProfesseurCard extends StatelessWidget {
               ),
               const SizedBox(height: 14),
               _buildInfoRow(Icons.email, "Email", email),
-              // _buildInfoRow(Icons.place, "Adresse", adresse),
-              // _buildInfoRow(Icons.account_tree, "Département", departement),
               _buildInfoRow(Icons.map, "Région", region.nomRegion),
-              const SizedBox(height: 10),
+              _buildInfoRow(Icons.account_tree, "Département", departement),
 
-            
+              _buildInfoRow(Icons.place, "Adresse", adresse),
+
+              _buildInfoRow(
+                Icons.star,
+                "Specislitiés",
+                specialites != null && specialites!.isNotEmpty
+                    ? specialites!.map((e) => e.nom).join(" ,")
+                    : "Aucune",
+              )
             ],
           ),
         ),
@@ -134,9 +138,6 @@ class ProfesseurCard extends StatelessWidget {
       ),
     );
   }
-
- 
-
 
   Color statusColor(String status) {
     if (status == "Permanent") {

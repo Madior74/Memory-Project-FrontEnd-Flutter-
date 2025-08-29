@@ -18,7 +18,7 @@ class RegionService {
 
       if (response.statusCode == 200) {
         // Décodez la réponse JSON
-        List<dynamic> jsonResponse = json.decode(response.body);
+        List<dynamic> jsonResponse = json.decode(utf8.decode(response.bodyBytes));
 
         // Convertissez chaque objet JSON en une instance de Region
         return jsonResponse

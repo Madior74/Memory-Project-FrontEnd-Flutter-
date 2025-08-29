@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:school_management_system/Screen/Professeurs/detail_professeur.dart';
 import 'package:school_management_system/Screen/Professeurs/model_professeur.dart';
 import 'package:school_management_system/Screen/Professeurs/nouveau_professeur.dart';
 import 'package:school_management_system/Screen/Professeurs/Professeur_service.dart';
@@ -7,7 +8,6 @@ import 'package:school_management_system/Widgets/drawer.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:school_management_system/Widgets/my_appbar.dart';
 import 'package:school_management_system/Screen/Professeurs/professeur_card.dart';
-
 
 class ListeDesProfesseurs extends StatefulWidget {
   const ListeDesProfesseurs({super.key});
@@ -103,12 +103,11 @@ class _ListeDesProfesseursState extends State<ListeDesProfesseurs> {
                               prenomEtNom: "${prof.prenom} ${prof.nom}",
                               status: statutProf,
                               detail: () async {
-                                // await Navigator.push(
-                                //   context,
-                                //   MaterialPageRoute(
-                                //     builder: (context) =>
-                                //   ),
-                                // );
+                                await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => ProfesseurDetails(
+                                            professeur: prof)));
 
                                 // Recharger les données du professeur depuis le backend après retour
                                 final updatedProf = await ProfesseurService()

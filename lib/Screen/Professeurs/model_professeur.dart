@@ -21,7 +21,7 @@ class Professeur {
   final List<Specialite> specialites;
   final Region? region;
   final Departement? departement;
-  final DateTime dateAjout;
+  final DateTime? dateAjout;
 
   Professeur({
     this.id,
@@ -40,7 +40,7 @@ class Professeur {
     required this.status,
     required this.region,
     required this.departement,
-    required this.dateAjout,
+    this.dateAjout,
     required this.specialites,
   });
 
@@ -58,7 +58,6 @@ class Professeur {
       telephone: json['telephone'],
       sexe: json['sexe'],
       email: json['email'],
-      // 👇 password non présent dans les réponses JSON (sécurité)
       password: null,
       status: json['status'],
       specialites: (json['specialites'] as List<dynamic>)
@@ -71,12 +70,14 @@ class Professeur {
   }
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
+    final dateFormat = DateFormat("yyyy-MM-dd HH:mm:ss");
     data['id'] = this.id;
     data['nom'] = this.nom;
     data['prenom'] = this.prenom;
     data['adresse'] = this.adresse;
     data['paysDeNaissance'] = this.paysDeNaissance;
-    data['dateDeNaissance'] = this.dateDeNaissance;
+    data['dateDeNaissance'] =
+        this.dateDeNaissance?.toIso8601String().substring(0, 10);
     data['imagePath'] = this.imagePath;
     data['cni'] = this.cni;
     data['ine'] = this.ine;
@@ -93,7 +94,8 @@ class Professeur {
     if (this.departement != null) {
       data['departement'] = this.departement!.toJson();
     }
-    data['dateAjout'] = this.dateAjout;
+    data['dateAjout'] =
+        this.dateAjout != null ? dateFormat.format(dateAjout!) : null;
     return data;
   }
 }

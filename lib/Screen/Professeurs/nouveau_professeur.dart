@@ -297,7 +297,7 @@ class _NouveauProfesseurState extends State<NouveauProfesseur> {
             departement: departementChoisi,
             dateAjout: DateTime.now(),
             status: selectedStatus ?? "Vacataire",
-            specialites: _selectedSpecialite ,
+            specialites: [_selectedSpecialite] ,
             region: regionChoisie);
 
         // Conversion simple en JSON

@@ -7,6 +7,7 @@ import 'package:school_management_system/Screen/Specialite/specialiteService.dar
 import 'package:school_management_system/Widgets/drawer.dart';
 import 'package:school_management_system/Widgets/my_appbar.dart';
 import 'package:school_management_system/theme/colors.dart';
+import 'package:school_management_system/theme/my_styles.dart';
 
 class ListeDesSpecialite extends StatefulWidget {
   const ListeDesSpecialite({
@@ -21,8 +22,6 @@ class _ListeDesSpecialiteState extends State<ListeDesSpecialite> {
   late Future<List<Specialite>> futureSpecialites;
   String? selectedNivel;
   final _formKey = GlobalKey<FormState>();
-  final _nomSpecialiteController = TextEditingController();
-  final _descriptionSpecialiteController = TextEditingController();
 
   @override
   void initState() {
@@ -30,43 +29,17 @@ class _ListeDesSpecialiteState extends State<ListeDesSpecialite> {
     futureSpecialites = SpecialiteService().getAllSpecialites();
   }
 
-  // Acronyme
-  String getAcronym(String fullName) {
-    List<String> words =
-        fullName.split(' '); // Diviser la chaîne par des espaces
-
-    // Filtrer les mots pour prendre en compte les chiffres
-    List<String> filteredWords = words.where((word) {
-      // Inclure les mots de longueur > 2 ou les chiffres
-      return word.length > 2 || RegExp(r'^\d+$').hasMatch(word);
-    }).toList();
-
-    String acronym = '';
-
-    // Assurer qu'il y a au moins deux mots valides pour former l'acronyme
-    if (filteredWords.isNotEmpty) {
-      for (String word in filteredWords) {
-        // Prendre la première lettre ou le chiffre entier
-        acronym += (word.length > 2) ? word[0] : word;
-      }
-    }
-
-    return acronym.toUpperCase(); // Convertir en majuscules
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          addDialog();
-          _nomSpecialiteController.clear();
-          _descriptionSpecialiteController.clear();
+          _openDialog();
         },
       ),
       body: Row(
         children: [
-          MyDrawer(),
+          const MyDrawer(),
           Expanded(
             child: Column(
               children: [
@@ -92,98 +65,42 @@ class _ListeDesSpecialiteState extends State<ListeDesSpecialite> {
                         );
                       } else {
                         List<Specialite> items = snapshot.data!;
-                        return GridView.builder(
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 4,
-                            crossAxisSpacing: 35.0,
-                            mainAxisSpacing: 35.0,
-                            childAspectRatio: 1,
-                          ),
+                        return ListView.builder(
                           itemCount: items.length,
                           itemBuilder: (context, index) {
-                            final sepci = items[index];
+                            final speci = items[index];
 
                             return Padding(
-                              padding: const EdgeInsets.all(15.0),
-                              child: InkWell(
-                                onTap: () {
-                                  // Navigator.push(
-                                  //   context,
-                                  //   MaterialPageRoute(
-                                  //     builder: (context) =>
-                                  //         SemestreByNiveau(niveau: niveau),
-                                  //   ),
-                                  // );
-                                },
-                                child: Card(
-                                  elevation: 1,
-                                  child: LayoutBuilder(
-                                    builder: (context, constraints) {
-                                      double fontSize =
-                                          constraints.maxHeight / 4;
-
-                                      return Padding(
-                                        padding: const EdgeInsets.all(5.0),
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.end,
-                                              children: [
-                                                IconButton(
-                                                  icon: const Icon(Icons.delete,
-                                                      size: 25,
-                                                      color: Colors.red),
-                                                  onPressed: () {
-                                                    _confirmDelete(
-                                                        items[index].id!);
-                                                  },
-                                                ),
-                                              ],
-                                            ),
-                                            // Acronyme
-                                            Text(
-                                              getAcronym(sepci.nom!),
-                                              style: TextStyle(
-                                                color: Colors.black,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize:
-                                                    fontSize, // Utiliser la taille calculée
-                                                height:
-                                                    1, // Ajustez la hauteur de ligne si nécessaire
-                                              ),
-                                              textAlign: TextAlign.center,
-                                            ),
-                                            const SizedBox(height: 20),
-                                            Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.end,
-                                              children: [
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          bottom: 2.0),
-                                                  child: Text(
-                                                    utf8.decode(
-                                                        sepci.nom!.codeUnits),
-                                                    style: const TextStyle(
-                                                      color: Colors.black,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 18,
-                                                    ),
-                                                    textAlign: TextAlign.center,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    },
+                              padding: const EdgeInsets.all(8.0),
+                              child: Card(
+                                child: ListTile(
+                                  title: Text(
+                                    speci.nom ?? "Nom introuvable",
+                                    style: valueStyle,
+                                  ),
+                                  subtitle: Text(speci.description ??
+                                      "Aucune description"),
+                                  trailing: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      IconButton(
+                                          onPressed: () =>
+                                              _openDialog(specialite: speci),
+                                          icon: Icon(
+                                            Icons.edit,
+                                            color: Colors.blue,
+                                          )),
+                                      SizedBox(
+                                        width: 10,
+                                      ),
+                                      IconButton(
+                                          onPressed: () =>
+                                              _confirmDelete(speci.id!),
+                                          icon: Icon(
+                                            Icons.delete,
+                                            color: Colors.red,
+                                          ))
+                                    ],
                                   ),
                                 ),
                               ),
@@ -202,12 +119,21 @@ class _ListeDesSpecialiteState extends State<ListeDesSpecialite> {
     );
   }
 
-  void addDialog() {
+  void _openDialog({Specialite? specialite}) {
+    bool isEditMode = specialite != null;
+    int? specialiteId = specialite?.id;
+
+    final nomController = TextEditingController(text: specialite?.nom ?? '');
+    final descriptionController =
+        TextEditingController(text: specialite?.description ?? '');
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("Nouvelle Spécialité"),
+          title: Text(isEditMode
+              ? "Mettre à jour la spécialité"
+              : "Nouvelle Spécialité"),
           content: SingleChildScrollView(
             child: SizedBox(
               width: 300, // Définissez une largeur maximale
@@ -217,7 +143,7 @@ class _ListeDesSpecialiteState extends State<ListeDesSpecialite> {
                   mainAxisSize: MainAxisSize.min, // Réduit la taille au minimum
                   children: [
                     TextFormField(
-                      controller: _nomSpecialiteController,
+                      controller: nomController,
                       decoration: const InputDecoration(
                         prefixIcon: Icon(Icons.psychology),
                         border: OutlineInputBorder(
@@ -234,7 +160,7 @@ class _ListeDesSpecialiteState extends State<ListeDesSpecialite> {
                     ),
                     SizedBox(height: 10),
                     TextFormField(
-                      controller: _descriptionSpecialiteController,
+                      controller: descriptionController,
                       decoration: const InputDecoration(
                         prefixIcon: Icon(Icons.description),
                         border: OutlineInputBorder(
@@ -268,14 +194,22 @@ class _ListeDesSpecialiteState extends State<ListeDesSpecialite> {
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
                   final Specialite specialite = Specialite(
-                    nom: _nomSpecialiteController.text,
-                    description: _descriptionSpecialiteController.text,
+                    nom: nomController.text,
+                    description: descriptionController.text,
                   );
-                  saveSpecialite(specialite);
-                  Navigator.of(context).pop();
+
+                  if (isEditMode) {
+                    updateSpecialite(specialiteId!, specialite).then((_) {
+                      Navigator.of(context).pop();
+                    });
+                  } else {
+                    saveSpecialite(specialite).then((_) {
+                      Navigator.of(context).pop();
+                    });
+                  }
                 }
               },
-              child: const Text('Ajouter'),
+              child: Text(isEditMode ? "Mettre à jour" : "Ajouter"),
             ),
           ],
         );
@@ -364,5 +298,25 @@ class _ListeDesSpecialiteState extends State<ListeDesSpecialite> {
         );
       },
     );
+  }
+
+  //Mettre a jour
+  Future<void> updateSpecialite(int specialiteId, Specialite speci) async {
+    try {
+      await SpecialiteService().updateSpecialite(specialiteId, speci);
+
+      setState(() {
+        futureSpecialites = SpecialiteService().getAllSpecialites();
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Spécialité mis à jour avec succès."),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } on Exception catch (e) {
+      throw Exception("Erreur lors de la mise a jour de la spécialité $e");
+    }
   }
 }

@@ -18,11 +18,9 @@ class DepartementService {
     final response = await http.get(url, headers: {
       'Authorization': 'Bearer $token',
     });
-    print('Réponse API : ${response.body}');
-    print(response);
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      List<dynamic> data = json.decode(response.body);
+      List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
       return data
           .map((departement) => Departement.fromJson(departement))
           .toList();

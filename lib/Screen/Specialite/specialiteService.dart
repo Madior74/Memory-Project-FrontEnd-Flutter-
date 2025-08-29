@@ -14,7 +14,7 @@ class SpecialiteService {
       "Authorization": "Bearer $token",
     });
     if (response.statusCode == 200 || response.statusCode == 201) {
-      List<dynamic> jResponse = json.decode(response.body);
+      List<dynamic> jResponse = json.decode(utf8.decode(response.bodyBytes));
       return jResponse.map((model) => Specialite.fromJson(model)).toList();
     } else {
       throw Exception('Echec de la recupération des specialiés');
@@ -42,6 +42,34 @@ class SpecialiteService {
     print(response.statusCode);
     print("specialite");
     print(specialite);
+    print(response);
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      print('Niveau added successfully');
+    } else if (response.statusCode == 409) {
+      throw Exception('This niveau already exists in the filière');
+    } else {
+      throw Exception('Failed to add niveau');
+    }
+  }
+
+  //Mettre a jour
+  //Nouvelle specialite
+  Future<void> updateSpecialite(int id, Specialite specialite) async {
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('token');
+    final response = await http.put(
+      Uri.parse('$baseUrl/update/$id'),
+      headers: {
+        'Content-Type': 'application/json',
+        "Authorization": "Bearer $token",
+      },
+      body: json.encode(specialite.toJson()),
+    );
+    print("Mis a jour dune speci de l'API");
+    print(response.body);
+    print("status code");
+    print(response.statusCode);
+
     print(response);
     if (response.statusCode == 201 || response.statusCode == 200) {
       print('Niveau added successfully');
@@ -95,7 +123,7 @@ class SpecialiteService {
       });
 
       if (response.statusCode == 200) {
-        List<dynamic> specs = json.decode(response.body);
+        List<dynamic> specs = json.decode(utf8.decode(response.bodyBytes));
         return specs.any((speci) => speci['nom'] == nom);
       } else {
         throw Exception(
