@@ -4,16 +4,17 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:school_management_system/Screen/Document/model_document.dart';
+import 'package:school_management_system/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DocumentService {
-  final String baseUrl = 'http://192.168.1.15:9000/api/admin/documents';
+  final String baseUrl = AppConfig.baseUrl;
 
   //Uploader un document
   Future<Document> uploadDocument(File file, String nom, int etudiantId) async {
     final pref = await SharedPreferences.getInstance();
     final token = pref.getString('token');
-    var request = http.MultipartRequest('POST', Uri.parse('$baseUrl/upload'));
+    var request = http.MultipartRequest('POST', Uri.parse('$baseUrl/documents/upload'));
 
     if (token != null) {
       request.headers['Authorization'] = 'Bearer $token';
@@ -42,7 +43,7 @@ class DocumentService {
       final token = pref.getString('token');
 
       final response =
-          await http.get(Uri.parse('$baseUrl/etudiant/$etudiantId'), headers: {
+          await http.get(Uri.parse('$baseUrl/documents/etudiant/$etudiantId'), headers: {
         'Authorization': 'Bearer $token',
       });
 
@@ -69,7 +70,7 @@ Future<String> downloadDocument(int documentId) async {
   final token = pref.getString('token');
 
   final response = await http.get(
-    Uri.parse('$baseUrl/$documentId'),
+    Uri.parse('$baseUrl/documents/$documentId'),
     headers: {
       'Authorization': 'Bearer $token',
     },
@@ -94,7 +95,7 @@ Future<String> downloadDocument(int documentId) async {
     final pref = await SharedPreferences.getInstance();
     final token = pref.getString('token');
     final response =
-        await http.delete(Uri.parse('$baseUrl/$documentId'), headers: {
+        await http.delete(Uri.parse('$baseUrl/documents/$documentId'), headers: {
       'Authorization': 'Bearer $token',
     });
 

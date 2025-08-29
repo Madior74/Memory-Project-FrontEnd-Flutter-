@@ -11,7 +11,7 @@ class InscriptionService {
   Future<Map<String, dynamic>> addInscription({
     required Map<String, dynamic> inscriptionData,
   }) async {
-    final url = Uri.parse('$baseUrl/save');
+    final url = Uri.parse('$baseUrl/dossiers/save');
 
     try {
       final response = await http.post(
@@ -40,7 +40,7 @@ class InscriptionService {
   Future<List<Inscription>> getAllInscriptions() async {
     final pref = await SharedPreferences.getInstance();
     final token = pref.getString('token');
-    final response = await http.get(Uri.parse('$baseUrl'), headers: {
+    final response = await http.get(Uri.parse('$baseUrl/dossiers'), headers: {
       'Authorization': 'Bearer $token',
     });
 
@@ -55,7 +55,7 @@ class InscriptionService {
 
   //Supprimer une Inscription
   Future<void> deleteInscription(int id) async {
-    final response = await http.delete(Uri.parse('$baseUrl/$id'));
+    final response = await http.delete(Uri.parse('$baseUrl/dossiers/$id'));
 
     print("Supression de l\'Inscription");
     print('$baseUrl/$id');
@@ -76,7 +76,7 @@ class InscriptionService {
     required int anneeAcademiqueId,
   }) async {
     final url = Uri.parse(
-        '$baseUrl/check?etudiantId=$etudiantId&filiereId=$filiereId&anneeAcademiqueId=$anneeAcademiqueId');
+        '$baseUrl/dossiers/check?etudiantId=$etudiantId&filiereId=$filiereId&anneeAcademiqueId=$anneeAcademiqueId');
 
     try {
       final pref = await SharedPreferences.getInstance();
@@ -108,7 +108,7 @@ class InscriptionService {
       final pref = await SharedPreferences.getInstance();
       final token = pref.getString('token');
       final response =
-          await http.get(Uri.parse('$baseUrl/niveau/$niveauId'), headers: {
+          await http.get(Uri.parse('$baseUrl/dossiers/niveau/$niveauId'), headers: {
         "Authorization": "Bearer $token",
       });
       print("Récupération des étudiants par niveau");

@@ -2,10 +2,11 @@ import 'dart:convert';
 
 import 'package:school_management_system/Screen/AnneeAcademique/annee_academique.dart';
 import 'package:http/http.dart' as http;
+import 'package:school_management_system/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AnneeAcademiqueService {
-  final String baseUrl = 'http://192.168.1.15:9000/api/admin/annees';
+  final String baseUrl = AppConfig.baseUrl;
 
   //Get
   Future<List<AnneeAcademique>> getSessions() async {
@@ -16,7 +17,7 @@ class AnneeAcademiqueService {
       if (token == null) {
         throw Exception("Token non trouvé");
       }
-      final response = await http.get(Uri.parse(baseUrl), headers: {
+      final response = await http.get(Uri.parse('$baseUrl/annees'), headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
       });
@@ -44,7 +45,7 @@ class AnneeAcademiqueService {
         throw Exception("Token non trouvé");
       }
       final response = await http.post(
-        Uri.parse('$baseUrl/save'),
+        Uri.parse('$baseUrl/annees/save'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token',
@@ -73,7 +74,7 @@ class AnneeAcademiqueService {
         throw Exception("Token non trouvé");
       }
       final response = await http.put(
-        Uri.parse('$baseUrl/update/$id'),
+        Uri.parse('$baseUrl/annees/update/$id'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token',
@@ -100,7 +101,7 @@ class AnneeAcademiqueService {
       final pref = await SharedPreferences.getInstance();
       final token = pref.getString('token');
       final response = await http.delete(
-        Uri.parse('$baseUrl/$id'),
+        Uri.parse('$baseUrl/annees/$id'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token',
@@ -122,7 +123,7 @@ class AnneeAcademiqueService {
       final pref = await SharedPreferences.getInstance();
       final token = pref.getString('token');
       final response = await http.get(
-        Uri.parse('$baseUrl/exists?nomAnnee=$nomAnnee'),
+        Uri.parse('$baseUrl/annees/exists?nomAnnee=$nomAnnee'),
         headers: {
           "Authorization": "Bearer $token",
         },

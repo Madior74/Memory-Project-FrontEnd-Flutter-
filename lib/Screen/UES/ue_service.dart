@@ -2,16 +2,17 @@ import 'dart:convert';
 
 import 'package:school_management_system/Screen/UES/model_ue.dart';
 import 'package:http/http.dart' as http;
+import 'package:school_management_system/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UeService {
-  final String baseUrl = 'http://192.168.1.15:9000/api/admin/ues';
+  final String baseUrl = AppConfig.baseUrl;
 
   //Get
   Future<List<UE>> getUes() async {
     final pref = await SharedPreferences.getInstance();
     final token = pref.getString('token');
-    final response = await http.get(Uri.parse(baseUrl), headers: {
+    final response = await http.get(Uri.parse('$baseUrl/ues'), headers: {
       'Authorization': 'Bearer $token',
     });
 
@@ -30,7 +31,7 @@ class UeService {
     final pref = await SharedPreferences.getInstance();
     final token = pref.getString('token');
     final response =
-        await http.get(Uri.parse('$baseUrl/semestre/$semestreId'), headers: {
+        await http.get(Uri.parse('$baseUrl/ues/semestre/$semestreId'), headers: {
       'Authorization': 'Bearer $token',
     });
     print("Recuperation des UES");
@@ -49,7 +50,7 @@ class UeService {
   //Create
 
   Future<void> addUeToSemestre(int? semestreId, UE ue) async {
-    final url = Uri.parse('$baseUrl/$semestreId/ue');
+    final url = Uri.parse('$baseUrl/ues/$semestreId/ue');
     final headers = {'Content-Type': 'application/json'};
     final body = json.encode(ue.toJson());
 
@@ -75,7 +76,7 @@ class UeService {
   //Delete
   Future<void> deleteUe(int id) async {
     final response = await http.delete(
-      Uri.parse('$baseUrl/$id'),
+      Uri.parse('$baseUrl/ues/$id'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -91,7 +92,7 @@ class UeService {
 
   Future<UE> updateUE(UE ue) async {
     final response = await http.put(
-      Uri.parse('$baseUrl/${ue.id}'),
+      Uri.parse('$baseUrl/ues/${ue.id}'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -109,7 +110,7 @@ class UeService {
 
   //Get by id
   Future<UE> getUeById(int id) async {
-    final response = await http.get(Uri.parse('$baseUrl/$id'));
+    final response = await http.get(Uri.parse('$baseUrl/ues/$id'));
     if (response.statusCode == 200) {
       return UE.fromJson(json.decode(response.body));
     } else {
@@ -134,7 +135,7 @@ class UeService {
 
   //Recuperer les UEs par id
   Future<UE> getUEById(int id) async {
-    final response = await http.get(Uri.parse("$baseUrl/$id"));
+    final response = await http.get(Uri.parse("$baseUrl/ues/$id"));
 
     if (response.statusCode == 200) {
       return UE.fromJson(jsonDecode(response.body));

@@ -2,16 +2,17 @@ import 'dart:convert';
 
 import 'package:school_management_system/Screen/semestre/model_semestre.dart';
 import 'package:http/http.dart' as http;
+import 'package:school_management_system/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SemestreService {
-  final String baseUrl = "http://192.168.1.15:9000/api/admin/semestres";
+  final String baseUrl = AppConfig.baseUrl;
 
   //Get all semestres
   Future<List<Semestre>> getSemestres() async {
     final pref = await SharedPreferences.getInstance();
     final token = pref.getString('token');
-    final response = await http.get(Uri.parse(baseUrl), headers: {
+    final response = await http.get(Uri.parse('$baseUrl/semestres'), headers: {
       "Authorization": "Bearer $token",
     }); // Utilise baseUrl
 
@@ -33,7 +34,7 @@ class SemestreService {
     final pref = await SharedPreferences.getInstance();
     final token = pref.getString('token');
     final response =
-        await http.get(Uri.parse('$baseUrl/niveau/$niveauId'), headers: {
+        await http.get(Uri.parse('$baseUrl/semestres/niveau/$niveauId'), headers: {
       "Authorization": "Bearer $token",
     });
     print("recuperation des Semestres");
@@ -54,7 +55,7 @@ class SemestreService {
   Future<void> addSemestreToNiveau(int niveauId, String nomSemestre) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/$niveauId/semestre'),
+        Uri.parse('$baseUrl/semestres/$niveauId/semestre'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'nomSemestre': nomSemestre,
@@ -79,7 +80,7 @@ class SemestreService {
   //Delete semestre
   Future<void> deleteSemestre(int id) async {
     final response = await http.delete(
-      Uri.parse('$baseUrl/$id'), // Utilise baseUrl directement
+      Uri.parse('$baseUrl/semestres/$id'), // Utilise baseUrl directement
       headers: {'Content-Type': 'application/json'},
     );
 
@@ -94,7 +95,7 @@ class SemestreService {
     print("Données envoyées : $body");
 
     final response = await http.put(
-      Uri.parse('$baseUrl/${semestre.id}'),
+      Uri.parse('$baseUrl/semestres/${semestre.id}'),
       headers: {'Content-Type': 'application/json'},
       body: body,
     );

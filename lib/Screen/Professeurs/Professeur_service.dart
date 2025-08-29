@@ -3,15 +3,15 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:school_management_system/Screen/Professeurs/model_professeur.dart';
 import 'package:school_management_system/Screen/Specialite/model_specialite.dart';
+import 'package:school_management_system/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfesseurService {
-  static const String baseUrl =
-      'http://192.168.1.15:9000/api/admin/professeurs';
+  final String baseUrl = AppConfig.baseUrl;
   Future<List<Professeur>> fetchprofesseurs() async {
     final pref = await SharedPreferences.getInstance();
     final token = pref.getString('token');
-    final response = await http.get(Uri.parse('$baseUrl'), headers: {
+    final response = await http.get(Uri.parse('$baseUrl/professeurs'), headers: {
       "Authorization": "Bearer $token",
     });
 
@@ -51,7 +51,7 @@ class ProfesseurService {
   Future<Professeur> createProfesseur(Professeur prof) async {
     final pref = await SharedPreferences.getInstance();
     final token = pref.getString('token');
-    final response = await http.put(Uri.parse('$baseUrl'),
+    final response = await http.put(Uri.parse('$baseUrl/professeurs/save'),
         headers: {
           'Content-Type': 'application/json',
           "Authorization": "Bearer $token",
@@ -69,7 +69,7 @@ class ProfesseurService {
   Future<Professeur> updateProfesseur(int profId, Professeur professeur) async {
     final pref = await SharedPreferences.getInstance();
     final token = pref.getString('token');
-    final response = await http.put(Uri.parse('$baseUrl/update/$profId'),
+    final response = await http.put(Uri.parse('$baseUrl/professeurs/update/$profId'),
         headers: {
           'Content-Type': 'application/json',
           "Authorization": "Bearer $token",
@@ -109,7 +109,7 @@ class ProfesseurService {
       int profId, int specialiteId) async {
     final pref = await SharedPreferences.getInstance();
     final token = pref.getString('token');
-    final url = '$baseUrl/$profId/specialites/$specialiteId';
+    final url = '$baseUrl/professeurs/$profId/specialites/$specialiteId';
 
     final response = await http
         .delete(Uri.parse(url), headers: {'Authorization': 'Bearer $token'});
@@ -124,7 +124,7 @@ class ProfesseurService {
     final pref = await SharedPreferences.getInstance();
     final token = pref.getString('token');
     final response =
-        await http.get(Uri.parse('$baseUrl/$id/specialites'), headers: {
+        await http.get(Uri.parse('$baseUrl/professeurs/$id/specialites'), headers: {
       "Authorization": "Bearer $token",
     });
     print("Recuperation des Specialites");
@@ -146,7 +146,7 @@ class ProfesseurService {
       int profId, List<int> specialiteIds) async {
     final pref = await SharedPreferences.getInstance();
     final token = pref.getString('token');
-    final url = '$baseUrl/$profId/specialites';
+    final url = '$baseUrl/professeurs/$profId/specialites';
 
     final response = await http.post(
       Uri.parse(url),

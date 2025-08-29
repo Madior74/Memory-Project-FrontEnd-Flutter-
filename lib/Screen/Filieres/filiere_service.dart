@@ -2,17 +2,18 @@ import 'dart:convert';
 
 import 'package:school_management_system/Screen/Filieres/filiere.dart';
 import 'package:http/http.dart' as http;
+import 'package:school_management_system/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class FiliereService {
-  final String baseUrl = 'http://192.168.1.15:9000/api/admin/filieres';
+  final String baseUrl = AppConfig.baseUrl;
 
   //Get
   Future<List<Filiere>> getFilieres() async {
     try {
       final pref = await SharedPreferences.getInstance();
       final token = pref.getString('token');
-      final response = await http.get(Uri.parse('$baseUrl'), headers: {
+      final response = await http.get(Uri.parse('$baseUrl/filieres'), headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
       });
@@ -43,7 +44,7 @@ class FiliereService {
       final pref = await SharedPreferences.getInstance();
       final token = pref.getString('token');
       final response = await http.post(
-        Uri.parse('$baseUrl/auto'),
+        Uri.parse('$baseUrl/filieres/auto'),
         headers: {
           "Accept": "application/json",
           "content-type": "application/json",
@@ -81,7 +82,7 @@ class FiliereService {
       final pref = await SharedPreferences.getInstance();
       final token = pref.getString('token');
       final response = await http.get(
-        Uri.parse('$baseUrl/exists?nomFiliere=$filiereName'),
+        Uri.parse('$baseUrl/filieres/exists?nomFiliere=$filiereName'),
         headers: {
           "Authorization": "Bearer $token",
         },

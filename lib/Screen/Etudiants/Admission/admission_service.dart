@@ -2,17 +2,19 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:school_management_system/Screen/Etudiants/Admission/model_admission.dart';
+import 'package:school_management_system/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DossierAdmissionService {
-  final String baseUrl = 'http://192.168.1.15:9000/api/admin/dossiers';
+  final String baseUrl = AppConfig.baseUrl;
+  
 
   //Recuperer les dossiers
   Future<List<DossierAdmission>> getAllDossiers() async {
     try {
       final pref = await SharedPreferences.getInstance();
       final token = pref.getString('token');
-      final response = await http.get(Uri.parse('$baseUrl'), headers: {
+      final response = await http.get(Uri.parse('$baseUrl/dossiers'), headers: {
         'Authorization': 'Bearer $token',
       });
       print("Dossier");
@@ -44,7 +46,7 @@ class DossierAdmissionService {
     try {
       final pref = await SharedPreferences.getInstance();
       final token = pref.getString('token');
-      final response = await http.post(Uri.parse('$baseUrl/save'),
+      final response = await http.post(Uri.parse('$baseUrl/dossiers/save'),
           headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer $token',
@@ -66,7 +68,7 @@ class DossierAdmissionService {
   Future<void> updateDossierAdmission(DossierAdmission dossier, int id) async {
     try {
       final response = await http.put(
-        Uri.parse('$baseUrl/update/${id}'),
+        Uri.parse('$baseUrl/dossiers/update/${id}'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(dossier.toJson()),
       );
@@ -84,7 +86,7 @@ class DossierAdmissionService {
     final pref = await SharedPreferences.getInstance();
     final token = pref.getString('token');
     final response = await http
-        .get(Uri.parse('$baseUrl/exists?etudiantId=$etudiantId'), headers: {
+        .get(Uri.parse('$baseUrl/dossiers/exists?etudiantId=$etudiantId'), headers: {
       'Authorization': 'Bearer $token',
     });
 
@@ -99,7 +101,7 @@ class DossierAdmissionService {
   Future<void> deleteDossier(int id) async {
     final pref = await SharedPreferences.getInstance();
     final token = pref.getString('token');
-    final response = await http.delete(Uri.parse('$baseUrl/$id'), headers: {
+    final response = await http.delete(Uri.parse('$baseUrl/dossiers/$id'), headers: {
       'Authorization': 'Bearer $token',
     });
 

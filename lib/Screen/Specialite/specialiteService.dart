@@ -2,15 +2,16 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:school_management_system/Screen/Specialite/model_specialite.dart';
+import 'package:school_management_system/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SpecialiteService {
-  final String baseUrl = 'http://192.168.1.15:9000/api/admin/specialites';
+  final String baseUrl = AppConfig.baseUrl;
   //get All Specialites
   Future<List<Specialite>> getAllSpecialites() async {
     final pref = await SharedPreferences.getInstance();
     final token = pref.getString('token');
-    final response = await http.get(Uri.parse(baseUrl), headers: {
+    final response = await http.get(Uri.parse('$baseUrl/specialites'), headers: {
       "Authorization": "Bearer $token",
     });
     if (response.statusCode == 200 || response.statusCode == 201) {
@@ -26,7 +27,7 @@ class SpecialiteService {
     final pref = await SharedPreferences.getInstance();
     final token = pref.getString('token');
     final response = await http.post(
-      Uri.parse('$baseUrl/save'),
+      Uri.parse('$baseUrl/specialites/save'),
       headers: {
         'Content-Type': 'application/json',
         "Authorization": "Bearer $token",
@@ -58,7 +59,7 @@ class SpecialiteService {
     final pref = await SharedPreferences.getInstance();
     final token = pref.getString('token');
     final response = await http.put(
-      Uri.parse('$baseUrl/update/$id'),
+      Uri.parse('$baseUrl/specialites/update/$id'),
       headers: {
         'Content-Type': 'application/json',
         "Authorization": "Bearer $token",
@@ -82,7 +83,7 @@ class SpecialiteService {
   //Recuperer les specialites par
 
   Future<List<Specialite>> getSpecialiteByDomaine(int domaineId) async {
-    final url = Uri.parse('$baseUrl/domaine/$domaineId');
+    final url = Uri.parse('$baseUrl/specialites/domaine/$domaineId');
     print('URL de l\'API : $url');
 
     final response = await http.get(url);
@@ -100,7 +101,7 @@ class SpecialiteService {
   //Delete
   Future<void> deleteSpecialite(int id) async {
     final response = await http.delete(
-      Uri.parse('$baseUrl/$id'),
+      Uri.parse('$baseUrl/specialites/$id'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -118,7 +119,7 @@ class SpecialiteService {
     try {
       final pref = await SharedPreferences.getInstance();
       final token = pref.getString('token');
-      final response = await http.get(Uri.parse('$baseUrl?nom=$nom'), headers: {
+      final response = await http.get(Uri.parse('$baseUrl/specialites?nom=$nom'), headers: {
         "Authorization": "Bearer $token",
       });
 

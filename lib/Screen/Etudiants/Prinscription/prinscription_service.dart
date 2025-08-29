@@ -3,18 +3,19 @@ import 'dart:convert';
 import 'package:school_management_system/Screen/Etudiants/Prinscription/model_prinscription.dart';
 
 import 'package:http/http.dart' as http;
+import 'package:school_management_system/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class EtudiantService {
   final String baseUrl =
-      "http://192.168.1.15:9000/api/admin/candidat-pre-inscrit";
+      AppConfig.baseUrl;
 
   //Get all Etudiants
   Future<List<CandidatPreInscrit>> getAllEtudiant() async {
     try {
       final pref = await SharedPreferences.getInstance();
       final token = pref.getString('token');
-      final response = await http.get(Uri.parse(baseUrl), headers: {
+      final response = await http.get(Uri.parse('$baseUrl/candidat-pre-inscrit'), headers: {
         'Authorization': 'Bearer $token',
       });
 
@@ -39,7 +40,7 @@ class EtudiantService {
   }) async {
     final pref = await SharedPreferences.getInstance();
     final token = pref.getString('token');
-    final url = Uri.parse('$baseUrl/save');
+    final url = Uri.parse('$baseUrl/candidat-pre-inscrit/save');
 
     try {
       final response = await http.post(
@@ -67,7 +68,7 @@ class EtudiantService {
       final pref = await SharedPreferences.getInstance();
       final token = pref.getString('token');
       final response =
-          await http.get(Uri.parse('$baseUrl/three-documents'), headers: {
+          await http.get(Uri.parse('$baseUrl/candidat-pre-inscrit/three-documents'), headers: {
         "Authorization": "Bearer $token",
       });
 
@@ -92,7 +93,7 @@ class EtudiantService {
   //Supprimer un Etudiant
   Future<void> deleteEtudiant(int id) async {
     final response = await http.delete(
-      Uri.parse('$baseUrl/$id'),
+      Uri.parse('$baseUrl/candidat-pre-inscrit/$id'),
       headers: {
         'Content-type': 'application/json;charset=UTF-8',
       },
@@ -108,7 +109,7 @@ class EtudiantService {
     final pref = await SharedPreferences.getInstance();
     final token = pref.getString('token');
     final response =
-        await http.get(Uri.parse('$baseUrl/exists?email=$email'), headers: {
+        await http.get(Uri.parse('$baseUrl/candidat-pre-inscrit/exists?email=$email'), headers: {
       "Authorization": "Bearer $token",
     });
     print(" Existence de l'etudiant par son email");
@@ -122,7 +123,7 @@ class EtudiantService {
 
   //mise a jour d'un etudiant
   Future<CandidatPreInscrit> updateEtudiant(CandidatPreInscrit etudiant) async {
-    final response = await http.put(Uri.parse('$baseUrl/${etudiant.id}'),
+    final response = await http.put(Uri.parse('$baseUrl/candidat-pre-inscrit/${etudiant.id}'),
         headers: {'Content-type': 'application/json;charset=UTF-8'},
         body: json.encode(etudiant.toJson()));
 
@@ -142,7 +143,7 @@ class EtudiantService {
   //recuperer les etudiants d'une Filiere
   Future<List<CandidatPreInscrit>> getEtudiantsByFiliereId(
       int filiereId) async {
-    final response = await http.get(Uri.parse('$baseUrl/filiere/$filiereId'));
+    final response = await http.get(Uri.parse('$baseUrl/candidat-pre-inscrit/filiere/$filiereId'));
 
     if (response.statusCode == 200) {
       List<dynamic> jsonResponse = json.decode(response.body);
@@ -156,7 +157,7 @@ class EtudiantService {
 
   Future<int> getEtudiantsCountByFiliereId(int filiereId) async {
     final response =
-        await http.get(Uri.parse('$baseUrl/filiere/$filiereId/count'));
+        await http.get(Uri.parse('$baseUrl/candidat-pre-inscrit/filiere/$filiereId/count'));
 
     if (response.statusCode == 200) {
       return json.decode(response.body) as int;
@@ -168,7 +169,7 @@ class EtudiantService {
 // Récupérer les étudiants d'un niveau
   Future<List<CandidatPreInscrit>> getEtudiantsByNiveauId(int niveauId) async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/niveau/$niveauId'));
+      final response = await http.get(Uri.parse('$baseUrl/candidat-pre-inscrit/niveau/$niveauId'));
       print("Récupération des étudiants par niveau");
       print("Code de réponse : ${response.statusCode}");
       print("Corps de la réponse : ${response.body}");
@@ -199,7 +200,7 @@ class EtudiantService {
   //recuperer les etudiants d'une session
   Future<List<CandidatPreInscrit>> getEtudiantsBySessionId(
       int sessionId) async {
-    final response = await http.get(Uri.parse('$baseUrl/session/$sessionId'));
+    final response = await http.get(Uri.parse('$baseUrl/candidat-pre-inscrit/session/$sessionId'));
 
     if (response.statusCode == 200) {
       List<dynamic> jsonResponse = json.decode(response.body);

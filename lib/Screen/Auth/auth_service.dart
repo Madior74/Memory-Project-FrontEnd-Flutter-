@@ -4,12 +4,12 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  // final String baseUrl = 'https:;
+  final String baseUrl = 'http://192.168.1.15:9000/api';
 
   Future<Map<String, dynamic>> login(
       BuildContext context, String email, String password) async {
     final response = await http.post(
-      Uri.parse('http://192.168.1.15:9000/api/auth/login'),
+      Uri.parse('$baseUrl/auth/login'),
       headers: {'Content-Type': 'application/json'},
       body: json.encode({'email': email, 'password': password}),
     );

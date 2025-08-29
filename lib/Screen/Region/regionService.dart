@@ -2,17 +2,18 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:school_management_system/Screen/Region/model_region.dart';
+import 'package:school_management_system/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class RegionService {
-  final String baseUrl = 'http://192.168.1.15:9000/api/admin/regions';
+  final String baseUrl = AppConfig.baseUrl;
 
   //Get
   Future<List<Region>> getRegion() async {
     try {
       final pref = await SharedPreferences.getInstance();
       final token = pref.getString('token');
-      final response = await http.get(Uri.parse('$baseUrl'), headers: {
+      final response = await http.get(Uri.parse('$baseUrl/regions'), headers: {
         'Authorization': 'Bearer $token',
       });
 

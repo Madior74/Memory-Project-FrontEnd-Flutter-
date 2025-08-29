@@ -3,16 +3,17 @@ import 'package:http/http.dart' as http;
 import 'package:school_management_system/Screen/Region/Departements/departement.dart';
 import 'package:school_management_system/Screen/Filieres/filiere.dart';
 import 'package:school_management_system/Screen/Niveaux/model_niveau.dart';
+import 'package:school_management_system/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DepartementService {
-  final String baseUrl = "http://192.168.1.15:9000/api/admin/departements";
+  final String baseUrl = AppConfig.baseUrl;
 
   // Récupérer les niveaux pour une filière
   Future<List<Departement>> getDepartementByRegion(int regionId) async {
     final pref = await SharedPreferences.getInstance();
     final token = pref.getString('token');
-    final url = Uri.parse('$baseUrl/departement/$regionId');
+    final url = Uri.parse('$baseUrl/departements/departement/$regionId');
     print('URL de l\'API : $url');
 
     final response = await http.get(url, headers: {
@@ -32,7 +33,7 @@ class DepartementService {
   ///////
   Future<Filiere?> getFiliereByNiveauId(int niveauId) async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/$niveauId/filiere'));
+      final response = await http.get(Uri.parse('$baseUrl/departements/$niveauId/filiere'));
       print("Recuperation de la filiere");
       print('$baseUrl/$niveauId/filiere');
       print(response);
@@ -52,7 +53,7 @@ class DepartementService {
   Future<void> addDepartementToRegion(
       int regionId, String nomDepartement) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/departement/$regionId'),
+      Uri.parse('$baseUrl/departements/departement/$regionId'),
       headers: {'Content-Type': 'application/json'},
       body: json.encode({'nomDepartement': nomDepartement}),
     );
@@ -72,7 +73,7 @@ class DepartementService {
   // Mettre à jour un niveau
   Future<Niveau> updateNiveau(int id, Niveau niveau) async {
     final response = await http.put(
-      Uri.parse('$baseUrl/$id'),
+      Uri.parse('$baseUrl/departements/$id'),
       headers: {'Content-Type': 'application/json'},
       body: json.encode(niveau.toJson()),
     );
@@ -86,7 +87,7 @@ class DepartementService {
 
   // Get all niveaux
   Future<List<Niveau>> getNiveaux() async {
-    final response = await http.get(Uri.parse(baseUrl));
+    final response = await http.get(Uri.parse('$baseUrl/departements'));
 
     if (response.statusCode == 200) {
       Iterable jsonResponse = json.decode(response.body);
@@ -100,18 +101,13 @@ class DepartementService {
   // Delete a niveau
   Future<void> deleteDepartement(int id) async {
     final response = await http.delete(
-      Uri.parse('$baseUrl/$id'),
+      Uri.parse('$baseUrl/departements/$id'),
       headers: {
         "Accept": "application/json",
         "content-type": "application/json"
       },
     );
 
-    print("Supression du niveau");
-    print('$baseUrl/$id');
-    print(response);
-    print(
-        "Réponse de l'API : ${response.statusCode}"); // Ajoutez ce log pour vérifier
 
     if (response.statusCode != 200 && response.statusCode != 201) {
       throw Exception('Echec de la supression du Niveau');
@@ -120,7 +116,7 @@ class DepartementService {
 
   Future<bool> departementExist(String depName, int regionId) async {
     final response = await http.get(
-      Uri.parse('$baseUrl/exists?nomDepartement=$depName&regionId=$regionId'),
+      Uri.parse('$baseUrl/departements/exists?nomDepartement=$depName&regionId=$regionId'),
     );
 
     if (response.statusCode == 200) {
