@@ -23,13 +23,18 @@ class _ListeDesPrinscritsState extends State<ListeDesPrinscrits> {
   @override
   void initState() {
     super.initState();
-    futuresEtudiants = EtudiantService().getAllEtudiant();
+    futuresEtudiants = PrinscriptionService().getAllEtudiant();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
+        backgroundColor: myDrawerColol,
+        child: Icon(
+          Icons.add,
+          color: Colors.white,
+        ),
         onPressed: () {
           Navigator.push(
               context,
@@ -111,7 +116,7 @@ class _ListeDesPrinscritsState extends State<ListeDesPrinscrits> {
                                 );
                                 setState(() {
                                   futuresEtudiants =
-                                      EtudiantService().getAllEtudiant();
+                                      PrinscriptionService().getAllEtudiant();
                                 });
                               },
                               onDelete: () =>
@@ -142,10 +147,10 @@ class _ListeDesPrinscritsState extends State<ListeDesPrinscrits> {
             const ButtonAnnuler(),
             TextButton(
                 onPressed: () {
-                  EtudiantService().deleteEtudiant(id).then((_) {
+                  PrinscriptionService().deleteEtudiant(id).then((_) {
                     setState(
                       () {
-                        futuresEtudiants = EtudiantService().getAllEtudiant();
+                        futuresEtudiants = PrinscriptionService().getAllEtudiant();
                       },
                     );
 

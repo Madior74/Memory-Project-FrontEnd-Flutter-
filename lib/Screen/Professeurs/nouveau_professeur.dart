@@ -37,10 +37,10 @@ class _NouveauProfesseurState extends State<NouveauProfesseur> {
   int _index = 0;
   int value = 1;
   int selectedOption = 1;
-  late Specialite _selectedSpecialite;
 
-//Domaines
+//specialités
   List<Specialite> _splt = [];
+  List<int> _selectedSpecialiteIds = [];
 
   //Region et depart
   List<Region> _regions = [];
@@ -173,37 +173,7 @@ class _NouveauProfesseurState extends State<NouveauProfesseur> {
       throw Exception("Erreur lors de la recupération des departements");
     }
   }
-  // //Fonction selection multiple
-  // void _showMultipleSelect() async {
-  //   final items = tousLesmodules;
-
-  //   final List<Module>? resultats = await showDialog(
-  //       context: context,
-  //       builder: (BuildContext context) {
-  //         return FutureBuilder<List<Module>>(
-  //           future: tousLesmodules,
-  //           builder: (context, snapshot) {
-  //             if (snapshot.connectionState == ConnectionState.waiting) {
-  //               return const Center(child: CircularProgressIndicator());
-  //             } else if (snapshot.hasError) {
-  //               return Center(child: Text('Erreur : ${snapshot.error}'));
-  //             } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-  //               return const Center(child: Text('Aucun module disponible'));
-  //             } else {
-  //               return MultiSelect(items: snapshot.data!);
-  //             }
-  //           },
-  //         );
-  //       });
-
-  //   //Mise a jour du UI
-
-  //   if (resultats != null) {
-  //     setState(() {
-  //       _selectedModules = resultats;
-  //     });
-  //   }
-  // }
+ 
 
   @override
   Widget build(BuildContext context) {
@@ -270,47 +240,47 @@ class _NouveauProfesseurState extends State<NouveauProfesseur> {
 
   void _submit() async {
     if (_formKey.currentState!.validate()) {
-      print(_selectedSpecialite);
-      if (_selectedSpecialite == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Veuillez sélectionner une spécialité."),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
+      if (_selectedSpecialiteIds.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Veuillez sélectionner au moins une spécialité."),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      // Récupérer les objets Specialite correspondants aux IDs
+      List<Specialite> selectedSpecialites = _splt
+          .where((specialite) => _selectedSpecialiteIds.contains(specialite.id))
+          .toList();
+
       try {
         final professeur = Professeur(
-            prenom: _prenomEditController.text,
-            nom: _nomEditController.text,
-            adresse: _adresseEditController.text,
-            telephone: _telephoneEditController.text,
-            sexe: _selectedGender ?? 'Masculin',
-            email: _emailEditController.text,
-            password: _passwordEditController.text,
-            imagePath: _image?.path ?? '',
-            paysDeNaissance: selectedCountry?.name ?? 'Senegal',
-            cni: _cniEditController.text,
-            ine: _ineEditController.text,
-            dateDeNaissance: _selectedDate ?? DateTime.now(),
-            departement: departementChoisi,
-            dateAjout: DateTime.now(),
-            status: selectedStatus ?? "Vacataire",
-            specialites: [_selectedSpecialite] ,
-            region: regionChoisie);
+          prenom: _prenomEditController.text,
+          nom: _nomEditController.text,
+          adresse: _adresseEditController.text,
+          telephone: _telephoneEditController.text,
+          sexe: _selectedGender ?? 'Masculin',
+          email: _emailEditController.text,
+          password: _passwordEditController.text,
+          imagePath: _image?.path ?? '',
+          paysDeNaissance: selectedCountry?.name ?? 'Sénégal',
+          cni: _cniEditController.text,
+          ine: _ineEditController.text,
+          dateDeNaissance: _selectedDate ?? DateTime.now(),
+          departement: departementChoisi,
+          status: selectedStatus ?? "Vacataire",
+          specialites: selectedSpecialites,
+          region: regionChoisie,
+        );
+        print("Donnees prof envoyés");
+        print(professeur.toJson());
 
-        // Conversion simple en JSON
-        final professeurJson = professeur.toJson();
-        print(professeurJson);
-
-        // Formater les dates en texte simple
-        professeurJson['dateDeNaissance'] =
-            _selectedDate.toString().split(' ')[0];
-        professeurJson['dateAjout'] =
-            DateTime.now().toString().replaceFirst('T', ' ').split('.')[0];
-
+        // Envoi via le service
         await ProfesseurService().createProfesseur(professeur);
+
+        // Afficher succès
         showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -320,10 +290,11 @@ class _NouveauProfesseurState extends State<NouveauProfesseur> {
               actions: [
                 TextButton(
                   onPressed: () {
-                    Navigator.push(
+                    Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => const ListeDesProfesseurs()),
+                        builder: (context) => const ListeDesProfesseurs(),
+                      ),
                     );
                   },
                   child: const Text(
@@ -337,6 +308,7 @@ class _NouveauProfesseurState extends State<NouveauProfesseur> {
           },
         );
       } catch (e) {
+        print(e);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Erreur: $e')),
         );
@@ -637,8 +609,7 @@ class _NouveauProfesseurState extends State<NouveauProfesseur> {
                         items: _dept.map((depart) {
                           return DropdownMenuItem<Departement>(
                               value: depart,
-                              child: Text(utf8
-                                  .decode(depart.nomDepartement.codeUnits)));
+                              child: Text(depart.nomDepartement));
                         }).toList(),
                         onChanged: (value) {
                           departementChoisi = value;
@@ -827,70 +798,82 @@ class _NouveauProfesseurState extends State<NouveauProfesseur> {
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Center(
-                  child: Text(
-                    " Liste des Specialités ",
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 35),
-                  ),
-                ),
-
-                const SizedBox(height: 25),
-
-                //Liste des Modules
-                // ..._splt.map((splt) {
-                //   return CheckboxListTile(
-                //     title: Text(fixDoubleEncoding(
-                //         splt.nom!)), // Remove utf8.decode here
-                //     value: _selectedSpecialite.contains(splt.id),
-                //     onChanged: (bool? selected) {
-                //       setState(() {
-                //         if (selected == true) {
-                //           _selectedSpecialite.add(splt.id!);
-                //         } else {
-                //           _selectedSpecialite.remove(splt.id);
-                //         }
-                //       });
-                //     },
-                //   );
-                // }).toList(),
-
                 const Center(
                   child: Text(
                     "Spécialités ou Modules Enseignés",
                     style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 35),
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                    ),
                   ),
                 ),
+                const SizedBox(height: 20),
 
-                // Wrap(
-                //   spacing: 8,
-                //   children: _selectedSpecialite.map((moduleId) {
-                //     final module = _splt.firstWhere((m) => m.id == moduleId);
-                //     return Chip(
-                //       label: Text(
-                //         module.nom!, // Remove utf8.decode here
-                //         style: TextStyle(color: Colors.white),
-                //       ),
-                //       backgroundColor: Colors.blue.shade800,
-                //     );
-                //   }).toList(),
-                // ),
+                // Liste des spécialités avec Checkbox
+                ..._splt.map((specialite) {
+                  bool isSelected =
+                      _selectedSpecialiteIds.contains(specialite.id);
+
+                  return CheckboxListTile(
+                    title: Text(specialite.nom ?? "Inconnu"),
+                    value: isSelected,
+                    onChanged: (bool? selected) {
+                      setState(() {
+                        if (selected == true) {
+                          if (!isSelected) {
+                            _selectedSpecialiteIds.add(specialite.id!);
+                          }
+                        } else {
+                          _selectedSpecialiteIds.remove(specialite.id);
+                        }
+                      });
+                    },
+                  );
+                }).toList(),
+
+                const SizedBox(height: 20),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 6,
+                  children: _selectedSpecialiteIds.map((id) {
+                    final specialite = _splt.firstWhere((s) => s.id == id,
+                        orElse: () => Specialite(id: id, nom: "Inconnu"));
+                    if (specialite == null) return Container(); // sécurité
+
+                    return Chip(
+                      label: Text(
+                        specialite.nom ?? "Spécialité",
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                      backgroundColor: Colors.blue.shade800,
+                      onDeleted: () {
+                        setState(() {
+                          _selectedSpecialiteIds.remove(id);
+                        });
+                      },
+                      deleteIcon: const Icon(Icons.close,
+                          size: 16, color: Colors.white),
+                    );
+                  }).toList(),
+                ),
+
+                // Message si aucune spécialité sélectionnée
+                if (_selectedSpecialiteIds.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.only(top: 16),
+                    child: Text(
+                      "Aucune spécialité sélectionnée",
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  ),
               ],
             ),
           ),
         );
       },
     );
-  }
-
-  //Fonction de Conversion
-  String fixDoubleEncoding(String text) {
-    return utf8.decode(text.runes.toList());
   }
 }

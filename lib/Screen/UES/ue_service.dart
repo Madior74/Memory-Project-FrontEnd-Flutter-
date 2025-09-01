@@ -30,8 +30,8 @@ class UeService {
   Future<List<UE>> getUesBySemestre(int semestreId) async {
     final pref = await SharedPreferences.getInstance();
     final token = pref.getString('token');
-    final response =
-        await http.get(Uri.parse('$baseUrl/ues/semestre/$semestreId'), headers: {
+    final response = await http
+        .get(Uri.parse('$baseUrl/ues/semestre/$semestreId'), headers: {
       'Authorization': 'Bearer $token',
     });
     print("Recuperation des UES");
@@ -50,25 +50,23 @@ class UeService {
   //Create
 
   Future<void> addUeToSemestre(int? semestreId, UE ue) async {
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('token');
     final url = Uri.parse('$baseUrl/ues/$semestreId/ue');
-    final headers = {'Content-Type': 'application/json'};
+    final headers = {
+      'Content-Type': 'application/json',
+      "Authorization": "Bearer $token",
+    };
     final body = json.encode(ue.toJson());
 
-    print("Ajout d'une UE à un Semestre");
-    print("URL: $url");
-    print("Body: $body");
-
+  
     final response = await http.post(url, headers: headers, body: body);
 
-    print("Statut de la réponse: ${response.statusCode}");
-    print("Réponse: ${response.body}");
-    print("JSON envoyé : ${jsonEncode(ue.toJson())}");
+  
 
     if (response.statusCode == 201 || response.statusCode == 200) {
-      print("UE ajoutée avec succès !");
     } else {
-      print("Erreur lors de l'ajout de l'UE : ${response.body}");
-      print("Statut: ${response.statusCode}");
+    
       throw Exception("Erreur lors de l'ajout de l'UE : ${response.body}");
     }
   }
@@ -81,9 +79,7 @@ class UeService {
         'Content-Type': 'application/json; charset=UTF-8',
       },
     );
-    print(" supression de L'UE");
-    print(response.body);
-    print(response.statusCode);
+  
 
     if (response.statusCode != 200 && response.statusCode != 200) {
       throw Exception('Échec de la suppression de l\'ue');
@@ -120,12 +116,15 @@ class UeService {
 
   //Verification de l'existence d'une UE
   Future<bool> ueExist(String nomUe, int? semestreId) async {
-    final response = await http
-        .get(Uri.parse('$baseUrl/exists?nomUE=$nomUe&semestreId=$semestreId'));
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('token');
+    final response = await http.get(
+        Uri.parse('$baseUrl/ues/exists?nomUE=$nomUe&semestreId=$semestreId'),
+        headers: {
+          "Authorization": "Bearer $token",
+        });
 
-    print("Réponse de l'API : ${response.body}");
-    print("Code de la réponse de l'API : ${response.statusCode}");
-
+   
     if (response.statusCode == 200 || response.statusCode == 201) {
       return json.decode(response.body) as bool;
     } else {

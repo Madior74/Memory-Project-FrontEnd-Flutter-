@@ -31,6 +31,7 @@ class NouvellePriscription extends StatefulWidget {
 class _NouvellePriscriptionState extends State<NouvellePriscription> {
   List<Filiere> futuresFilieres = [];
   List<Niveau> futuresNiveaux = [];
+  List<AnneeAcademique> futureAnnees = [];
 
   String? selectedRole;
   //Le Niveau
@@ -50,6 +51,7 @@ class _NouvellePriscriptionState extends State<NouvellePriscription> {
   List<Region> _regions = [];
   Filiere? filiereChoisie;
   Niveau? niveauChoisie;
+  AnneeAcademique? annechoisie;
   Region? regionChoisie;
   Departement? departementChoisi;
   List<Departement> _dept = [];
@@ -90,6 +92,7 @@ class _NouvellePriscriptionState extends State<NouvellePriscription> {
     super.initState();
     _loadRegions();
     fetchFilieres();
+    fetchAnnees();
   }
 
   Future<void> _loadRegions() async {
@@ -130,6 +133,20 @@ class _NouvellePriscriptionState extends State<NouvellePriscription> {
     }
   }
 
+  //Recuperation des Filieres
+  void fetchAnnees() async {
+    try {
+      List<AnneeAcademique> anneesData =
+          await AnneeAcademiqueService().getSessions();
+
+      setState(() {
+        futureAnnees = anneesData;
+      });
+    } catch (e) {
+      print("Recuperation des Annees $e");
+    }
+  }
+
   void fetchNiveaux(int filiereId) async {
     try {
       List<Niveau> niveauxData =
@@ -162,8 +179,6 @@ class _NouvellePriscriptionState extends State<NouvellePriscription> {
   }
 
   void _submit() async {
-    print("Departement choisie");
-    print(departementChoisi);
     // Validation du formulaire
     if (_formKey.currentState!.validate()) {
       // Vérification de la session choisie
@@ -185,16 +200,18 @@ class _NouvellePriscriptionState extends State<NouvellePriscription> {
         departement: departementChoisi,
         filiereSouhaitee: filiereChoisie,
         niveauSouhaite: niveauChoisie,
+        anneeAcademique: annechoisie,
         dateAjout: DateTime.now(),
         region: regionChoisie,
-        // role: selectedRole ?? 'ROLE_ETUDIANT',
       );
-      //Conversion de l'objet Etudiant en json
+
+      print("departement Choisie est : ${departementChoisi?.nomDepartement}");
+      print("Donnees envoyees  : ${etudiant.toJson()}");
       final etudiantJson = etudiant.toJson();
-      // etudiantJson['dateDeNaissance'] = _selectedDate.toString().split(' ')[0];
-      // Vérification de l'existence de l'email
+
       try {
-        bool emailExists = await EtudiantService().emailExist(etudiant.email!);
+        bool emailExists =
+            await PrinscriptionService().emailExist(etudiant.email!);
 
         if (emailExists) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -205,7 +222,7 @@ class _NouvellePriscriptionState extends State<NouvellePriscription> {
           return;
         }
 
-        await EtudiantService().addEtudiant(etudiantData: etudiantJson);
+        await PrinscriptionService().addEtudiant(etudiantData: etudiantJson);
 
         showDialog(
           context: context,
@@ -235,6 +252,7 @@ class _NouvellePriscriptionState extends State<NouvellePriscription> {
 
         print('Étudiant ajouté avec succès');
       } catch (e) {
+        print(e);
         // Gestion des erreurs
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Erreur : ${e.toString()}')),
@@ -536,13 +554,11 @@ class _NouvellePriscriptionState extends State<NouvellePriscription> {
                                     borderRadius: BorderRadius.circular(12))),
                             value: _dept.contains(departementChoisi)
                                 ? departementChoisi
-                                : null, // Ensure value is in list
-
+                                : null,
                             items: _dept.map((depart) {
                               return DropdownMenuItem<Departement>(
                                   value: depart,
-                                  child: Text(utf8.decode(
-                                      depart.nomDepartement.codeUnits)));
+                                  child: Text(depart.nomDepartement));
                             }).toList(),
                             onChanged: (value) {
                               departementChoisi = value;
@@ -737,7 +753,6 @@ class _NouvellePriscriptionState extends State<NouvellePriscription> {
                             onChanged: (value) {
                               setState(() {
                                 filiereChoisie = value;
-                                // Charger les niveaux lorsque la filière change
                                 if (value != null) {
                                   fetchNiveaux(value.id!);
                                 } else {
@@ -776,6 +791,34 @@ class _NouvellePriscriptionState extends State<NouvellePriscription> {
                             },
                             validator: (value) => value == null
                                 ? 'Veuillez sélectionner un niveau'
+                                : null,
+                          ),
+                        ),
+                        SizedBox(
+                          width: 16,
+                        ),
+                        Expanded(
+                          child: DropdownButtonFormField<AnneeAcademique>(
+                            decoration: InputDecoration(
+                                prefixIcon: Icon(Icons.account_balance),
+                                border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12)),
+                                labelText: 'Année Académique'),
+                            value: annechoisie,
+                            items: futureAnnees.map((annee) {
+                              return DropdownMenuItem<AnneeAcademique>(
+                                value: annee,
+                                child: Text(annee.nomAnnee),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                annechoisie = value;
+                                // Charger les niveaux lorsque la filière change
+                              });
+                            },
+                            validator: (value) => value == null
+                                ? 'Veuillez sélectionner une Année Académique'
                                 : null,
                           ),
                         ),

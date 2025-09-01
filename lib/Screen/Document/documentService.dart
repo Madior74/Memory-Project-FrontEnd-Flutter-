@@ -26,8 +26,7 @@ class DocumentService {
 
     final response = await request.send();
     final responseData = await response.stream.bytesToString();
-    print("Ajout de document");
-    print(response.statusCode);
+   
     if (response.statusCode == 201 || response.statusCode == 200) {
       return Document.fromJson(json.decode(responseData));
     } else {
@@ -53,12 +52,10 @@ class DocumentService {
 
         return jsonList.map((json) => Document.fromJson(json)).toList();
       } else {
-        print("Échec du chargement : ${response.statusCode}");
         throw Exception(
             "Impossible de charger les documents : ${response.statusCode}");
       }
     } catch (e) {
-      print("Erreur : $e");
       throw Exception("Échec du chargement des documents : $e");
     }
   }
@@ -83,7 +80,6 @@ Future<String> downloadDocument(int documentId) async {
 
     await file.writeAsBytes(response.bodyBytes);
     
-    // ✅ Retourne le chemin du fichier sauvegardé
     return filePath;
   } else {
     throw Exception('Échec du téléchargement du document (code: ${response.statusCode})');
@@ -100,7 +96,6 @@ Future<String> downloadDocument(int documentId) async {
     });
 
     if (response.statusCode != 200 && response.statusCode != 201) {
-      print('Suppression code ${response.statusCode}');
       throw Exception('Échec de la suppression de la Filière');
     }
   }

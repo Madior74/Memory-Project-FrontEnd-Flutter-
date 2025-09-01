@@ -60,6 +60,11 @@ class _ListFilieresState extends State<ListFilieres> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
+        backgroundColor: myDrawerColol,
+        child: Icon(
+          Icons.add,
+          color: Colors.white,
+        ),
         onPressed: () {
           addDialog();
           _nomFiliereController.clear();

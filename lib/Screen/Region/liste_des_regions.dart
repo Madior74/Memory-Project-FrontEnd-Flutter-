@@ -32,7 +32,7 @@ class _ListeDesRegionsState extends State<ListeDesRegions> {
   }
 
   Future<int> getEtudiantsCountByRegionId(int RegionId) async {
-    return await EtudiantService().getEtudiantsCountByFiliereId(RegionId);
+    return await PrinscriptionService().getEtudiantsCountByFiliereId(RegionId);
   }
   //Acronyme
 
@@ -167,8 +167,7 @@ class _ListeDesRegionsState extends State<ListeDesRegions> {
                                             ),
                                             const SizedBox(height: 10),
                                             Text(
-                                              utf8.decode(
-                                                  region.nomRegion.codeUnits),
+                                              region.nomRegion,
                                               style: const TextStyle(
                                                 fontWeight: FontWeight.w600,
                                                 fontSize: 16,

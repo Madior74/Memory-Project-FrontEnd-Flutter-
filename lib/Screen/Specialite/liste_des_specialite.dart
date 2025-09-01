@@ -33,6 +33,11 @@ class _ListeDesSpecialiteState extends State<ListeDesSpecialite> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
+        backgroundColor: myDrawerColol,
+        child: Icon(
+          Icons.add,
+          color: Colors.white,
+        ),
         onPressed: () {
           _openDialog();
         },
@@ -43,7 +48,7 @@ class _ListeDesSpecialiteState extends State<ListeDesSpecialite> {
           Expanded(
             child: Column(
               children: [
-                MyAppbar(
+                const MyAppbar(
                   title: "  Liste des Specialites ",
                 ),
                 const SizedBox(height: 20),
@@ -86,17 +91,17 @@ class _ListeDesSpecialiteState extends State<ListeDesSpecialite> {
                                       IconButton(
                                           onPressed: () =>
                                               _openDialog(specialite: speci),
-                                          icon: Icon(
+                                          icon: const Icon(
                                             Icons.edit,
                                             color: Colors.blue,
                                           )),
-                                      SizedBox(
+                                      const SizedBox(
                                         width: 10,
                                       ),
                                       IconButton(
                                           onPressed: () =>
                                               _confirmDelete(speci.id!),
-                                          icon: Icon(
+                                          icon: const Icon(
                                             Icons.delete,
                                             color: Colors.red,
                                           ))

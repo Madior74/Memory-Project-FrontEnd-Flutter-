@@ -351,7 +351,7 @@ class _SemestreByNiveauState extends State<SemestreByNiveau> {
             const ButtonAnnuler(),
             TextButton(
                 onPressed: () {
-                  EtudiantService().deleteEtudiant(id).then((_) {
+                  PrinscriptionService().deleteEtudiant(id).then((_) {
                     setState(
                       () {
                         futureEtudiants = InscriptionService()

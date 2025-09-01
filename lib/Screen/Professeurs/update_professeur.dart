@@ -177,11 +177,12 @@ class _UpdateProfesseurState extends State<UpdateProfesseur> {
           paysDeNaissance: selectedCountry?.name ?? 'Senegal',
           cni: _cniEditController.text,
           ine: _ineEditController.text,
-          departement: departementChoisi,
-          region: regionChoisie);
+          departement: departementChoisi ?? widget.professeur.departement,
+          region: regionChoisie ?? widget.professeur.region);
 
       try {
         await ProfesseurService().updateProfesseur(prof.id!, prof);
+        print("donnees envoyes:${prof.toJson()}");
 
         showDialog(
           context: context,

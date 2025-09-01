@@ -12,6 +12,8 @@ import 'package:school_management_system/Screen/Modules/moduleService.dart';
 import 'package:school_management_system/Screen/Note/Devoir/devoir_service.dart';
 
 class AddNoteScreen extends StatefulWidget {
+  const AddNoteScreen({super.key});
+
   @override
   _AddNoteScreenState createState() => _AddNoteScreenState();
 }
@@ -49,7 +51,7 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
 
   void _fetchData() async {
     try {
-      List<CandidatPreInscrit> etudiantData = await EtudiantService().getAllEtudiant();
+      List<CandidatPreInscrit> etudiantData = await PrinscriptionService().getAllEtudiant();
       List<Professeur> professeurData =
           await ProfesseurService().fetchprofesseurs();
       List<Module> moduleData = await ModuleService().getAllModules();
@@ -91,10 +93,7 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
 
     final noteJson = newNote.toJson();
     debugPrint('Sending JSON: ${jsonEncode(noteJson)}');
-    print('JSON envoyé: ${jsonEncode(noteJson)}');
-    print('Final JSON being sent:');
-    print(jsonEncode(noteJson));
-    print('Date string: ${noteJson['dateAttribution']}');
+   
 
     try {
       await devoirService.createdevoir(devoir: noteJson);
@@ -114,16 +113,15 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
           SnackBar(content: Text("Erreur: ${e.toString()}")),
         );
       }
-      print('Erreur détaillée: $e');
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Ajouter une Note")),
+      appBar: AppBar(title: const Text("Ajouter une Note")),
       body: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : Padding(
               padding: const EdgeInsets.all(16.0),
               child: Form(
@@ -132,7 +130,7 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     DropdownButtonFormField<CandidatPreInscrit>(
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                           labelText: "Sélectionner un étudiant"),
                       items: etudiants.map((etudiant) {
                         return DropdownMenuItem(
@@ -149,7 +147,7 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
                           ? "Veuillez sélectionner un étudiant"
                           : null,
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     DropdownButtonFormField<String>(
                       decoration: InputDecoration(
                           labelText: "Session",
@@ -167,10 +165,10 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
                         });
                       },
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
 
                     DropdownButtonFormField<Professeur>(
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                           labelText: "Sélectionner un professeur"),
                       items: professeurs.map((prof) {
                         return DropdownMenuItem(
@@ -187,10 +185,10 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
                           ? "Veuillez sélectionner un professeur"
                           : null,
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     DropdownButtonFormField<Module>(
                       decoration:
-                          InputDecoration(labelText: "Sélectionner un module"),
+                          const InputDecoration(labelText: "Sélectionner un module"),
                       items: modules.map((mod) {
                         return DropdownMenuItem(
                           value: mod,
@@ -206,7 +204,7 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
                           ? "Veuillez sélectionner un module"
                           : null,
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     InkWell(
                       onTap: () async {
                         final DateTime? picked = await showDatePicker(
@@ -248,7 +246,7 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
                     const SizedBox(width: 16),
                     TextFormField(
                       decoration:
-                          InputDecoration(labelText: "Note de devoir (30%)"),
+                          const InputDecoration(labelText: "Note de devoir (30%)"),
                       keyboardType: TextInputType.number,
                       onChanged: (value) {
                         setState(() {
@@ -263,7 +261,7 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
                         return null;
                       },
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     // TextFormField(
                     //   decoration:
                     //       InputDecoration(labelText: "Note d'examen (70%)"),
@@ -281,11 +279,11 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
                     //     return null;
                     //   },
                     // ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     Center(
                       child: ElevatedButton(
                         onPressed: _submitForm,
-                        child: Text("Ajouter la Note"),
+                        child: const Text("Ajouter la Note"),
                       ),
                     ),
                   ],

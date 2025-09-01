@@ -29,6 +29,11 @@ class _ListInscriptionsState extends State<ListInscriptions> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
+        backgroundColor: myDrawerColol,
+        child: Icon(
+          Icons.add,
+          color: Colors.white,
+        ),
         onPressed: () {
           Navigator.push(
               context,

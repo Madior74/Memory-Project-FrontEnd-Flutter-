@@ -6,16 +6,16 @@ import 'package:http/http.dart' as http;
 import 'package:school_management_system/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class EtudiantService {
-  final String baseUrl =
-      AppConfig.baseUrl;
+class PrinscriptionService {
+  final String baseUrl = AppConfig.baseUrl;
 
   //Get all Etudiants
   Future<List<CandidatPreInscrit>> getAllEtudiant() async {
     try {
       final pref = await SharedPreferences.getInstance();
       final token = pref.getString('token');
-      final response = await http.get(Uri.parse('$baseUrl/candidat-pre-inscrit'), headers: {
+      final response =
+          await http.get(Uri.parse('$baseUrl/candidat-pre-inscrit'), headers: {
         'Authorization': 'Bearer $token',
       });
 
@@ -31,7 +31,7 @@ class EtudiantService {
             "Erreur lors de la récupération des Etudiants ${response.statusCode}");
       }
     } catch (e) {
-      throw Exception('Erreur lors de la récupération des Etudiants ');
+      throw Exception('Erreur lors de la récupération des Etudiants $e');
     }
   }
 
@@ -67,10 +67,11 @@ class EtudiantService {
     try {
       final pref = await SharedPreferences.getInstance();
       final token = pref.getString('token');
-      final response =
-          await http.get(Uri.parse('$baseUrl/candidat-pre-inscrit/three-documents'), headers: {
-        "Authorization": "Bearer $token",
-      });
+      final response = await http.get(
+          Uri.parse('$baseUrl/candidat-pre-inscrit/three-documents'),
+          headers: {
+            "Authorization": "Bearer $token",
+          });
 
       if (response.statusCode == 200) {
         List<dynamic> jsonResponse = json.decode(response.body);
@@ -83,8 +84,6 @@ class EtudiantService {
             "Erreur lors de la récupération des étudiants avec trois documents");
       }
     } catch (e) {
-      print(
-          "Erreur lors de la récupération des étudiants avec trois documents: $e");
       throw Exception(
           "Erreur lors de la récupération des étudiants avec trois documents: $e");
     }
@@ -108,11 +107,11 @@ class EtudiantService {
   Future<bool> emailExist(String email) async {
     final pref = await SharedPreferences.getInstance();
     final token = pref.getString('token');
-    final response =
-        await http.get(Uri.parse('$baseUrl/candidat-pre-inscrit/exists?email=$email'), headers: {
-      "Authorization": "Bearer $token",
-    });
-    print(" Existence de l'etudiant par son email");
+    final response = await http.get(
+        Uri.parse('$baseUrl/candidat-pre-inscrit/exists?email=$email'),
+        headers: {
+          "Authorization": "Bearer $token",
+        });
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       return json.decode(response.body) as bool;
@@ -123,14 +122,15 @@ class EtudiantService {
 
   //mise a jour d'un etudiant
   Future<CandidatPreInscrit> updateEtudiant(CandidatPreInscrit etudiant) async {
-    final response = await http.put(Uri.parse('$baseUrl/candidat-pre-inscrit/${etudiant.id}'),
-        headers: {'Content-type': 'application/json;charset=UTF-8'},
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('token');
+    final response = await http.put(
+        Uri.parse('$baseUrl/candidat-pre-inscrit/${etudiant.id}'),
+        headers: {
+          'Content-type': 'application/json;charset=UTF-8',
+          'Authorization': 'Bearer $token'
+        },
         body: json.encode(etudiant.toJson()));
-
-    print("Mise a jour de l'etudiant");
-    print(response.statusCode);
-    print(response);
-    print(response.body);
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       return CandidatPreInscrit.fromJson(json.decode(response.body));
@@ -143,7 +143,8 @@ class EtudiantService {
   //recuperer les etudiants d'une Filiere
   Future<List<CandidatPreInscrit>> getEtudiantsByFiliereId(
       int filiereId) async {
-    final response = await http.get(Uri.parse('$baseUrl/candidat-pre-inscrit/filiere/$filiereId'));
+    final response = await http
+        .get(Uri.parse('$baseUrl/candidat-pre-inscrit/filiere/$filiereId'));
 
     if (response.statusCode == 200) {
       List<dynamic> jsonResponse = json.decode(response.body);
@@ -156,8 +157,8 @@ class EtudiantService {
   }
 
   Future<int> getEtudiantsCountByFiliereId(int filiereId) async {
-    final response =
-        await http.get(Uri.parse('$baseUrl/candidat-pre-inscrit/filiere/$filiereId/count'));
+    final response = await http.get(
+        Uri.parse('$baseUrl/candidat-pre-inscrit/filiere/$filiereId/count'));
 
     if (response.statusCode == 200) {
       return json.decode(response.body) as int;
@@ -169,10 +170,8 @@ class EtudiantService {
 // Récupérer les étudiants d'un niveau
   Future<List<CandidatPreInscrit>> getEtudiantsByNiveauId(int niveauId) async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/candidat-pre-inscrit/niveau/$niveauId'));
-      print("Récupération des étudiants par niveau");
-      print("Code de réponse : ${response.statusCode}");
-      print("Corps de la réponse : ${response.body}");
+      final response = await http
+          .get(Uri.parse('$baseUrl/candidat-pre-inscrit/niveau/$niveauId'));
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         List<dynamic> jsonResponse = json.decode(response.body);
@@ -181,18 +180,14 @@ class EtudiantService {
                 CandidatPreInscrit.fromJson(etudiant as Map<String, dynamic>))
             .toList();
       } else if (response.statusCode == 204) {
-        print("Aucun étudiant trouvé pour ce niveau.");
         return []; // Retourne une liste vide si aucun étudiant n'est trouvé
       } else if (response.statusCode == 404) {
-        print(
-            "Erreur 404 : Aucun étudiant trouvé pour le niveau ID $niveauId.");
         throw Exception("Aucun étudiant trouvé pour ce niveau.");
       } else {
         throw Exception(
             "Erreur lors de la récupération des étudiants : ${response.reasonPhrase}");
       }
     } catch (e) {
-      print("Erreur lors de la requête : $e");
       throw Exception('Erreur lors de la récupération des étudiants');
     }
   }
@@ -200,7 +195,8 @@ class EtudiantService {
   //recuperer les etudiants d'une session
   Future<List<CandidatPreInscrit>> getEtudiantsBySessionId(
       int sessionId) async {
-    final response = await http.get(Uri.parse('$baseUrl/candidat-pre-inscrit/session/$sessionId'));
+    final response = await http
+        .get(Uri.parse('$baseUrl/candidat-pre-inscrit/session/$sessionId'));
 
     if (response.statusCode == 200) {
       List<dynamic> jsonResponse = json.decode(response.body);

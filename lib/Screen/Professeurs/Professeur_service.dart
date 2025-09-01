@@ -11,7 +11,8 @@ class ProfesseurService {
   Future<List<Professeur>> fetchprofesseurs() async {
     final pref = await SharedPreferences.getInstance();
     final token = pref.getString('token');
-    final response = await http.get(Uri.parse('$baseUrl/professeurs'), headers: {
+    final response =
+        await http.get(Uri.parse('$baseUrl/professeurs'), headers: {
       "Authorization": "Bearer $token",
     });
 
@@ -51,7 +52,7 @@ class ProfesseurService {
   Future<Professeur> createProfesseur(Professeur prof) async {
     final pref = await SharedPreferences.getInstance();
     final token = pref.getString('token');
-    final response = await http.put(Uri.parse('$baseUrl/professeurs/save'),
+    final response = await http.post(Uri.parse('$baseUrl/professeurs/save'),
         headers: {
           'Content-Type': 'application/json',
           "Authorization": "Bearer $token",
@@ -69,16 +70,13 @@ class ProfesseurService {
   Future<Professeur> updateProfesseur(int profId, Professeur professeur) async {
     final pref = await SharedPreferences.getInstance();
     final token = pref.getString('token');
-    final response = await http.put(Uri.parse('$baseUrl/professeurs/update/$profId'),
-        headers: {
-          'Content-Type': 'application/json',
-          "Authorization": "Bearer $token",
-        },
-        body: json.encode(professeur.toJson()));
-    print("donnees envoyes ${professeur.toJson()}");
-
-    print("Mise a jour du prof ${response.statusCode}");
-    print("Mise a jour du prof ${response.body}");
+    final response =
+        await http.put(Uri.parse('$baseUrl/professeurs/update/$profId'),
+            headers: {
+              'Content-Type': 'application/json',
+              "Authorization": "Bearer $token",
+            },
+            body: json.encode(professeur.toJson()));
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       return Professeur.fromJson(json.decode(response.body));
@@ -89,15 +87,15 @@ class ProfesseurService {
 
   //Suppression d'un Professeur
   Future<void> deleteProfesseur(int id) async {
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('token');
     final response = await http.delete(
       Uri.parse('$baseUrl/professeurs/$id'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
+        "Authorization": "Bearer $token",
       },
     );
-    print(" supression du Professeur");
-    print(response.body);
-    print(response.statusCode);
 
     if (response.statusCode != 200 && response.statusCode != 200) {
       throw Exception('Échec de la suppression du Professeur');
@@ -123,8 +121,8 @@ class ProfesseurService {
   Future<List<Specialite>> getSpecialitesByProfesseurId(int id) async {
     final pref = await SharedPreferences.getInstance();
     final token = pref.getString('token');
-    final response =
-        await http.get(Uri.parse('$baseUrl/professeurs/$id/specialites'), headers: {
+    final response = await http
+        .get(Uri.parse('$baseUrl/professeurs/$id/specialites'), headers: {
       "Authorization": "Bearer $token",
     });
     print("Recuperation des Specialites");

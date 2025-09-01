@@ -3,12 +3,22 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:school_management_system/Screen/Modules/module.dart';
 import 'package:http/http.dart' as http;
+import 'package:school_management_system/config.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ModuleService {
-  final String baseUrl = 'http://localhost:9000/modules';
+  final String baseUrl = AppConfig.baseUrl + '/modules';
+
   //get All Modules
   Future<List<Module>> getAllModules() async {
-    final response = await http.get(Uri.parse(baseUrl));
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('token');
+    final response = await http.get(Uri.parse(baseUrl), headers: {
+      "Authorization": "Bearer $token",
+    });
+    print("Recuperation des Modules");
+    print(response.statusCode);
+    print(response.body);
     if (response.statusCode == 200 || response.statusCode == 201) {
       Iterable jResponse = json.decode(response.body);
       return List<Module>.from(
@@ -18,25 +28,13 @@ class ModuleService {
     }
   }
 
-  final getAllModulesProvider = FutureProvider<List<Module>>((ref) async {
-    const baseUrl = 'http://localhost:9000/modules';
-    final response = await http.get(Uri.parse(baseUrl));
-
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      final List<dynamic> data = json.decode(response.body);
-      return data.map((model) => Module.fromJson(model)).toList();
-    } else {
-      throw Exception('Échec de la récupération des modules');
-    }
-  });
-
   //get  Modules by UE
   Future<List<Module>> getModulesByUE(int ueId) async {
-    final response = await http.get(Uri.parse('$baseUrl/ue/$ueId'));
-    print("Recuperation des Modules");
-    print(response.statusCode);
-    print('$baseUrl/ue/$ueId');
-    print(response.body);
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('token');
+    final response = await http.get(Uri.parse('$baseUrl/ue/$ueId'), headers: {
+      "Authorization": "Bearer $token",
+    });
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
@@ -57,22 +55,12 @@ class ModuleService {
     }
   }
 
-  //Provider
-  final getModulesByUEProvider =
-      FutureProvider.family<List<Module>, int>((ref, ueId) async {
-    const baseUrl = 'http://localhost:9000/modules';
-    final response = await http.get(Uri.parse('$baseUrl/ue/$ueId'));
-
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      final List<dynamic> data = json.decode(response.body);
-      return data.map((model) => Module.fromJson(model)).toList();
-    } else {
-      throw Exception('Échec de la récupération des modules pour cette UE');
-    }
-  });
-
   Future<List<Module>> getModuleById(int id) async {
-    final response = await http.get(Uri.parse('$baseUrl/$id'));
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('token');
+    final response = await http.get(Uri.parse('$baseUrl/$id'), headers: {
+      "Authorization": "Bearer $token",
+    });
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       final jsonData = json.decode(response.body);
@@ -93,10 +81,13 @@ class ModuleService {
 
   //Nouveau Module
   Future<void> addModuleToUE(int ueId, Module module) async {
-    // final url = Uri.parse('$baseUrl/$ueId/module');
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('token');
     final url = Uri.parse('$baseUrl/ue/$ueId');
-    final headers = {'Content-Type': 'application/json'};
-    // final body = json.encode(module.toJsonForCreation(ueId));
+    final headers = {
+      'Content-Type': 'application/json',
+      "Authorization": "Bearer $token",
+    };
     final body = json.encode({
       'nomModule': module.nomModule,
       'ueId': ueId,
@@ -127,26 +118,15 @@ class ModuleService {
     }
   }
 
-  //provider
-  final addModuleToUEProvider =
-      FutureProvider.family<void, ({int ueId, Module module})>(
-          (ref, params) async {
-    const baseUrl = 'http://localhost:9000/modules';
-    final url = Uri.parse('$baseUrl/ue/${params.ueId}');
-    final headers = {'Content-Type': 'application/json'};
-    final body = json.encode(params.module.toJson());
-
-    final response = await http.post(url, headers: headers, body: body);
-
-    if (response.statusCode != 200 && response.statusCode != 201) {
-      throw Exception('Erreur lors de l\'ajout du module : ${response.body}');
-    }
-  });
-
   //Existence du Module
   Future<bool> moduleExist(String nomModule, int ueId) async {
-    final response = await http
-        .get(Uri.parse('$baseUrl/exists?nomModule=$nomModule&ueId=$ueId'));
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('token');
+    final response = await http.get(
+        Uri.parse('$baseUrl/exists?nomModule=$nomModule&ueId=$ueId'),
+        headers: {
+          "Authorization": "Bearer $token",
+        });
     print("Reponse de L'API et verification de l'existence du meme module");
     print(response);
     print(response.statusCode);
@@ -160,10 +140,13 @@ class ModuleService {
 
   //Delete
   Future<void> deleteModule(int id) async {
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('token');
     final response = await http.delete(
       Uri.parse('$baseUrl/$id'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
+        "Authorization": "Bearer $token",
       },
     );
     print(" supression de L'UE");
@@ -174,15 +157,4 @@ class ModuleService {
       throw Exception('Échec de la suppression de l\'ue');
     }
   }
-
-  //provider
-  final deleteModuleProvider =
-      FutureProvider.family<void, int>((ref, moduleId) async {
-    const baseUrl = 'http://localhost:9000/modules';
-    final response = await http.delete(Uri.parse('$baseUrl/$moduleId'));
-
-    if (response.statusCode != 200 && response.statusCode != 201) {
-      throw Exception('Échec de la suppression du module');
-    }
-  });
 }

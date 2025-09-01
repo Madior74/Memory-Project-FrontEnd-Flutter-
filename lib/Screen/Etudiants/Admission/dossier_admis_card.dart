@@ -5,6 +5,7 @@ import 'package:school_management_system/theme/my_styles.dart';
 class DossierAdmisCard extends StatelessWidget {
   final void Function()? supprimer;
   final void Function()? modifier;
+  final void Function()? achever;
   final String nomEtudiant;
   final String remarque;
   final String status;
@@ -15,6 +16,7 @@ class DossierAdmisCard extends StatelessWidget {
     super.key,
     this.supprimer,
     this.modifier,
+    this.achever,
     required this.nomEtudiant,
     required this.remarque,
     required this.status,
@@ -40,12 +42,12 @@ class DossierAdmisCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.person,
                       color: Colors.blue,
                       size: 20,
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 10,
                     ),
                     Text(
@@ -61,18 +63,18 @@ class DossierAdmisCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-    
+
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.edit_note,
                       color: Colors.blue,
                       size: 20,
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 10,
                     ),
                     Text(
@@ -93,12 +95,12 @@ class DossierAdmisCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.record_voice_over,
                       color: Colors.blue,
                       size: 20,
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 10,
                     ),
                     Text(
@@ -114,13 +116,13 @@ class DossierAdmisCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-    
+
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
                   children: [
-                    Icon(Icons.av_timer, color: Colors.blue, size: 20),
+                    const Icon(Icons.av_timer, color: Colors.blue, size: 20),
                     const SizedBox(width: 8),
                     Text(
                       "Statut :",
@@ -137,48 +139,76 @@ class DossierAdmisCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-    
+
             // Buttons Row
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
+              children: <Widget>[
                 // Modifier button
-                TextButton.icon(
-                  onPressed: modifier,
-                  icon: Icon(Icons.edit, color: Colors.indigo),
-                  label: Text(
-                    "Modifier",
-                    style: TextStyle(color: Colors.indigo),
-                  ),
-                  style: TextButton.styleFrom(
-                    backgroundColor: Colors.indigo.withOpacity(0.1),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                if (status.toLowerCase() == 'valide')
+                  TextButton.icon(
+                    onPressed: achever,
+                    icon: const Icon(Icons.check_circle, color: Colors.green),
+                    label: const Text(
+                      "Achever inscription",
+                      style: TextStyle(color: Colors.green),
                     ),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 10),
+                    style: TextButton.styleFrom(
+                      backgroundColor: Colors.green.withOpacity(0.1),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 10),
+                    ),
                   ),
-                ),
-    
+
                 const SizedBox(width: 12),
-    
-                // Supprimer button
-                TextButton.icon(
-                  onPressed: supprimer,
-                  icon: Icon(Icons.delete, color: Colors.red),
-                  label: Text(
-                    "Supprimer",
-                    style: TextStyle(color: Colors.red),
-                  ),
-                  style: TextButton.styleFrom(
-                    backgroundColor: Colors.red.withOpacity(0.1),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 10),
-                  ),
-                ),
+
+                // Modifier et Supprimer button
+                PopupMenuButton<String>(
+                  itemBuilder: (context) => [
+                    const PopupMenuItem<String>(
+                        value: 'modifier',
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.edit,
+                              color: Colors.blue,
+                            ),
+                            SizedBox(
+                              width: 8,
+                            ),
+                            Text("Modifier")
+                          ],
+                        )),
+                    const PopupMenuItem<String>(
+                        value: 'supprimer',
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.delete,
+                              color: Colors.red,
+                            ),
+                            SizedBox(
+                              width: 8,
+                            ),
+                            Text("Supprimer")
+                          ],
+                        )),
+                  ],
+                  onSelected: (value) {
+                    switch (value) {
+                      case 'modifier':
+                        modifier?.call();
+                        break;
+
+                      case 'supprimer':
+                        supprimer?.call();
+                        break;
+                    }
+                  },
+                )
               ],
             ),
           ],

@@ -70,7 +70,7 @@ class _NouvelleInscriptionsState extends State<NouvelleInscriptions> {
   void _fetchEtudiants() async {
     try {
       List<CandidatPreInscrit> etudiantData =
-          await EtudiantService().getAllEtudiant();
+          await PrinscriptionService().getAllEtudiant();
       List<DossierAdmission> dossiers =
           await DossierAdmissionService().getAllDossiers();
 
@@ -78,7 +78,7 @@ class _NouvelleInscriptionsState extends State<NouvelleInscriptions> {
         final dossier = dossiers.firstWhereOrNull(
           (d) => d.candidat?.id == etudiant.id,
         );
-        return dossier != null && dossier.statut == 'valide';
+        return dossier != null && dossier.status == 'valide';
       }).toList();
 
       setState(() {

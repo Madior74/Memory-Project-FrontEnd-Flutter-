@@ -21,7 +21,6 @@ class Professeur {
   final List<Specialite> specialites;
   final Region? region;
   final Departement? departement;
-  final DateTime? dateAjout;
 
   Professeur({
     this.id,
@@ -38,10 +37,9 @@ class Professeur {
     required this.email,
     this.password,
     required this.status,
-    required this.region,
-    required this.departement,
-    this.dateAjout,
     required this.specialites,
+    this.region,
+    this.departement,
   });
 
   factory Professeur.fromJson(Map<String, dynamic> json) {
@@ -58,44 +56,36 @@ class Professeur {
       telephone: json['telephone'],
       sexe: json['sexe'],
       email: json['email'],
-      password: null,
       status: json['status'],
+      password: json['password'],
       specialites: (json['specialites'] as List<dynamic>)
           .map((e) => Specialite.fromJson(e))
           .toList(),
-      region: Region.fromJson(json['region']),
-      departement: Departement.fromJson(json['departement']),
-      dateAjout: DateTime.parse(json['dateAjout']),
+      region: json['region'] != null ? Region.fromJson(json['region']) : null,
+      departement: json['departement'] != null
+          ? Departement.fromJson(json['departement'])
+          : null,
     );
   }
+
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    final dateFormat = DateFormat("yyyy-MM-dd HH:mm:ss");
-    data['id'] = this.id;
-    data['nom'] = this.nom;
-    data['prenom'] = this.prenom;
-    data['adresse'] = this.adresse;
-    data['paysDeNaissance'] = this.paysDeNaissance;
-    data['dateDeNaissance'] =
-        this.dateDeNaissance?.toIso8601String().substring(0, 10);
-    data['imagePath'] = this.imagePath;
-    data['cni'] = this.cni;
-    data['ine'] = this.ine;
-    data['telephone'] = this.telephone;
-    data['sexe'] = this.sexe;
-    data['email'] = this.email;
-    data['status'] = this.status;
-    if (this.specialites != null) {
-      data['specialites'] = this.specialites!.map((v) => v.toJson()).toList();
-    }
-    if (this.region != null) {
-      data['region'] = this.region!.toJson();
-    }
-    if (this.departement != null) {
-      data['departement'] = this.departement!.toJson();
-    }
-    data['dateAjout'] =
-        this.dateAjout != null ? dateFormat.format(dateAjout!) : null;
-    return data;
+    return {
+      'nom': nom,
+      'prenom': prenom,
+      'adresse': adresse,
+      'paysDeNaissance': paysDeNaissance,
+      'dateDeNaissance': dateDeNaissance.toIso8601String().substring(0, 10),
+      'imagePath': imagePath,
+      'password': password,
+      'cni': cni,
+      'ine': ine,
+      'status': status,
+      'telephone': telephone,
+      'sexe': sexe,
+      'email': email,
+      'region': region != null ? {'id': region!.id} : null,
+      'departement': departement?.toJson(),
+      'specialites': specialites.map((s) => s.toJson()).toList(),
+    };
   }
 }

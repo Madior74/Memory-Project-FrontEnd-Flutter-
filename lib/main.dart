@@ -53,7 +53,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       darkTheme: ThemeData.dark().copyWith(
-        colorScheme: ColorScheme.dark(primary: Colors.tealAccent),
+        colorScheme: const ColorScheme.dark(primary: Colors.tealAccent),
       ),
       theme: ThemeData(primarySwatch: Colors.blue),
       initialRoute: widget.initialRoute,
@@ -61,7 +61,7 @@ class _MyAppState extends State<MyApp> {
         '/': (context) => LoginScreen(),
         '/home-etudiant': (context) => HomeEtudiantScreen(),
         '/home-professeur': (context) => HomeProfesseurScreen(),
-        '/home-admin': (context) => ListSession(),
+        '/home-admin': (context) => const ListSession(),
       },
     );
   }

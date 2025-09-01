@@ -4,6 +4,7 @@ import 'package:school_management_system/Screen/UES/model_ue.dart';
 class Module {
   final int? id;
   final String nomModule; // Nom du module
+  final String? nomUE; // Nom du module
   final int volumeHoraire; // Volume horaire du module
   final double creditModule; // Crédits du module
   final DateTime? dateAjout; // Date d'ajout du module
@@ -13,6 +14,7 @@ class Module {
   // Constructeur
   Module({
     this.id,
+    this.nomUE,
     required this.nomModule,
     required this.volumeHoraire,
     required this.creditModule,
@@ -26,6 +28,7 @@ class Module {
     return Module(
       id: json['id'],
       nomModule: json['nomModule'] ?? "Nom inconnu",
+      nomUE: json['nomUE'] ?? "Nom inconnu",
       volumeHoraire: json['volumeHoraire'] ?? 0,
       creditModule: json['creditModule'] ?? 0.0,
       dateAjout: json['dateAjout'] != null

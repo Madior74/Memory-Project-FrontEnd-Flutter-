@@ -8,6 +8,7 @@ import 'package:school_management_system/Widgets/drawer.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:school_management_system/Widgets/my_appbar.dart';
 import 'package:school_management_system/Screen/Professeurs/professeur_card.dart';
+import 'package:school_management_system/theme/colors.dart';
 
 class ListeDesProfesseurs extends StatefulWidget {
   const ListeDesProfesseurs({super.key});
@@ -29,6 +30,11 @@ class _ListeDesProfesseursState extends State<ListeDesProfesseurs> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
+        backgroundColor: myDrawerColol,
+        child: Icon(
+          Icons.add,
+          color: Colors.white,
+        ),
         onPressed: () {
           Navigator.push(
               context,

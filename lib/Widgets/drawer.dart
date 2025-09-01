@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:multilevel_drawer/multilevel_drawer.dart';
 import 'package:school_management_system/Screen/Auth/login_screen.dart';
 import 'package:school_management_system/Screen/Specialite/liste_des_specialite.dart';
 import 'package:school_management_system/Screen/Etudiants/Admission/gestion_des_admissions.dart';
@@ -15,7 +14,6 @@ import 'package:school_management_system/Screen/AnneeAcademique/list_annee_acade
 import 'package:school_management_system/Screen/UES/listes_ue.dart';
 import 'package:school_management_system/Widgets/flyout_drawer_tile.dart';
 import 'package:school_management_system/Widgets/list_drawer.dart';
-import 'package:school_management_system/Screen/Etudiants/Inscription/nouvelle_inscriptions.dart';
 import 'package:school_management_system/theme/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -73,15 +71,10 @@ class MyDrawer extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ListInscriptions(),
+                      builder: (context) => const ListInscriptions(),
                     ),
                   );
                 },
-              ),
-              MyDrawerListTile(
-                icon: Icons.assignment,
-                text: "Nouvelle Inscription",
-                onTap: () {},
               ),
               MyDrawerListTile(
                 icon: Icons.school,
@@ -107,7 +100,7 @@ class MyDrawer extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => ListeDesPrinscrits(),
+                            builder: (context) => const ListeDesPrinscrits(),
                           ),
                         );
                       },
@@ -120,20 +113,20 @@ class MyDrawer extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => GestionDesAdmissions(),
+                            builder: (context) => const GestionDesAdmissions(),
                           ),
                         );
                       },
                     ),
                     MyDrawerListTile(
                       icon: Icons.verified,
-                      text: "Etudiants Admis",
+                      text: "Etudiants Inscrits",
                       onTap: () {
                         Navigator.pop(context);
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => ListInscriptions(),
+                            builder: (context) => const ListInscriptions(),
                           ),
                         );
                       },
@@ -160,7 +153,7 @@ class MyDrawer extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ListeDesRegions(),
+                      builder: (context) => const ListeDesRegions(),
                     ),
                   );
                 },
@@ -199,7 +192,7 @@ class MyDrawer extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ListeDesSpecialite(),
+                      builder: (context) => const ListeDesSpecialite(),
                     ),
                   );
                 },

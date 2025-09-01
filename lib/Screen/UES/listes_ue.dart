@@ -45,7 +45,6 @@ class _ListeDesUESState extends State<ListeDesUES> {
               children: [
                 MyAppbar(
                   title: "Liste des UE",
-               
                 ),
                 Expanded(
                   child: RefreshIndicator(
@@ -182,8 +181,7 @@ class _ListeDesUESState extends State<ListeDesUES> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text("Confirmation"),
-          content:
-              const Text("Êtes-vous sûr de vouloir supprimer ce Semestre ?"),
+          content: const Text("Êtes-vous sûr de vouloir supprimer cette UE ?"),
           actions: [
             TextButton(
               onPressed: () {

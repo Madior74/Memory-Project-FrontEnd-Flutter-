@@ -1,88 +1,136 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:school_management_system/Provider/module_provider.dart';
-import 'package:school_management_system/Provider/ue_provider.dart';
+import 'package:school_management_system/Screen/Modules/module.dart';
+import 'package:school_management_system/Screen/Modules/moduleService.dart';
 import 'package:school_management_system/Widgets/drawer.dart';
-import 'package:school_management_system/Widgets/module_card.dart';
 import 'package:school_management_system/Widgets/my_appbar.dart';
+import 'package:school_management_system/theme/colors.dart';
+import 'package:school_management_system/theme/my_styles.dart';
 
-class ListeDesModules extends ConsumerWidget {
+class ListeDesModules extends StatefulWidget {
   const ListeDesModules({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final modulesAsync = ref.watch(getAllModulesProvider);
-    final uesAsync =
-        ref.watch(getAllUesProvider); // Nouveau provider pour les UEs
+  State<ListeDesModules> createState() => _ListeDesModulesState();
+}
 
+class _ListeDesModulesState extends State<ListeDesModules> {
+  late Future<List<Module>> futureModules;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    futureModules = ModuleService().getAllModules();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: myDrawerColol,
+        child: const Icon(
+          Icons.add,
+          color: Colors.white,
+        ),
+        onPressed: () {},
+      ),
+      backgroundColor: Colors.grey[300],
       body: Row(
         children: [
-          MyDrawer(),
+          const MyDrawer(),
           Expanded(
             child: Column(
               children: [
-                MyAppbar(
-                  title: "Liste de tous les Modules",
-                ),
+                const MyAppbar(title: "Liste des Modules"),
                 Expanded(
-                  child: modulesAsync.when(
-                    loading: () =>
-                        const Center(child: CircularProgressIndicator()),
-                    error: (error, stackTrace) =>
-                        Center(child: Text("Erreur : $error")),
-                    data: (modules) {
-                      return uesAsync.when(
-                        loading: () =>
-                            const Center(child: CircularProgressIndicator()),
-                        error: (error, stackTrace) =>
-                            Center(child: Text("Erreur UEs: $error")),
-                        data: (ues) {
-                          if (modules.isEmpty) {
-                            return const Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.sentiment_dissatisfied, size: 50),
-                                  Text("Aucun module trouvé"),
-                                ],
-                              ),
-                            );
-                          }
-
-                          // Création d'une map pour une recherche rapide des UEs
-                          final ueMap = {for (var ue in ues) ue.id: ue};
-
-                          return GridView.builder(
-                              gridDelegate:
-                                  const SliverGridDelegateWithMaxCrossAxisExtent(
-                                maxCrossAxisExtent: 320,
-                                crossAxisSpacing: 10,
-                                mainAxisExtent: 200,
-                              ),
-                              itemCount: modules.length,
-                              itemBuilder: (context, index) {
-                                final module = modules[index];
-
-                                // Solution la plus robuste
-                                final ueId = module.ue?.id;
-                                final ue = ueId != null ? ueMap[ueId] : null;
-
-                                return ModuleCard(
-                                  nomModule: module.nomModule,
-                                  volumeHoraire: module.volumeHoraire,
-                                  creditModule: module.creditModule,
-                                  nomUE: ue?.nomUE ?? "Non spécifiée",
-                                );
-                              });
-                        },
+                    child: FutureBuilder<List<Module>>(
+                  future: futureModules,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
                       );
-                    },
-                  ),
-                ),
+                    } else if (snapshot.hasError) {
+                      return Center(
+                        child: Text(
+                          "Erreur :${snapshot.error}",
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                      );
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return const Center(
+                        child: Text(
+                          "Aucun Module Trouvé",
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      );
+                    } else {
+                      List<Module> modules = snapshot.data!;
+
+                      return Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: SingleChildScrollView(
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: DataTable(
+                                columnSpacing: 20,
+                                horizontalMargin: 12,
+                                border: TableBorder.all(
+                                  color: Colors.grey.shade400,
+                                  width: 0.5,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                columns: [
+                                  DataColumn(
+                                      label: Text(
+                                    "Module",
+                                    style: titleStyle,
+                                  )),
+                                  DataColumn(
+                                      label: Text(
+                                    "Volume Horaire",
+                                    style: titleStyle,
+                                  )),
+                                  DataColumn(
+                                      label: Text(
+                                    "Crédit",
+                                    style: titleStyle,
+                                  )),
+                                  DataColumn(
+                                      label: Text(
+                                    "UE",
+                                    style: titleStyle,
+                                  )),
+                                ],
+                                rows: modules.map((modul) {
+                                  return DataRow(cells: [
+                                    DataCell(Text(
+                                      modul.nomModule,
+                                      style: valueStyle,
+                                    )),
+                                    DataCell(Text(
+                                      modul.volumeHoraire.toString(),
+                                      style: valueStyle,
+                                    )),
+                                    DataCell(Text(
+                                      modul.creditModule.toString(),
+                                      style: valueStyle,
+                                    )),
+                                    DataCell(Text(
+                                      modul.nomUE ?? "inconnu",
+                                      style: valueStyle,
+                                    )),
+                                  ]);
+                                }).toList()),
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                )),
               ],
             ),
-          ),
+          )
         ],
       ),
     );

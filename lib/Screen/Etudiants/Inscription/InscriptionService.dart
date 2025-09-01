@@ -2,10 +2,11 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:school_management_system/Screen/Etudiants/Inscription/inscription.dart';
+import 'package:school_management_system/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class InscriptionService {
-  final String baseUrl = 'http://192.168.1.15:9000/api/admin/inscriptions';
+  final String baseUrl = AppConfig.baseUrl + '/inscriptions';
 
   //Ajouter une Inscription
   Future<Map<String, dynamic>> addInscription({
@@ -40,7 +41,7 @@ class InscriptionService {
   Future<List<Inscription>> getAllInscriptions() async {
     final pref = await SharedPreferences.getInstance();
     final token = pref.getString('token');
-    final response = await http.get(Uri.parse('$baseUrl/dossiers'), headers: {
+    final response = await http.get(Uri.parse('$baseUrl'), headers: {
       'Authorization': 'Bearer $token',
     });
 
@@ -108,12 +109,11 @@ class InscriptionService {
       final pref = await SharedPreferences.getInstance();
       final token = pref.getString('token');
       final response =
-          await http.get(Uri.parse('$baseUrl/dossiers/niveau/$niveauId'), headers: {
+          await http.get(Uri.parse('$baseUrl/niveau/$niveauId'), headers: {
         "Authorization": "Bearer $token",
       });
-      print("Récupération des étudiants par niveau");
-      print("Code de réponse : ${response.statusCode}");
-      print("Corps de la réponse : ${response.body}");
+      print("Etudiant by niveau");
+      print(response.statusCode);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         List<dynamic> jsonResponse = json.decode(response.body);
@@ -125,15 +125,12 @@ class InscriptionService {
         print("Aucun étudiant trouvé pour ce niveau.");
         return []; // Retourne une liste vide si aucun étudiant n'est trouvé
       } else if (response.statusCode == 404) {
-        print(
-            "Erreur 404 : Aucun étudiant trouvé pour le niveau ID $niveauId.");
         throw Exception("Aucun étudiant trouvé pour ce niveau.");
       } else {
         throw Exception(
             "Erreur lors de la récupération des étudiants : ${response.reasonPhrase}");
       }
     } catch (e) {
-      print("Erreur lors de la requête : $e");
       throw Exception('Erreur lors de la récupération des étudiants');
     }
   }

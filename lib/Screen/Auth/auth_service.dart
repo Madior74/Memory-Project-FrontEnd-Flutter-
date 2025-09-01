@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:school_management_system/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  final String baseUrl = 'http://192.168.1.15:9000/api';
+  final String baseUrl = AppConfig.authUrl;
 
   Future<Map<String, dynamic>> login(
       BuildContext context, String email, String password) async {

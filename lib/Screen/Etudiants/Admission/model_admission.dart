@@ -5,7 +5,7 @@ class DossierAdmission {
   final bool copieCni;
   final bool releveNotes;
   final bool diplome;
-  final String statut;
+  final String status;
   final double noteTest;
   final double noteEntretien;
   final String remarque;
@@ -16,7 +16,7 @@ class DossierAdmission {
     required this.copieCni,
     required this.releveNotes,
     required this.diplome,
-    required this.statut,
+    required this.status,
     required this.remarque,
     required this.noteEntretien,
     required this.noteTest,
@@ -29,7 +29,7 @@ class DossierAdmission {
       copieCni: json['copieCni'],
       releveNotes: json['releveNotes'],
       diplome: json['diplome'],
-      statut: json['statut'],
+      status: json['status'],
       noteEntretien: json['noteEntretien'],
       noteTest: json['noteTest'],
       remarque: json['remarque'],
@@ -45,7 +45,7 @@ class DossierAdmission {
       'copieCni': copieCni,
       'releveNotes': releveNotes,
       'diplome': diplome,
-      'statut': statut,
+      'status': status,
       'remarque': remarque,
       'noteTest': noteTest,
       'noteEntretien': noteEntretien,

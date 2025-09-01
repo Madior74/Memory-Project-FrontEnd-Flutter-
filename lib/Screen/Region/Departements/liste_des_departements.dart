@@ -166,9 +166,7 @@ class _ListeDesDepartementsState extends State<ListeDesDepartements> {
                                                       const EdgeInsets.only(
                                                           bottom: 2.0),
                                                   child: Text(
-                                                    utf8.decode(dep
-                                                        .nomDepartement
-                                                        .codeUnits),
+                                                    dep.nomDepartement,
                                                     style: const TextStyle(
                                                       color: Colors.black,
                                                       fontWeight:

@@ -17,15 +17,10 @@ class DossierAdmissionService {
       final response = await http.get(Uri.parse('$baseUrl/dossiers'), headers: {
         'Authorization': 'Bearer $token',
       });
-      print("Dossier");
-      print(response.statusCode);
-      print(response.body);
+     
       if (response.statusCode == 200 || response.statusCode == 201) {
         List<dynamic> jsonResponse = json.decode(response.body);
-        print("Dossier");
-        print(response.statusCode);
-        print(response.body);
-
+       
         return jsonResponse
             .map((dossier) =>
                 DossierAdmission.fromJson(dossier as Map<String, dynamic>))
@@ -105,7 +100,6 @@ class DossierAdmissionService {
       'Authorization': 'Bearer $token',
     });
 
-    print("Suppression d'un dossier");
 
     if (response.statusCode != 200 && response.statusCode != 201) {
       throw Exception("Echec lors de la suppression du dossier");

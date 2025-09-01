@@ -5,6 +5,8 @@ import 'package:collection/collection.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:school_management_system/Screen/AnneeAcademique/annee_academique.dart';
+import 'package:school_management_system/Screen/AnneeAcademique/annee_academique_service.dart';
 import 'package:school_management_system/Screen/Region/Departements/departement.dart';
 import 'package:school_management_system/Screen/Etudiants/Prinscription/model_prinscription.dart';
 import 'package:school_management_system/Screen/Filieres/filiere.dart';
@@ -30,11 +32,13 @@ class _UpdatePrinscriptionState extends State<UpdatePrinscription> {
   bool _passwordInVisible = true;
   List<Filiere> futuresFilieres = [];
   List<Niveau> futuresNiveaux = [];
+  List<AnneeAcademique> futureAnnees = [];
 
   int? regionChoisieId;
   List<Region> _regions = [];
   int? filiereChoisieId;
   int? niveauChoisieId;
+  int? annechoisieId;
 
   int? departementChoisiId;
   List<Departement> _dept = [];
@@ -97,6 +101,7 @@ class _UpdatePrinscriptionState extends State<UpdatePrinscription> {
     super.initState();
     fetchFilieres();
     _loadRegions();
+    fetchAnnees();
     if (widget.etudiant != null) {
       _adresseEditController.text = widget.etudiant.adresse!;
       _cniEditController.text = widget.etudiant.cni!;
@@ -113,6 +118,7 @@ class _UpdatePrinscriptionState extends State<UpdatePrinscription> {
       niveauChoisieId = widget.etudiant.niveauSouhaite?.id;
       regionChoisieId = widget.etudiant.region?.id;
       departementChoisiId = widget.etudiant.departement?.id;
+      annechoisieId = widget.etudiant.anneeAcademique?.id;
 
       if (filiereChoisieId != null) {
         fetchNiveaux(filiereChoisieId!);
@@ -133,6 +139,20 @@ class _UpdatePrinscriptionState extends State<UpdatePrinscription> {
 
       setState(() {
         futuresFilieres = filieresData;
+      });
+    } catch (e) {
+      print("Recuperation des Filieres $e");
+    }
+  }
+
+  //Recuperation des Filieres
+  void fetchAnnees() async {
+    try {
+      List<AnneeAcademique> anneesData =
+          await AnneeAcademiqueService().getSessions();
+
+      setState(() {
+        futureAnnees = anneesData;
       });
     } catch (e) {
       print("Recuperation des Filieres $e");
@@ -211,11 +231,15 @@ class _UpdatePrinscriptionState extends State<UpdatePrinscription> {
       final niveauChoisie =
           futuresNiveaux.firstWhereOrNull((n) => n.id == niveauChoisieId);
 
+      final anneeChoisie =
+          futureAnnees.firstWhereOrNull((a) => a.id == annechoisieId);
+
       // Vérification de la session choisie
 
       // Création de l'objet Etudiant
       final etudiant = CandidatPreInscrit(
           id: widget.etudiant.id,
+          anneeAcademique: anneeChoisie,
           prenom: _prenomEditController.text,
           nom: _nomEditController.text,
           adresse: _adresseEditController.text,
@@ -236,7 +260,7 @@ class _UpdatePrinscriptionState extends State<UpdatePrinscription> {
 
       // Vérification de l'existence de l'email
       try {
-        await EtudiantService().updateEtudiant(etudiant);
+        await PrinscriptionService().updateEtudiant(etudiant);
 
         showDialog(
           context: context,
@@ -273,8 +297,6 @@ class _UpdatePrinscriptionState extends State<UpdatePrinscription> {
       }
     }
   }
-
-  
 
 //Les Information Personnelles
   Widget personalInfoStep() {
@@ -529,9 +551,7 @@ class _UpdatePrinscriptionState extends State<UpdatePrinscription> {
                           value: regionChoisieId,
                           items: _regions.map((reg) {
                             return DropdownMenuItem<int>(
-                                value: reg.id,
-                                child:
-                                    Text(utf8.decode(reg.nomRegion.codeUnits)));
+                                value: reg.id, child: Text(reg.nomRegion));
                           }).toList(),
                           onChanged: (value) {
                             setState(() {
@@ -793,6 +813,34 @@ class _UpdatePrinscriptionState extends State<UpdatePrinscription> {
                           },
                           validator: (value) => value == null
                               ? 'Veuillez sélectionner un niveau'
+                              : null,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 16,
+                      ),
+                      Expanded(
+                        child: DropdownButtonFormField<int>(
+                          decoration: InputDecoration(
+                              prefixIcon: Icon(Icons.account_balance),
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12)),
+                              labelText: 'Année Académique'),
+                          value: annechoisieId,
+                          items: futureAnnees.map((annee) {
+                            return DropdownMenuItem<int>(
+                              value: annee.id,
+                              child: Text(annee.nomAnnee),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              annechoisieId = value;
+                              // Charger les niveaux lorsque la filière change
+                            });
+                          },
+                          validator: (value) => value == null
+                              ? 'Veuillez sélectionner une Année Académique'
                               : null,
                         ),
                       ),

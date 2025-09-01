@@ -2,14 +2,15 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:school_management_system/Screen/Filieres/filiere.dart';
 import 'package:school_management_system/Screen/Niveaux/model_niveau.dart';
+import 'package:school_management_system/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class NiveauService {
-  final String baseUrl = "http://192.168.1.15:9000/api/admin/niveaux";
+  final String baseUrl = AppConfig.baseUrl;
 
   // Récupérer les niveaux pour une filière
   Future<List<Niveau>> getNiveauxByFiliere(int filiereId) async {
-    final url = Uri.parse('$baseUrl/filiere/$filiereId');
+    final url = Uri.parse('$baseUrl/niveaux/filiere/$filiereId');
     final pref = await SharedPreferences.getInstance();
     final token = pref.getString('token');
     print('URL de l\'API : $url');
@@ -17,8 +18,6 @@ class NiveauService {
     final response = await http.get(url, headers: {
       'Authorization': 'Bearer $token',
     });
-    print('Code de statut : ${response.statusCode}');
-    print('Réponse API : ${response.body}');
 
     if (response.statusCode == 200) {
       try {
@@ -31,14 +30,10 @@ class NiveauService {
         print('Liste des niveaux désérialisés : $niveaux');
 
         // Vérifier si les filières sont correctement désérialisées
-        for (var niveau in niveaux) {
-          print(
-              'Niveau : ${niveau.nomNiveau}, Filière : ${niveau.filiere?.nomFiliere}');
-        }
+        for (var niveau in niveaux) {}
 
         return niveaux;
       } catch (e) {
-        print('Erreur lors de la désérialisation : $e');
         throw Exception('Erreur lors de la désérialisation des niveaux');
       }
     } else {
@@ -49,7 +44,8 @@ class NiveauService {
   ///////
   Future<Filiere?> getFiliereByNiveauId(int niveauId) async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/$niveauId/filiere'));
+      final response =
+          await http.get(Uri.parse('$baseUrl/niveaux/$niveauId/filiere'));
       print("Recuperation de la filiere");
       print('$baseUrl/$niveauId/filiere');
       print(response);
@@ -68,7 +64,7 @@ class NiveauService {
 
   Future<void> addNiveauToFiliere(int filiereId, String nomNiveau) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/filiere/$filiereId'),
+      Uri.parse('$baseUrl/niveaux/filiere/$filiereId'),
       headers: {'Content-Type': 'application/json'},
       body: json.encode({'nomNiveau': nomNiveau}),
     );
@@ -100,7 +96,7 @@ class NiveauService {
 
   // Get all niveaux
   Future<List<Niveau>> getNiveaux() async {
-    final response = await http.get(Uri.parse(baseUrl));
+    final response = await http.get(Uri.parse('$baseUrl/niveaux'));
 
     if (response.statusCode == 200) {
       Iterable jsonResponse = json.decode(response.body);
