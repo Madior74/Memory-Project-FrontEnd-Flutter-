@@ -58,7 +58,7 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(primarySwatch: Colors.blue),
       initialRoute: widget.initialRoute,
       routes: {
-        '/': (context) => LoginScreen(),
+        '/': (context) => const LoginScreen(),
         '/home-etudiant': (context) => HomeEtudiantScreen(),
         '/home-professeur': (context) => HomeProfesseurScreen(),
         '/home-admin': (context) => const ListSession(),

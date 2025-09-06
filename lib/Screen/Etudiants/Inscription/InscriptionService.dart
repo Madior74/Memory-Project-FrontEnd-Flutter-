@@ -1,8 +1,9 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import 'package:school_management_system/Screen/Etudiants/Inscription/inscription.dart';
-import 'package:school_management_system/config.dart';
+import 'package:school_management_system/Screen/Etudiants/Inscription/etudiant.dart';
+import 'package:school_management_system/Screen/Etudiants/Inscription/inscription_dto.dart';
+import 'package:school_management_system/services/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class InscriptionService {
@@ -12,18 +13,19 @@ class InscriptionService {
   Future<Map<String, dynamic>> addInscription({
     required Map<String, dynamic> inscriptionData,
   }) async {
-    final url = Uri.parse('$baseUrl/dossiers/save');
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('token');
+    final url = Uri.parse('$baseUrl/save');
 
     try {
       final response = await http.post(
         url,
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
         body: jsonEncode(inscriptionData),
       );
-      print("donnees Envoyees");
-      print(inscriptionData);
-      print('Réponse serveur : ${response.statusCode}');
-      print('Corps : ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body) as Map<String, dynamic>;
@@ -38,7 +40,7 @@ class InscriptionService {
   }
 
   //Recuperer les Inscriptions
-  Future<List<Inscription>> getAllInscriptions() async {
+  Future<List<InscriptionDTO>> getAllInscriptions() async {
     final pref = await SharedPreferences.getInstance();
     final token = pref.getString('token');
     final response = await http.get(Uri.parse('$baseUrl'), headers: {
@@ -47,8 +49,8 @@ class InscriptionService {
 
     if (response.statusCode == 200) {
       Iterable jsonResponse = json.decode(response.body);
-      return List<Inscription>.from(
-          jsonResponse.map((ins) => Inscription.fromJson(ins)));
+      return List<InscriptionDTO>.from(
+          jsonResponse.map((ins) => InscriptionDTO.fromJson(ins)));
     } else {
       throw Exception('Erreur lors de la recuperation des Inscriptions');
     }
@@ -57,13 +59,6 @@ class InscriptionService {
   //Supprimer une Inscription
   Future<void> deleteInscription(int id) async {
     final response = await http.delete(Uri.parse('$baseUrl/dossiers/$id'));
-
-    print("Supression de l\'Inscription");
-    print('$baseUrl/$id');
-    print(response);
-    print(response.body);
-    print(
-        "Réponse de l'API : ${response.statusCode}"); // Ajoutez ce log pour vérifier
 
     if (response.statusCode != 200 && response.statusCode != 201) {
       throw Exception('Echec de la supression de l\'Inscription');
@@ -77,7 +72,7 @@ class InscriptionService {
     required int anneeAcademiqueId,
   }) async {
     final url = Uri.parse(
-        '$baseUrl/dossiers/check?etudiantId=$etudiantId&filiereId=$filiereId&anneeAcademiqueId=$anneeAcademiqueId');
+        '$baseUrl/check?etudiantId=$etudiantId&filiereId=$filiereId&anneeAcademiqueId=$anneeAcademiqueId');
 
     try {
       final pref = await SharedPreferences.getInstance();
@@ -86,11 +81,6 @@ class InscriptionService {
         "Authorization": "Bearer $token",
       });
 
-      print("Vérification de l'existence de l'inscription");
-      print('URL : $url');
-      print('Réponse serveur : ${response.statusCode}');
-      print('Corps : ${response.body}');
-
       if (response.statusCode == 200) {
         return jsonDecode(response.body) as bool;
       } else {
@@ -98,40 +88,35 @@ class InscriptionService {
             'Échec de la vérification de l\'inscription : ${response.body}');
       }
     } catch (e) {
-      print('Erreur lors de la vérification : $e');
       throw Exception('Erreur lors de la vérification : $e');
     }
   }
 
 // Récupérer les étudiants d'un niveau
-  Future<List<Inscription>> getEtudiantsByNiveauId(int niveauId) async {
-    try {
-      final pref = await SharedPreferences.getInstance();
-      final token = pref.getString('token');
-      final response =
-          await http.get(Uri.parse('$baseUrl/niveau/$niveauId'), headers: {
-        "Authorization": "Bearer $token",
-      });
-      print("Etudiant by niveau");
-      print(response.statusCode);
+  Future<List<InscriptionDTO>> getEtudiantsByNiveauId(int niveauId) async {
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('token');
+    final response =
+        await http.get(Uri.parse('$baseUrl/niveau/$niveauId'), headers: {
+      "Authorization": "Bearer $token",
+    });
+    print("Etudiant by niveau");
+    print(response.statusCode);
+    print(response.body);
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        List<dynamic> jsonResponse = json.decode(response.body);
-        return jsonResponse
-            .map((etudiant) =>
-                Inscription.fromJson(etudiant as Map<String, dynamic>))
-            .toList();
-      } else if (response.statusCode == 204) {
-        print("Aucun étudiant trouvé pour ce niveau.");
-        return []; // Retourne une liste vide si aucun étudiant n'est trouvé
-      } else if (response.statusCode == 404) {
-        throw Exception("Aucun étudiant trouvé pour ce niveau.");
-      } else {
-        throw Exception(
-            "Erreur lors de la récupération des étudiants : ${response.reasonPhrase}");
-      }
-    } catch (e) {
-      throw Exception('Erreur lors de la récupération des étudiants');
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      List<dynamic> jsonResponse = json.decode(response.body);
+      return jsonResponse
+          .map((etudiant) =>
+              InscriptionDTO.fromJson(etudiant as Map<String, dynamic>))
+          .toList();
+    } else if (response.statusCode == 204) {
+      return []; // Retourne une liste vide si aucun étudiant n'est trouvé
+    } else if (response.statusCode == 404) {
+      throw Exception("Aucun étudiant trouvé pour ce niveau.");
+    } else {
+      throw Exception(
+          "Erreur lors de la récupération des étudiants : ${response.reasonPhrase}");
     }
   }
 }

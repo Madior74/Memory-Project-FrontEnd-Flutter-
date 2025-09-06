@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:school_management_system/Screen/Specialite/model_specialite.dart';
-import 'package:school_management_system/config.dart';
+import 'package:school_management_system/services/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SpecialiteService {
@@ -37,15 +37,8 @@ class SpecialiteService {
         'description': specialite.description,
       }),
     );
-    print("response de l'API");
-    print(response.body);
-    print("status code");
-    print(response.statusCode);
-    print("specialite");
-    print(specialite);
-    print(response);
+  
     if (response.statusCode == 201 || response.statusCode == 200) {
-      print('Niveau added successfully');
     } else if (response.statusCode == 409) {
       throw Exception('This niveau already exists in the filière');
     } else {
@@ -75,9 +68,9 @@ class SpecialiteService {
     if (response.statusCode == 201 || response.statusCode == 200) {
       print('Niveau added successfully');
     } else if (response.statusCode == 409) {
-      throw Exception('This niveau already exists in the filière');
+      throw Exception('Erreur de Conflit ');
     } else {
-      throw Exception('Failed to add niveau');
+      throw Exception('Echec lors de la mise à jour de la spécialité');
     }
   }
   //Recuperer les specialites par
@@ -106,7 +99,7 @@ class SpecialiteService {
         'Content-Type': 'application/json; charset=UTF-8',
       },
     );
-    print(" supression de L'UE");
+    print(" supression de la salle");
     print(response.body);
     print(response.statusCode);
 

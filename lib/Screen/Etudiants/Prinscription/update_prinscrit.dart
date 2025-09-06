@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:country_code_picker/country_code_picker.dart';
@@ -246,7 +247,6 @@ class _UpdatePrinscriptionState extends State<UpdatePrinscription> {
           telephone: _telephoneEditController.text,
           sexe: _selectedGender ?? 'Masculin',
           email: _emailEditController.text,
-          password: _passwordEditController.text,
           dateDeNaissance: _selectedDate ?? DateTime.now(),
           imagePath: _image?.path ?? '',
           paysDeNaissance: selectedCountry?.name ?? 'Senegal',
@@ -261,6 +261,8 @@ class _UpdatePrinscriptionState extends State<UpdatePrinscription> {
       // Vérification de l'existence de l'email
       try {
         await PrinscriptionService().updateEtudiant(etudiant);
+
+        print("etudiant envoyé ${etudiant.toJson()}");
 
         showDialog(
           context: context,
@@ -582,8 +584,7 @@ class _UpdatePrinscriptionState extends State<UpdatePrinscription> {
                           items: _dept.map((depart) {
                             return DropdownMenuItem<int>(
                                 value: depart.id,
-                                child: Text(utf8
-                                    .decode(depart.nomDepartement.codeUnits)));
+                                child: Text(depart.nomDepartement));
                           }).toList(),
                           onChanged: (value) {
                             setState(() {
@@ -724,34 +725,32 @@ class _UpdatePrinscriptionState extends State<UpdatePrinscription> {
                           },
                         ),
                       ),
-                      const SizedBox(width: 16),
+                      SizedBox(
+                        width: 16,
+                      ),
                       Expanded(
-                        child: TextFormField(
-                          obscureText: _passwordInVisible,
-                          validator: (String? value) {
-                            if (value!.isEmpty) {
-                              return "le champs ne doit pas etre vide";
-                            }
-                            return null;
-                          },
-                          controller: _passwordEditController,
+                        child: DropdownButtonFormField<int>(
                           decoration: InputDecoration(
-                            labelText: "Mot de Passe",
-                            prefixIcon: const Icon(Icons.lock),
-                            suffixIcon: IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  _passwordInVisible = !_passwordInVisible;
-                                });
-                              },
-                              icon: Icon(_passwordInVisible
-                                  ? Icons.visibility_off
-                                  : Icons.visibility),
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
+                              prefixIcon: Icon(Icons.account_balance),
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12)),
+                              labelText: 'Année Académique'),
+                          value: annechoisieId,
+                          items: futureAnnees.map((annee) {
+                            return DropdownMenuItem<int>(
+                              value: annee.id,
+                              child: Text(annee.nomAnnee),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              annechoisieId = value;
+                              // Charger les niveaux lorsque la filière change
+                            });
+                          },
+                          validator: (value) => value == null
+                              ? 'Veuillez sélectionner une Année Académique'
+                              : null,
                         ),
                       ),
                     ],
@@ -813,34 +812,6 @@ class _UpdatePrinscriptionState extends State<UpdatePrinscription> {
                           },
                           validator: (value) => value == null
                               ? 'Veuillez sélectionner un niveau'
-                              : null,
-                        ),
-                      ),
-                      SizedBox(
-                        width: 16,
-                      ),
-                      Expanded(
-                        child: DropdownButtonFormField<int>(
-                          decoration: InputDecoration(
-                              prefixIcon: Icon(Icons.account_balance),
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12)),
-                              labelText: 'Année Académique'),
-                          value: annechoisieId,
-                          items: futureAnnees.map((annee) {
-                            return DropdownMenuItem<int>(
-                              value: annee.id,
-                              child: Text(annee.nomAnnee),
-                            );
-                          }).toList(),
-                          onChanged: (value) {
-                            setState(() {
-                              annechoisieId = value;
-                              // Charger les niveaux lorsque la filière change
-                            });
-                          },
-                          validator: (value) => value == null
-                              ? 'Veuillez sélectionner une Année Académique'
                               : null,
                         ),
                       ),

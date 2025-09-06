@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:school_management_system/Screen/Auth/login_screen.dart';
+import 'package:school_management_system/Screen/Salle/list_salles.dart';
+import 'package:school_management_system/Screen/Seance/seance_by_module.dart.dart';
 import 'package:school_management_system/Screen/Specialite/liste_des_specialite.dart';
 import 'package:school_management_system/Screen/Etudiants/Admission/gestion_des_admissions.dart';
 import 'package:school_management_system/Screen/Etudiants/Inscription/list_inscriptions.dart';
@@ -24,11 +26,10 @@ class MyDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
       return Container(
-        width: constraints.maxHeight * 0.29,
+        width: constraints.maxHeight * 0.28,
         height: double.infinity,
-        margin: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(1),
             color: myDrawerColol,
             boxShadow: [
               BoxShadow(
@@ -186,6 +187,19 @@ class MyDrawer extends StatelessWidget {
               ),
               MyDrawerListTile(
                 icon: Icons.book,
+                text: "Séances",
+                onTap: () {
+                  // Navigator.pop(context);
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //     builder: (context) => const SeanceByModule(),
+                  //   ),
+                  // );
+                },
+              ),
+              MyDrawerListTile(
+                icon: Icons.book,
                 text: "Liste des Specialités",
                 onTap: () {
                   Navigator.pop(context);
@@ -193,6 +207,19 @@ class MyDrawer extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => const ListeDesSpecialite(),
+                    ),
+                  );
+                },
+              ),
+              MyDrawerListTile(
+                icon: Icons.book,
+                text: "Liste des Salles",
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ListSalles(),
                     ),
                   );
                 },
@@ -266,7 +293,8 @@ class MyDrawer extends StatelessWidget {
                   await pref.remove('user');
                   Navigator.pushAndRemoveUntil(
                       context,
-                      MaterialPageRoute(builder: (context) => LoginScreen()),
+                      MaterialPageRoute(
+                          builder: (context) => const LoginScreen()),
                       (route) => false);
                 },
               ),

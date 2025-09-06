@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:school_management_system/Screen/Modules/module.dart';
 import 'package:school_management_system/Screen/Modules/moduleService.dart';
+import 'package:school_management_system/Screen/Seance/seance_by_module.dart.dart';
 import 'package:school_management_system/Widgets/drawer.dart';
 import 'package:school_management_system/Widgets/my_appbar.dart';
 import 'package:school_management_system/theme/colors.dart';
@@ -101,6 +102,11 @@ class _ListeDesModulesState extends State<ListeDesModules> {
                                     "UE",
                                     style: titleStyle,
                                   )),
+                                  DataColumn(
+                                      label: Text(
+                                    "Action",
+                                    style: titleStyle,
+                                  )),
                                 ],
                                 rows: modules.map((modul) {
                                   return DataRow(cells: [
@@ -120,6 +126,25 @@ class _ListeDesModulesState extends State<ListeDesModules> {
                                       modul.nomUE ?? "inconnu",
                                       style: valueStyle,
                                     )),
+                                    DataCell(TextButton.icon(
+                                        icon: const Icon(
+                                          Icons.visibility,
+                                          size: 30,
+                                        ),
+                                        onPressed: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    SeanceByModule(
+                                                  module: modul,
+                                                ),
+                                              ));
+                                        },
+                                        label: Text(
+                                          "Liste des séances",
+                                          style: tableauElementStyle,
+                                        )))
                                   ]);
                                 }).toList()),
                           ),

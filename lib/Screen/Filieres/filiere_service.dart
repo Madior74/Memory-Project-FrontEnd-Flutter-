@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:school_management_system/Screen/Filieres/filiere.dart';
 import 'package:http/http.dart' as http;
-import 'package:school_management_system/config.dart';
+import 'package:school_management_system/services/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class FiliereService {
@@ -27,18 +27,33 @@ class FiliereService {
             .map((filiere) => Filiere.fromJson(filiere as Map<String, dynamic>))
             .toList();
       } else {
-        print(response.body);
         throw Exception(
             'Erreur lors de la récupération des filières  :${response.statusCode}');
       }
     } catch (e) {
-      print("Erreur lors de la requête : $e");
       throw Exception('Erreur:$e');
     }
   }
 
-  //Create  Auto
+  //Filiere by Id
+  Future<Filiere?> getFiliereById(int id) async {
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('token');
+    final response = await http.get(Uri.parse('$baseUrl/$id'), headers: {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    });
 
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body);
+      return Filiere.fromJson(json);
+    } else {
+      // Gérer l'erreur ou retourner null
+      return null;
+    }
+  }
+
+  //Create  Auto
   Future<Filiere> createFiliere(Filiere filiere) async {
     try {
       final pref = await SharedPreferences.getInstance();
@@ -95,15 +110,19 @@ class FiliereService {
             'Erreur lors de la vérification de filière${response.statusCode}');
       }
     } catch (e) {
-      print('Erreur lors de la vérification des filières : $e');
       throw Exception('Erreur lors de la vérification des filières');
     }
   }
 
   //Nombre d'etudianta
   Future<int> getEtudiantsCountByFiliereId(int filiereId) async {
-    final response = await http
-        .get(Uri.parse('$baseUrl/filieres/$filiereId/etudiants/count'));
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('token');
+    final response = await http.get(
+        Uri.parse('$baseUrl/filieres/$filiereId/etudiants/count'),
+        headers: {
+          "Authorization": "Bearer $token",
+        });
 
     if (response.statusCode == 200) {
       return json.decode(response.body)['count'];

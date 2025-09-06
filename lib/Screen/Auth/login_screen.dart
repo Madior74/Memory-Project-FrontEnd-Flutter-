@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:school_management_system/Screen/Admin/nouveau_admin.dart';
 import 'package:school_management_system/Screen/Auth/auth_service.dart';
 import 'package:school_management_system/theme/colors.dart';
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
@@ -47,7 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
         }
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Connexion réussie'),
             backgroundColor: Colors.green,
           ),
@@ -72,7 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
+          const Text(
             "Connectez-Vous Pour Continuer",
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
           ),
@@ -92,7 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ],
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 width: 20,
               ),
 
@@ -120,7 +121,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   controller: _emailController,
                                   decoration: InputDecoration(
                                       labelText: 'Email',
-                                      prefixIcon: Icon(Icons.email),
+                                      prefixIcon: const Icon(Icons.email),
                                       border: OutlineInputBorder(
                                           borderRadius:
                                               BorderRadius.circular(15))),
@@ -132,7 +133,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     return null;
                                   },
                                 ),
-                                SizedBox(height: 15),
+                                const SizedBox(height: 15),
                                 TextFormField(
                                   controller: _passwordController,
                                   decoration: InputDecoration(
@@ -147,7 +148,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                             ? Icons.visibility_off
                                             : Icons.visibility),
                                       ),
-                                      prefixIcon: Icon(Icons.lock),
+                                      prefixIcon: const Icon(Icons.lock),
                                       border: OutlineInputBorder(
                                           borderRadius:
                                               BorderRadius.circular(15))),
@@ -159,27 +160,27 @@ class _LoginScreenState extends State<LoginScreen> {
                                     return null;
                                   },
                                 ),
-                                SizedBox(height: 15),
+                                const SizedBox(height: 15),
                                 ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                       backgroundColor: myDrawerColol),
                                   onPressed: _isLoading ? null : _login,
                                   child: _isLoading
-                                      ? CircularProgressIndicator()
-                                      : Text(
+                                      ? const CircularProgressIndicator()
+                                      : const Text(
                                           'Se connecter',
                                           style: TextStyle(color: Colors.white),
                                         ),
                                 ),
-                                SizedBox(height: 15),
+                                const SizedBox(height: 15),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Text(
+                                    const Text(
                                       "Vous n'avez pas de compte ?",
                                       style: TextStyle(fontSize: 15),
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       width: 10,
                                     ),
                                     TextButton(
@@ -188,10 +189,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) =>
-                                                  RegisterAdminScreen()),
+                                                  const RegisterAdminScreen()),
                                         );
                                       },
-                                      child: Text("Créer un Admin"),
+                                      child: const Text("Créer un Admin"),
                                     ),
                                   ],
                                 )

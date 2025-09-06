@@ -2,7 +2,8 @@ import 'dart:convert';
 
 import 'package:school_management_system/Screen/AnneeAcademique/annee_academique.dart';
 import 'package:http/http.dart' as http;
-import 'package:school_management_system/config.dart';
+import 'package:school_management_system/services/config.dart';
+import 'package:school_management_system/services/http_interceptor.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AnneeAcademiqueService {
@@ -53,8 +54,6 @@ class AnneeAcademiqueService {
         body: json.encode(session.toJson()),
       );
 
-      
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         return AnneeAcademique.fromJson(json.decode(response.body));
       } else {
@@ -81,8 +80,6 @@ class AnneeAcademiqueService {
         },
         body: json.encode(annee.toJson()),
       );
-
-     
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return AnneeAcademique.fromJson(
@@ -115,8 +112,6 @@ class AnneeAcademiqueService {
     }
   }
 
-
-  
 //Exist
   Future<bool> anneeExists(String nomAnnee) async {
     try {
@@ -136,8 +131,34 @@ class AnneeAcademiqueService {
             'Erreur lors de la vérification de de lannee${response.statusCode}');
       }
     } catch (e) {
-      print('Erreur lors de la vérification des lannee : $e');
       throw Exception('Erreur lors de la vérification des lannee');
+    }
+  }
+
+  //Annee En Cours
+  // Future<AnneeAcademique> getAnneeEnCours() async {
+  //   final pref = await SharedPreferences.getInstance();
+  //   final token = pref.getString('token');
+  //   final response = await http.get(Uri.parse('$baseUrl/en-cours'), headers: {
+  //     "Authorization": "Bearer $token",
+  //   });
+  //   if (response.statusCode == 200) {
+  //     return AnneeAcademique.fromJson(json.decode(response.body));
+  //   } else {
+  //     throw Exception('Failed to load current academic year');
+  //   }
+  // }
+
+  Future<AnneeAcademique> getAnneeEnCours() async {
+    final response = await HttpInterceptor.request(
+      "GET",
+      "$baseUrl/annees/en-cours",
+    );
+
+    if (response.statusCode == 200) {
+      return AnneeAcademique.fromJson(json.decode(response.body));
+    } else {
+      throw Exception('Failed to load current academic year');
     }
   }
 }

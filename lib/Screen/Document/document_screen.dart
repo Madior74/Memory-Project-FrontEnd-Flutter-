@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -58,7 +57,7 @@ class _DocumentscreenState extends State<Documentscreen> {
           Expanded(
             child: Center(
               child: isLoading
-                  ? Center(child: CircularProgressIndicator())
+                  ? const Center(child: CircularProgressIndicator())
                   : documents.isEmpty
                       ? _buildEmptyState()
                       : _buildDocumentList(),
@@ -68,7 +67,7 @@ class _DocumentscreenState extends State<Documentscreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showUploadDialog(),
-        child: Icon(
+        child: const Icon(
           Icons.add,
           color: Colors.white,
         ),
@@ -87,7 +86,7 @@ class _DocumentscreenState extends State<Documentscreen> {
             size: 80,
             color: Colors.grey[400],
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Text(
             'Aucun document',
             style: TextStyle(
@@ -96,7 +95,7 @@ class _DocumentscreenState extends State<Documentscreen> {
               fontWeight: FontWeight.w500,
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             'Ajoutez le premier document',
             style: TextStyle(color: Colors.grey[500]),
@@ -108,18 +107,18 @@ class _DocumentscreenState extends State<Documentscreen> {
 
   Widget _buildDocumentList() {
     return ListView.builder(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       itemCount: documents.length,
       itemBuilder: (context, index) {
         final document = documents[index];
         return Card(
           elevation: 3,
-          margin: EdgeInsets.only(bottom: 12),
+          margin: const EdgeInsets.only(bottom: 12),
           child: ListTile(
             leading: _getDocumentIcon(document.type),
             title: Text(
               document.nom,
-              style: TextStyle(fontWeight: FontWeight.w600),
+              style: const TextStyle(fontWeight: FontWeight.w600),
             ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -138,8 +137,8 @@ class _DocumentscreenState extends State<Documentscreen> {
                   child: Row(
                     children: [
                       Icon(Icons.download, color: Colors.blue[600]),
-                      SizedBox(width: 8),
-                      Text('Télécharger'),
+                      const SizedBox(width: 8),
+                      const Text('Télécharger'),
                     ],
                   ),
                 ),
@@ -148,8 +147,8 @@ class _DocumentscreenState extends State<Documentscreen> {
                   child: Row(
                     children: [
                       Icon(Icons.delete, color: Colors.red[600]),
-                      SizedBox(width: 8),
-                      Text('Supprimer'),
+                      const SizedBox(width: 8),
+                      const Text('Supprimer'),
                     ],
                   ),
                 ),
@@ -216,11 +215,11 @@ class _DocumentscreenState extends State<Documentscreen> {
         SnackBar(
           content: Text(
             "Document téléchargé avec succès !\nEnregistré dans : $filePath",
-            style: TextStyle(fontSize: 14),
+            style: const TextStyle(fontSize: 14),
           ),
           backgroundColor: Colors.green,
           behavior: SnackBarBehavior.floating,
-          duration: Duration(seconds: 5),
+          duration: const Duration(seconds: 5),
         ),
       );
     }).catchError((e) {

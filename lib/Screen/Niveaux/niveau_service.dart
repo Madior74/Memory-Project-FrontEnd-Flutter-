@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:school_management_system/Screen/Filieres/filiere.dart';
 import 'package:school_management_system/Screen/Niveaux/model_niveau.dart';
-import 'package:school_management_system/config.dart';
+import 'package:school_management_system/services/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class NiveauService {
@@ -13,7 +13,6 @@ class NiveauService {
     final url = Uri.parse('$baseUrl/niveaux/filiere/$filiereId');
     final pref = await SharedPreferences.getInstance();
     final token = pref.getString('token');
-    print('URL de l\'API : $url');
 
     final response = await http.get(url, headers: {
       'Authorization': 'Bearer $token',
@@ -22,15 +21,10 @@ class NiveauService {
     if (response.statusCode == 200) {
       try {
         List<dynamic> data = json.decode(response.body);
-        print('Données JSON reçues : $data');
 
         // Mapper les données en objets Niveau
         List<Niveau> niveaux =
             data.map((niveau) => Niveau.fromJson(niveau)).toList();
-        print('Liste des niveaux désérialisés : $niveaux');
-
-        // Vérifier si les filières sont correctement désérialisées
-        for (var niveau in niveaux) {}
 
         return niveaux;
       } catch (e) {
@@ -46,10 +40,6 @@ class NiveauService {
     try {
       final response =
           await http.get(Uri.parse('$baseUrl/niveaux/$niveauId/filiere'));
-      print("Recuperation de la filiere");
-      print('$baseUrl/$niveauId/filiere');
-      print(response);
-      print(response.statusCode);
 
       if (response.statusCode == 200) {
         var filiereJson = jsonDecode(response.body);
@@ -96,7 +86,12 @@ class NiveauService {
 
   // Get all niveaux
   Future<List<Niveau>> getNiveaux() async {
-    final response = await http.get(Uri.parse('$baseUrl/niveaux'));
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('token');
+
+    final response = await http.get(Uri.parse('$baseUrl/niveaux'), headers: {
+      'Authorization': 'Bearer $token',
+    });
 
     if (response.statusCode == 200) {
       Iterable jsonResponse = json.decode(response.body);
@@ -116,12 +111,6 @@ class NiveauService {
         "content-type": "application/json"
       },
     );
-
-    print("Supression du niveau");
-    print('$baseUrl/$id');
-    print(response);
-    print(
-        "Réponse de l'API : ${response.statusCode}"); // Ajoutez ce log pour vérifier
 
     if (response.statusCode != 200 && response.statusCode != 201) {
       throw Exception('Echec de la supression du Niveau');

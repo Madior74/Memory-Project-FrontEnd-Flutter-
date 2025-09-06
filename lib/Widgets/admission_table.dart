@@ -23,7 +23,8 @@ class DossierTable extends StatelessWidget {
           final statut = dossier.status.toUpperCase();
           return DataRow(
             cells: [
-              DataCell(Text("${dossier.candidat!.prenom} ${dossier.candidat!.nom}")),
+              DataCell(
+                  Text("${dossier.candidat!.prenom} ${dossier.candidat!.nom}")),
               DataCell(Text(statut)),
               DataCell(Text(dossier.remarque ?? "")),
               DataCell(
@@ -38,7 +39,7 @@ class DossierTable extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (context) => NouvelleInscriptions(
-                            etudiantAInscrire: dossier.candidat,
+                            dossierAdmission: dossier,
                           ),
                         ),
                       );

@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:school_management_system/Screen/Etudiants/Prinscription/model_prinscription.dart';
 
 import 'package:http/http.dart' as http;
-import 'package:school_management_system/config.dart';
+import 'package:school_management_system/services/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PrinscriptionService {

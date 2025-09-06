@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:school_management_system/Screen/UES/model_ue.dart';
 import 'package:http/http.dart' as http;
-import 'package:school_management_system/config.dart';
+import 'package:school_management_system/services/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UeService {
@@ -16,9 +16,6 @@ class UeService {
       'Authorization': 'Bearer $token',
     });
 
-    print("Recuperation des UES");
-    print(response.statusCode);
-    print(response.body);
     if (response.statusCode == 200 || response.statusCode == 201) {
       Iterable jsonResponse = json.decode(response.body);
       return List<UE>.from(jsonResponse.map((model) => UE.fromJson(model)));
@@ -34,11 +31,7 @@ class UeService {
         .get(Uri.parse('$baseUrl/ues/semestre/$semestreId'), headers: {
       'Authorization': 'Bearer $token',
     });
-    print("Recuperation des UES");
-    print(response.statusCode);
-    print(response.body);
-    print(response);
-
+ 
     if (response.statusCode == 200 || response.statusCode == 201) {
       List<dynamic> data = json.decode(response.body);
       return data.map((ue) => UE.fromJson(ue)).toList();

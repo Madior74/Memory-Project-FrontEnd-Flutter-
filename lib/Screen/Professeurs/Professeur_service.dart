@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:school_management_system/Screen/Professeurs/model_professeur.dart';
 import 'package:school_management_system/Screen/Specialite/model_specialite.dart';
-import 'package:school_management_system/config.dart';
+import 'package:school_management_system/services/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfesseurService {
@@ -15,10 +15,6 @@ class ProfesseurService {
         await http.get(Uri.parse('$baseUrl/professeurs'), headers: {
       "Authorization": "Bearer $token",
     });
-
-    print("Recuperation des Professeurs");
-    print(response.statusCode);
-    print(response.body);
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       List<dynamic> jsonResponse = json.decode(utf8.decode(response.bodyBytes));
@@ -39,8 +35,6 @@ class ProfesseurService {
         await http.get(Uri.parse('$baseUrl/professeurs/exists?email=$email'));
     print(" Existence du Professeur par son email");
 
-    print(response.statusCode);
-    print(response);
     if (response.statusCode == 200 || response.statusCode == 201) {
       return json.decode(response.body) as bool;
     } else {
@@ -125,9 +119,7 @@ class ProfesseurService {
         .get(Uri.parse('$baseUrl/professeurs/$id/specialites'), headers: {
       "Authorization": "Bearer $token",
     });
-    print("Recuperation des Specialites");
-    print(response.statusCode);
-    print(response.body); // <-- Ajout pour voir la structure JSON reçue
+
     if (response.statusCode == 200) {
       List<dynamic> jsonResponse = json.decode(response.body);
       return jsonResponse

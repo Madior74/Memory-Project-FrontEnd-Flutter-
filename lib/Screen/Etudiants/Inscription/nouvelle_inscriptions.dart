@@ -8,7 +8,7 @@ import 'package:school_management_system/Screen/AnneeAcademique/annee_academique
 import 'package:school_management_system/Screen/Etudiants/Inscription/list_inscriptions.dart';
 import 'package:school_management_system/Screen/Etudiants/Prinscription/model_prinscription.dart';
 import 'package:school_management_system/Screen/Filieres/filiere.dart';
-import 'package:school_management_system/Screen/Etudiants/Inscription/inscription.dart';
+import 'package:school_management_system/Screen/Etudiants/Inscription/etudiant.dart';
 import 'package:school_management_system/Screen/Niveaux/model_niveau.dart';
 import 'package:school_management_system/Screen/Etudiants/Inscription/InscriptionService.dart';
 import 'package:school_management_system/Screen/AnneeAcademique/annee_academique_service.dart';
@@ -18,8 +18,8 @@ import 'package:school_management_system/Screen/Filieres/filiere_service.dart';
 import 'package:school_management_system/Screen/Niveaux/niveau_service.dart'; // Pour formater les dates
 
 class NouvelleInscriptions extends StatefulWidget {
-  final CandidatPreInscrit? etudiantAInscrire;
-  const NouvelleInscriptions({super.key, required this.etudiantAInscrire});
+  final DossierAdmission dossierAdmission;
+  const NouvelleInscriptions({super.key, required this.dossierAdmission});
 
   @override
   State<NouvelleInscriptions> createState() => _NouvelleInscriptionsState();
@@ -53,10 +53,11 @@ class _NouvelleInscriptionsState extends State<NouvelleInscriptions> {
     fetchAnnee();
     fetchFiliere();
 
-    if (widget.etudiantAInscrire != null) {
-      _selectedEtudiantId = widget.etudiantAInscrire?.id;
-      _selectedFiliereId = widget.etudiantAInscrire?.filiereSouhaitee?.id;
-      _selectedNiveauId = widget.etudiantAInscrire?.niveauSouhaite?.id;
+    if (widget.dossierAdmission != null) {
+      _selectedEtudiantId = widget.dossierAdmission.candidat?.id;
+      _selectedFiliereId =
+          widget.dossierAdmission.candidat?.filiereSouhaitee?.id;
+      _selectedNiveauId = widget.dossierAdmission.candidat?.niveauSouhaite?.id;
 
       if (_selectedFiliereId != null) {
         fetchNiveau(_selectedFiliereId!);
@@ -140,22 +141,6 @@ class _NouvelleInscriptionsState extends State<NouvelleInscriptions> {
     }
   }
 
-  // Sélectionne une date
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-    );
-    if (picked != null) {
-      setState(() {
-        _dateInscription = picked;
-        _dateController.text = DateFormat('yyyy-MM-dd').format(picked);
-      });
-    }
-  }
-
   @override
   void dispose() {
     _dateController.dispose();
@@ -186,7 +171,7 @@ class _NouvelleInscriptionsState extends State<NouvelleInscriptions> {
                       child: Text("${etudiant.prenom} ${etudiant.nom}"),
                     );
                   }).toList(),
-                  onChanged: widget.etudiantAInscrire != null
+                  onChanged: widget.dossierAdmission.candidat != null
                       ? null
                       : (value) {
                           setState(() {
@@ -271,34 +256,6 @@ class _NouvelleInscriptionsState extends State<NouvelleInscriptions> {
 
                 SizedBox(height: 16),
 
-                // Date d'inscription
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        decoration: InputDecoration(
-                          labelText: 'Date d\'inscription',
-                          suffixIcon: IconButton(
-                            icon: Icon(Icons.calendar_today),
-                            onPressed: () => _selectDate(context),
-                          ),
-                        ),
-                        readOnly: true,
-                        onTap: () => _selectDate(context),
-                        controller: _dateController,
-                        validator: (value) {
-                          if (_dateInscription == null) {
-                            return 'Veuillez sélectionner une date';
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-
-                SizedBox(height: 16),
-
                 // Montant versé
                 TextFormField(
                   decoration: InputDecoration(labelText: 'Montant Versé'),
@@ -335,10 +292,9 @@ class _NouvelleInscriptionsState extends State<NouvelleInscriptions> {
                       final selectedAnnee = futuresAnnee
                           .firstWhereOrNull((a) => a.id == _selectedAnneeId);
 
-                      final data = Inscription(
+                      final data = Etudiant(
                         anneeAcademique: selectedAnnee!,
-                        dateInscription: _dateInscription ?? DateTime.now(),
-                        etudiant: selectedEtudiant,
+                        dossierAdmission: widget.dossierAdmission,
                         filiere: selectedFiliere,
                         montantVerse: double.tryParse(_montantVerse) ?? 0.0,
                         niveau: selectedNiveau,
@@ -359,8 +315,8 @@ class _NouvelleInscriptionsState extends State<NouvelleInscriptions> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               backgroundColor: Colors.red,
-                              content: Text(
-                                  'Cet(e) Etudiant(e) est dèja inscrit(e) déjà'),
+                              content:
+                                  Text('Cet(e) Etudiant est dèja inscrit(e) '),
                             ),
                           );
                           return;

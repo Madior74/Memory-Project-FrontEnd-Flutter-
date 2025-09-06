@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:school_management_system/Screen/Etudiants/Admission/admission_attente_card.dart';
 import 'package:school_management_system/Screen/Etudiants/Admission/model_admission.dart';
@@ -21,25 +22,14 @@ class GestionDesAdmissions extends StatefulWidget {
 
 class _GestionDesAdmissionsState extends State<GestionDesAdmissions> {
   List<CandidatPreInscrit> etudiantsAvecTroisDocuments = [];
-  CandidatPreInscrit? _selectedEudiant;
-  List<CandidatPreInscrit> futureEtudiants = [];
-  final _formKey = GlobalKey<FormState>();
 
-  String _noteEntretien = '';
-  String _notetest = '';
+  List<CandidatPreInscrit> futureEtudiants = [];
 
   // Liste des dossiers
   List<DossierAdmission> futureDossiers = [];
   // Contrôleurs pour le formulaire
 
-  final TextEditingController _remarqueController = TextEditingController();
   String statutActuel = "tous";
-
-  // Variables pour le formulaire
-  bool _copieCni = false;
-  bool _releveNotes = false;
-  bool _diplome = false;
-  String _statut = 'refuse';
 
   void _fetchEtudiants() async {
     try {
@@ -82,20 +72,18 @@ class _GestionDesAdmissionsState extends State<GestionDesAdmissions> {
     return Scaffold(
       backgroundColor: myBackgroound,
       floatingActionButton: FloatingActionButton(
-        child: Icon(
+        child: const Icon(
           Icons.add,
           color: Colors.white,
         ),
         backgroundColor: myDrawerColol,
         onPressed: () async {
-          bool success = await addDossier(); // Attendre la fin de l'ajout
+          bool success = await openDossier();
           if (success) {
             setState(() {
               _fetchDossierss();
             });
           }
-
-          _remarqueController.clear();
         },
       ),
       body: Row(
@@ -116,7 +104,7 @@ class _GestionDesAdmissionsState extends State<GestionDesAdmissions> {
                         TabBar(
                           tabs: const [
                             Tab(
-                              text: "Dossiers ",
+                              text: "Dossiers Évalués",
                             ),
                             Tab(
                               text: "Dossiers en Attentes ",
@@ -182,30 +170,25 @@ class _GestionDesAdmissionsState extends State<GestionDesAdmissions> {
                     }
 
                     return DossierAdmisCard(
-                        nomEtudiant:
-                            '${dossier.candidat!.prenom!} ${dossier.candidat!.nom!}',
-                        remarque: dossier.remarque,
-                        status: statutAdmission.toUpperCase(),
-                        supprimer: () => _confirmDelete(dossier!.id!),
-                        noteEntretien: dossier.noteEntretien,
-                        noteTest: dossier.noteTest,
-                        achever: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => NouvelleInscriptions(
-                                  etudiantAInscrire: dossier.candidat),
-                            )),
-                        modifier: () {
-                          // _admissionEditDialog(
-                          //     dossier: dossier, id: dossier.candidat!.id!);
-                          // setState(() {
-                          //   _fetchDossierss();
-                          // });
-                        });
+                      nomEtudiant:
+                          '${dossier.candidat!.prenom!} ${dossier.candidat!.nom!}',
+                      remarque: dossier.remarque,
+                      status: statutAdmission.toUpperCase(),
+                      supprimer: () => _confirmDelete(dossier!.id!),
+                      noteEntretien: dossier.noteEntretien,
+                      noteTest: dossier.noteTest,
+                      achever: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                NouvelleInscriptions(dossierAdmission: dossier),
+                          )),
+                      modifier: () => openDossier(dossieradmission: dossier),
+                    );
                   },
                 );
               } else {
-                return Center(child: Text("Aucun Dossier trouvé"));
+                return const Center(child: Text("Aucun Dossier trouvé"));
               }
             },
           ),
@@ -254,8 +237,10 @@ class _GestionDesAdmissionsState extends State<GestionDesAdmissions> {
                     );
                   },
                 );
-              } else
-                return Center(child: Text("Aucun Dossier en Attente trouvé"));
+              } else {
+                return const Center(
+                    child: Text("Aucun Dossier en Attente trouvé"));
+              }
             },
           ),
         ),
@@ -265,15 +250,37 @@ class _GestionDesAdmissionsState extends State<GestionDesAdmissions> {
 
   //Liste des dossiers
 
-  Future<bool> addDossier() async {
+  Future<bool> openDossier({DossierAdmission? dossieradmission}) async {
+    bool isEditMode = dossieradmission != null;
+    int? dossieradmissionId = dossieradmission?.id;
+    bool _copieCni = dossieradmission?.copieCni ?? false;
+    bool _releveNotes = dossieradmission?.releveNotes ?? false;
+    bool _diplome = dossieradmission?.diplome ?? false;
+    String _statut = dossieradmission?.status ?? 'refuse';
     bool success = false;
+    final _remarqueController =
+        TextEditingController(text: dossieradmission?.remarque ?? '');
+    CandidatPreInscrit? _selectedEudiant;
+    int? etudiantId;
+    if (isEditMode) {
+      _selectedEudiant = dossieradmission.candidat;
+      etudiantId = _selectedEudiant?.id;
+    }
+
+    final _formKey = GlobalKey<FormState>();
+
+    final _noteEntretien = TextEditingController(
+        text: dossieradmission?.noteEntretien.toString() ?? '');
+    final _notetest = TextEditingController(
+        text: dossieradmission?.noteTest.toString() ?? '');
 
     await showDialog(
         context: context,
         builder: (BuildContext context) {
           return StatefulBuilder(builder: (context, setState) {
             return AlertDialog(
-              title: Text("Nouveau Doosier"),
+              title: Text(
+                  isEditMode ? "Mise à jour du dossier" : "Nouveau Doosier"),
               content: Container(
                 width: 400,
                 child: Padding(
@@ -284,30 +291,34 @@ class _GestionDesAdmissionsState extends State<GestionDesAdmissions> {
                       child: Column(
                         children: [
                           //choix de l'etudiant
-                          DropdownButtonFormField<CandidatPreInscrit>(
+                          DropdownButtonFormField<int>(
+                            value: etudiantId,
                             decoration: InputDecoration(
-                                prefixIcon: Icon(Icons.person),
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(15)),
-                                labelText: "Selectionner un Etudiant"),
-                            validator: (value) => value == null
-                                ? "Veuillez selectionner un etudiant"
-                                : null,
+                              prefixIcon: const Icon(Icons.person),
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(15)),
+                              labelText: "Sélectionner un étudiant",
+                            ),
                             items: futureEtudiants.map((etudiant) {
-                              return DropdownMenuItem<CandidatPreInscrit>(
+                              return DropdownMenuItem<int>(
+                                value: etudiant.id,
                                 child:
                                     Text('${etudiant.prenom} ${etudiant.nom}'),
-                                value: etudiant,
                               );
                             }).toList(),
                             onChanged: (value) {
                               setState(() {
-                                _selectedEudiant = value;
+                                etudiantId = value;
+                                _selectedEudiant = futureEtudiants
+                                    .firstWhere((e) => e.id == value);
                               });
                             },
+                            validator: (value) => value == null
+                                ? "Veuillez sélectionner un étudiant"
+                                : null,
                           ),
 
-                          SizedBox(
+                          const SizedBox(
                             height: 10,
                           ),
 
@@ -329,56 +340,49 @@ class _GestionDesAdmissionsState extends State<GestionDesAdmissions> {
                             onChanged: (value) =>
                                 setState(() => _diplome = value!),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             height: 10,
                           ),
                           TextFormField(
+                            controller: _notetest,
                             keyboardType: TextInputType.number,
                             decoration: InputDecoration(
                                 labelText: 'Note Test d\'admission',
-                                prefixIcon: Icon(Icons.edit_note),
+                                prefixIcon: const Icon(Icons.edit_note),
                                 border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(15))),
-                            onChanged: (value) {
-                              setState(() {
-                                _notetest = value;
-                              });
-                            },
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Veuillez saisir la note de Test d\'admission';
                               }
                             },
                           ),
-                          SizedBox(
+                          const SizedBox(
                             height: 15,
                           ),
                           TextFormField(
+                            controller: _noteEntretien,
                             keyboardType: TextInputType.number,
                             decoration: InputDecoration(
                                 labelText: 'Note Entretien',
-                                prefixIcon: Icon(Icons.record_voice_over),
+                                prefixIcon: const Icon(Icons.record_voice_over),
                                 border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(15))),
-                            onChanged: (value) {
-                              setState(() {
-                                _noteEntretien = value;
-                              });
-                            },
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return "Veuillez saisir la note d\entretien";
+                                return "Veuillez saisir la note d'entretien";
                               }
                             },
                           ),
-                          SizedBox(
+                          const SizedBox(
                             height: 15,
                           ),
                           DropdownButtonFormField<String>(
                             value: _statut,
                             decoration: InputDecoration(
                                 labelText: 'Statut',
-                                prefixIcon: Icon(Icons.view_timeline_rounded),
+                                prefixIcon:
+                                    const Icon(Icons.view_timeline_rounded),
                                 border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(15))),
                             items: const [
@@ -390,79 +394,60 @@ class _GestionDesAdmissionsState extends State<GestionDesAdmissions> {
                             onChanged: (value) =>
                                 setState(() => _statut = value!),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             height: 15,
                           ),
                           TextField(
                             controller: _remarqueController,
                             decoration: InputDecoration(
                                 labelText: 'Remarque',
-                                prefixIcon: Icon(Icons.chat),
+                                prefixIcon: const Icon(Icons.chat),
                                 border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(15))),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             height: 15,
                           ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              ButtonAnnuler(),
+                              const ButtonAnnuler(),
                               TextButton(
                                 onPressed: () async {
+                                  // final etudiantChoisi =
+                                  //     futureEtudiants.firstWhereOrNull(
+                                  //         (e) => e.id == etudiantId);
                                   if (_formKey.currentState!.validate()) {
                                     final dossier = DossierAdmission(
-                                      id: _selectedEudiant!.id,
+                                      id: dossieradmissionId,
                                       copieCni: _copieCni,
                                       diplome: _diplome,
                                       candidat: _selectedEudiant,
                                       releveNotes: _releveNotes,
-                                      noteTest: double.tryParse(_notetest) ?? 0,
-                                      noteEntretien:
-                                          double.tryParse(_noteEntretien) ?? 0,
+                                      noteTest:
+                                          double.tryParse(_notetest.text) ?? 0,
+                                      noteEntretien: double.tryParse(
+                                              _noteEntretien.text) ??
+                                          0,
                                       remarque: _remarqueController.text,
                                       status: _statut,
                                     );
 
-                                    bool exists =
-                                        await DossierAdmissionService()
-                                            .dissierExist(
-                                                _selectedEudiant!.id!);
-                                    if (exists) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                              "Un dossier existe déjà avec cet Etudiant."),
-                                          backgroundColor: Colors.red,
-                                        ),
-                                      );
-                                      return;
+                                    if (isEditMode) {
+                                      updateDossier(
+                                          dossieradmissionId!, dossier);
+                                      success = true;
+                                      Navigator.pop(context);
+                                    } else {
+                                      saveDossier(dossier);
+                                      success = true;
+
+                                      Navigator.pop(context);
                                     }
-                                    final dossierJson = dossier.toJson();
-                                    print("donnees envoyés:${dossierJson}");
-
-                                    await DossierAdmissionService()
-                                        .createDossierAdmission(
-                                            dossierAdmissionData: dossierJson);
-
-                                    setState(() {
-                                      _fetchDossierss();
-                                    });
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                            "Dossier d'Admission ajouté avec succès."),
-                                        backgroundColor: Colors.green,
-                                      ),
-                                    );
-
-                                    success = true;
-
-                                    Navigator.pop(context);
                                   }
                                 },
-                                child: const Text('Ajouter'),
+                                child:
+                                    Text(isEditMode ? "Modifier" : 'Ajouter'),
                               ),
                             ],
                           ),
@@ -475,6 +460,7 @@ class _GestionDesAdmissionsState extends State<GestionDesAdmissions> {
             );
           });
         });
+
     return success;
   }
 
@@ -497,6 +483,70 @@ class _GestionDesAdmissionsState extends State<GestionDesAdmissions> {
       },
       child: Text(label),
     );
+  }
+
+  Future<void> saveDossier(DossierAdmission dossier) async {
+    try {
+      bool exists =
+          await DossierAdmissionService().dissierExist(dossier.candidat!.id!);
+      if (exists) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Un dossier existe déjà avec cet Etudiant."),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+      final dossierJson = dossier.toJson();
+      print("donnees envoyés:${dossierJson}");
+
+      await DossierAdmissionService()
+          .createDossierAdmission(dossierAdmissionData: dossierJson);
+
+      setState(() {
+        _fetchDossierss();
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Dossier d'Admission ajouté avec succès."),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } on Exception catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Erreur lors de l'ajout du dossier : $error"),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  //Update Dossier
+
+  Future<void> updateDossier(int dossierId, DossierAdmission dossier) async {
+    try {
+      await DossierAdmissionService()
+          .updateDossierAdmission(dossier, dossierId);
+
+      setState(() {
+        _fetchDossierss();
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Dossier d'Admission mis à jour avec succès."),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } on Exception catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Erreur lors du mis à jour du dossier : $error"),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   // / Supprimer un niveau

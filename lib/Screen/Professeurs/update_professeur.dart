@@ -182,7 +182,6 @@ class _UpdateProfesseurState extends State<UpdateProfesseur> {
 
       try {
         await ProfesseurService().updateProfesseur(prof.id!, prof);
-        print("donnees envoyes:${prof.toJson()}");
 
         showDialog(
           context: context,

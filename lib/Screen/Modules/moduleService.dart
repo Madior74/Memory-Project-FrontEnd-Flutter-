@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:school_management_system/Screen/Modules/module.dart';
 import 'package:http/http.dart' as http;
-import 'package:school_management_system/config.dart';
+import 'package:school_management_system/services/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ModuleService {
@@ -100,20 +100,13 @@ class ModuleService {
           .toList(), // Convertir les devoirNotes en JSON
     });
 
-    print("Ajout d'un module");
-    print("URL:$url");
-    print("Body:$body");
+
 
     final response = await http.post(url, headers: headers, body: body);
-    print("Status de la reponse");
-    print(response.statusCode);
-    print("Reponse");
-    print(response.body);
+  
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      print("Module Ajouté avec succès");
     } else {
-      print("Erreur lors de l'ajout du module");
       throw Exception("Erreur lors de l'ajout du module : ${response.body}");
     }
   }
@@ -127,9 +120,7 @@ class ModuleService {
         headers: {
           "Authorization": "Bearer $token",
         });
-    print("Reponse de L'API et verification de l'existence du meme module");
-    print(response);
-    print(response.statusCode);
+
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       return json.decode(response.body) as bool;

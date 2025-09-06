@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:school_management_system/Screen/semestre/model_semestre.dart';
 import 'package:http/http.dart' as http;
-import 'package:school_management_system/config.dart';
+import 'package:school_management_system/services/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SemestreService {
@@ -19,10 +19,6 @@ class SemestreService {
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
 
-      // Débogage : Affiche les données reçues
-      print("Données reçues : $data");
-
-      // Convertit les données en objets Semestre
       return data.map((json) => Semestre.fromJson(json)).toList();
     } else {
       throw Exception('Échec du chargement des semestres');
@@ -33,15 +29,10 @@ class SemestreService {
   Future<List<Semestre>> getSemestreByNiveau(int niveauId) async {
     final pref = await SharedPreferences.getInstance();
     final token = pref.getString('token');
-    final response =
-        await http.get(Uri.parse('$baseUrl/semestres/niveau/$niveauId'), headers: {
+    final response = await http
+        .get(Uri.parse('$baseUrl/semestres/niveau/$niveauId'), headers: {
       "Authorization": "Bearer $token",
     });
-    print("recuperation des Semestres");
-    print("Réponse de l'API : ${response.body}");
-    print(response);
-    print(response.body);
-    print(response.statusCode);
 
     if (response.statusCode == 200) {
       List<dynamic> data = json.decode(response.body);
@@ -62,11 +53,8 @@ class SemestreService {
           'niveau': {'id': niveauId},
         }),
       );
-      print("Ajout de Semestre a un niveau");
-      print(response.statusCode);
 
       if (response.statusCode == 201 || response.statusCode == 200) {
-        print('Semestre ajouté avec succès');
       } else if (response.statusCode == 409) {
         throw Exception('Ce semestre existe déjà dans le niveau');
       } else {
@@ -92,7 +80,6 @@ class SemestreService {
   //Update semestre
   Future<void> updateSemestre(Semestre semestre) async {
     final body = jsonEncode(semestre.toJson());
-    print("Données envoyées : $body");
 
     final response = await http.put(
       Uri.parse('$baseUrl/semestres/${semestre.id}'),
@@ -115,9 +102,6 @@ class SemestreService {
           headers: {
             'Authorization': 'Bearer $token',
           });
-
-      print("Statut de la réponse : ${response.statusCode}");
-      print("Réponse du serveur : ${response.body}");
 
       if (response.statusCode == 200) {
         return jsonDecode(response.body) as bool;

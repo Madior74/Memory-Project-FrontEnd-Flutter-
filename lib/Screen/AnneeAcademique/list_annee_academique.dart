@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:school_management_system/Screen/AnneeAcademique/annee_academique.dart';
 import 'package:school_management_system/Screen/AnneeAcademique/annee_academique_service.dart';
-import 'package:school_management_system/Widgets/anneeAcademiqueCard.dart';
+import 'package:school_management_system/Screen/AnneeAcademique/anneeAcademiqueCard.dart';
 import 'package:school_management_system/Widgets/drawer.dart';
 import 'package:school_management_system/Widgets/my_appbar.dart';
 import 'package:school_management_system/theme/colors.dart';

@@ -83,7 +83,7 @@ class AnneeAcademiqueCard extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(
-                    color: getEtatColor(annee.etat).withOpacity(0.15),
+                    color: getEtatColor(annee.etat).withOpacity(0.35),
                     borderRadius: BorderRadius.circular(30),
                   ),
                   child: Text(
