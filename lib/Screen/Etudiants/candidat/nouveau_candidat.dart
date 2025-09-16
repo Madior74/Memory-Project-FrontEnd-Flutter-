@@ -7,14 +7,14 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:school_management_system/Screen/Region/Departements/departement.dart';
-import 'package:school_management_system/Screen/Etudiants/Prinscription/model_prinscription.dart';
+import 'package:school_management_system/Screen/Etudiants/candidat/model_candidat.dart';
 import 'package:school_management_system/Screen/Filieres/filiere.dart';
 import 'package:school_management_system/Screen/Niveaux/model_niveau.dart';
 import 'package:school_management_system/Screen/Region/model_region.dart';
 import 'package:school_management_system/Screen/AnneeAcademique/annee_academique.dart';
-import 'package:school_management_system/Screen/Etudiants/Prinscription/liste_des_prinscrits.dart';
+import 'package:school_management_system/Screen/Etudiants/candidat/liste_des_candidats.dart';
 import 'package:school_management_system/Screen/Region/Departements/departementService.dart';
-import 'package:school_management_system/Screen/Etudiants/Prinscription/prinscription_service.dart';
+import 'package:school_management_system/Screen/Etudiants/candidat/prinscription_service.dart';
 import 'package:school_management_system/Screen/Filieres/filiere_service.dart';
 import 'package:school_management_system/Screen/Niveaux/niveau_service.dart';
 import 'package:school_management_system/Screen/Region/regionService.dart';
@@ -102,8 +102,8 @@ class _NouvellePriscriptionState extends State<NouvellePriscription> {
         _regions = regions;
       });
     } catch (e) {
-      print("Erreur lors du chargement des filieres:$e");
-      throw Exception('Erreur lors de la récupération des filières');
+      print("Erreur lors du chargement des Régions:$e");
+      throw Exception('Erreur lors de la récupération des Régions');
     }
   }
 
@@ -184,24 +184,23 @@ class _NouvellePriscriptionState extends State<NouvellePriscription> {
       // Vérification de la session choisie
 
       // Création de l'objet Etudiant
-      final etudiant = CandidatPreInscrit(
-        prenom: _prenomEditController.text,
-        nom: _nomEditController.text,
-        adresse: _adresseEditController.text,
-        telephone: _telephoneEditController.text,
+      final etudiant = Candidat(
+        prenom: _prenomEditController.text.trim(),
+        nom: _nomEditController.text.trim(),
+        adresse: _adresseEditController.text.trim(),
+        telephone: _telephoneEditController.text.trim(),
         sexe: _selectedGender ?? 'Masculin',
-        email: _emailEditController.text,
-        password: _passwordEditController.text,
+        email: _emailEditController.text.trim(),
+        password: _passwordEditController.text.trim(),
         dateDeNaissance: _selectedDate ?? DateTime.now(),
         imagePath: _image?.path ?? '',
         paysDeNaissance: selectedCountry?.name ?? 'Senegal',
-        cni: _cniEditController.text,
-        ine: _ineEditController.text,
+        cni: _cniEditController.text.trim(),
+        ine: _ineEditController.text.trim(),
         departement: departementChoisi,
         filiereSouhaitee: filiereChoisie,
         niveauSouhaite: niveauChoisie,
         anneeAcademique: annechoisie,
-        dateAjout: DateTime.now(),
         region: regionChoisie,
       );
 
@@ -236,7 +235,7 @@ class _NouvellePriscriptionState extends State<NouvellePriscription> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => const ListeDesPrinscrits()),
+                          builder: (context) => const ListeDesCandidats()),
                     );
                   },
                   child: const Text(

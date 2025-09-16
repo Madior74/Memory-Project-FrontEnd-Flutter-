@@ -25,6 +25,12 @@ class _ListSessionState extends State<ListSession> {
     futureSessions = AnneeAcademiqueService().getSessions();
   }
 
+  void _refreshList() {
+    setState(() {
+      futureSessions = AnneeAcademiqueService().getSessions();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -77,6 +83,7 @@ class _ListSessionState extends State<ListSession> {
                                 return Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: AnneeAcademiqueCard(
+                                      onToggleActivation: _refreshList,
                                       annee: annees,
                                       onEdit: () {
                                         _openSessionDiaog(annee: annees);

@@ -8,6 +8,7 @@ import 'package:school_management_system/Screen/Salle/model_salle.dart';
 import 'package:school_management_system/Screen/Salle/salle_service.dart';
 import 'package:school_management_system/Screen/Seance/seance_service.dart';
 import 'package:school_management_system/Screen/Seance/model_seance.dart';
+import 'package:school_management_system/Screen/assiduite/assiduite_by_seance.dart';
 import 'package:school_management_system/Widgets/button_annuler.dart';
 import 'package:school_management_system/Widgets/drawer.dart';
 import 'package:school_management_system/Widgets/my_appbar.dart';
@@ -26,6 +27,7 @@ class _SeanceByModuleState extends State<SeanceByModule> {
   late Future<List<Seance>> futureSeances;
   List<Professeur> futuresprofesseur = [];
   List<Salle> futureSalles = [];
+  Duration heureDeroules = Duration.zero;
 
   final _formKey = GlobalKey<FormState>();
 
@@ -111,6 +113,9 @@ class _SeanceByModuleState extends State<SeanceByModule> {
                       );
                     } else {
                       List<Seance> seances = snapshot.data!;
+                      for (var i in seances) {
+                        heureDeroules += i.duree;
+                      }
 
                       return SizedBox(
                         width: double.infinity,
@@ -160,6 +165,11 @@ class _SeanceByModuleState extends State<SeanceByModule> {
                                 )),
                                 DataColumn(
                                     label: Text(
+                                  "Assiduité",
+                                  style: titleStyle,
+                                )),
+                                DataColumn(
+                                    label: Text(
                                   "Actions",
                                   style: titleStyle,
                                 )),
@@ -181,7 +191,16 @@ class _SeanceByModuleState extends State<SeanceByModule> {
                                 }
 
                                 return DataRow(cells: [
-                                  DataCell(Text(seance.module.nomModule)),
+                                  DataCell(SizedBox(
+                                    width: 150,
+                                    child: Tooltip(
+                                      message: seance.module.nomModule,
+                                      child: Text(
+                                        seance.module.nomModule,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  )),
                                   DataCell(Text(
                                       '${seance.professeur.prenom}  ${seance.professeur.nom}')),
                                   DataCell(
@@ -211,6 +230,20 @@ class _SeanceByModuleState extends State<SeanceByModule> {
                                           color: statutColor(
                                             seance.statut,
                                           )))),
+                                  DataCell(TextButton.icon(
+                                    onPressed: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                AssiduiteByModule(
+                                                    seance: seance),
+                                          ));
+                                    },
+                                    label: Text("Gérer"),
+                                    icon:
+                                        Icon(Icons.person_add_disabled_rounded),
+                                  )),
                                   DataCell(Row(
                                     children: [
                                       TextButton.icon(
@@ -271,6 +304,7 @@ class _SeanceByModuleState extends State<SeanceByModule> {
     List<Seance> seances = await futureSeances;
     Professeur? profParDefaut =
         SeanceService().getDernierProfesseurPourModule(widget.module!, seances);
+   
     bool isEditMode = seance != null;
     int? seanceId = seance?.id;
     String title =
@@ -527,6 +561,16 @@ class _SeanceByModuleState extends State<SeanceByModule> {
                         return;
                       }
 
+                      if (heureDeroules.inHours >=
+                          widget.module!.volumeHoraire) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text(
+                                  "Impossible d'ajouter une Séance Volume horaire total atteint")),
+                        );
+                        return;
+                      }
+
                       // Création de la salle (ou null si cours en ligne)
                       final Salle? salle = _estEnLigne
                           ? null
@@ -547,17 +591,25 @@ class _SeanceByModuleState extends State<SeanceByModule> {
 
                         // semestre: futuresSemestre
                         //     .firstWhere((s) => s.id == selectedSemestre),
-                        devoirs: [],
-                        examens: [],
                       );
                       print("donnees envoyes:${cours.toJson()}");
 
                       if (isEditMode) {
-                        updateSeance(seanceId!, cours);
+                        updateSeance(seanceId!, cours).then((_) {
+                          setState(() {
+                            futureSeances = SeanceService()
+                                .getSeancesByModuleId(widget.module!.id!);
+                          });
+                        });
 
                         Navigator.of(context).pop();
                       } else {
-                        saveSeance(cours);
+                        saveSeance(cours).then((_) {
+                          setState(() {
+                            futureSeances = SeanceService()
+                                .getSeancesByModuleId(widget.module!.id!);
+                          });
+                        });
 
                         Navigator.of(context).pop();
                       }
@@ -592,20 +644,21 @@ class _SeanceByModuleState extends State<SeanceByModule> {
         return;
       }
       // Enregistrement de la séance
-      await SeanceService().createSeance(cours);
+      await SeanceService().createSeance(cours).then((_) {
+        setState(() {
+          futureSeances =
+              SeanceService().getSeancesByModuleId(widget.module!.id!);
+        });
 
-      setState(() {
-        futureSeances =
-            SeanceService().getSeancesByModuleId(widget.module!.id!);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Séance  ajoutée avec succès."),
+            backgroundColor: Colors.green,
+          ),
+        );
       });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Séance  ajoutée avec succès."),
-          backgroundColor: Colors.green,
-        ),
-      );
     } catch (error) {
+      print("Erreur lors de l'ajout : $error");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Erreur lors de l'ajout : $error"),

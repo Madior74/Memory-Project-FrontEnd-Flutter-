@@ -7,10 +7,9 @@ import 'package:school_management_system/Screen/Etudiants/Admission/gestion_des_
 import 'package:school_management_system/Screen/Etudiants/Inscription/list_inscriptions.dart';
 import 'package:school_management_system/Screen/Horaire/emploi_du_temps.dart';
 import 'package:school_management_system/Screen/Professeurs/liste_des_professeurs.dart';
-import 'package:school_management_system/Screen/Etudiants/Prinscription/liste_des_prinscrits.dart';
+import 'package:school_management_system/Screen/Etudiants/candidat/liste_des_candidats.dart';
 import 'package:school_management_system/Screen/Filieres/list_filieres.dart';
 import 'package:school_management_system/Screen/Modules/liste_des_modules.dart';
-import 'package:school_management_system/Screen/Note/liste_des_notes.dart';
 import 'package:school_management_system/Screen/Region/liste_des_regions.dart';
 import 'package:school_management_system/Screen/AnneeAcademique/list_annee_academique.dart';
 import 'package:school_management_system/Screen/UES/listes_ue.dart';
@@ -95,13 +94,13 @@ class MyDrawer extends StatelessWidget {
                   children: [
                     MyDrawerListTile(
                       icon: Icons.pending_actions,
-                      text: "Prinscriptions",
+                      text: "Candidats",
                       onTap: () {
                         Navigator.pop(context);
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const ListeDesPrinscrits(),
+                            builder: (context) => const ListeDesCandidats(),
                           ),
                         );
                       },
@@ -114,7 +113,7 @@ class MyDrawer extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const GestionDesAdmissions(),
+                            builder: (context) => GestionDesAdmissions(),
                           ),
                         );
                       },
@@ -224,19 +223,19 @@ class MyDrawer extends StatelessWidget {
                   );
                 },
               ),
-              MyDrawerListTile(
-                icon: Icons.edit_document,
-                text: "NOTES",
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => NotesScreen(),
-                    ),
-                  );
-                },
-              ),
+              // MyDrawerListTile(
+              //   icon: Icons.edit_document,
+              //   text: "NOTES",
+              //   onTap: () {
+              //     Navigator.pop(context);
+              //     Navigator.push(
+              //       context,
+              //       MaterialPageRoute(
+              //         builder: (context) => NotesScreen(),
+              //       ),
+              //     );
+              //   },
+              // ),
               MyDrawerListTile(
                 icon: Icons.timeline_rounded,
                 text: "Annees Académique",

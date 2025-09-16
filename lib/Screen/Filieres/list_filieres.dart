@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:school_management_system/Screen/Etudiants/Prinscription/model_prinscription.dart';
+import 'package:school_management_system/Screen/Etudiants/candidat/model_candidat.dart';
 import 'package:school_management_system/Screen/Filieres/filiere.dart';
 import 'package:school_management_system/Screen/Niveaux/list_niveau.dart';
 import 'package:school_management_system/Screen/Filieres/filiere_service.dart';
@@ -24,7 +24,7 @@ class _ListFilieresState extends State<ListFilieres> {
   final TextEditingController _descriptionController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   //Recuperation de la liste des Etudiants
-  late Future<List<CandidatPreInscrit>> etudiants;
+  late Future<List<Candidat>> etudiants;
   late Future<int> count;
 
   @override

@@ -4,13 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:school_management_system/Screen/Document/document_screen.dart';
 import 'package:school_management_system/Screen/Etudiants/Admission/gestion_des_admissions.dart';
-import 'package:school_management_system/Screen/Etudiants/Prinscription/model_prinscription.dart';
-import 'package:school_management_system/Screen/Etudiants/Prinscription/update_prinscrit.dart';
+import 'package:school_management_system/Screen/Etudiants/candidat/model_candidat.dart';
+import 'package:school_management_system/Screen/Etudiants/candidat/update_prinscrit.dart';
 import 'package:school_management_system/Widgets/image_help.dart';
 import 'package:school_management_system/theme/colors.dart';
 
 class DetailEtudiant extends StatelessWidget {
-  final CandidatPreInscrit etudiant;
+  final Candidat etudiant;
 
   const DetailEtudiant({super.key, required this.etudiant});
 

@@ -58,7 +58,11 @@ class InscriptionService {
 
   //Supprimer une Inscription
   Future<void> deleteInscription(int id) async {
-    final response = await http.delete(Uri.parse('$baseUrl/dossiers/$id'));
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('token');
+    final response = await http.delete(Uri.parse('$baseUrl/$id'), headers: {
+      "Authorization": "Bearer $token",
+    });
 
     if (response.statusCode != 200 && response.statusCode != 201) {
       throw Exception('Echec de la supression de l\'Inscription');

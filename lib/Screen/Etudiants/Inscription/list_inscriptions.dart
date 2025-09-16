@@ -28,6 +28,12 @@ class _ListInscriptionsState extends State<ListInscriptions> {
   late Future<List<Niveau>> futureNiveaux;
   late Future<List<AnneeAcademique>> futureAnnees;
 
+  //initiale
+  String getInitials(String name) {
+    var parts = name.split(' ');
+    return parts.length > 1 ? '${parts[0][0]}${parts[1][0]}' : parts[0][0];
+  }
+
   @override
   void initState() {
     super.initState();
@@ -158,6 +164,9 @@ class _ListInscriptionsState extends State<ListInscriptions> {
                                             child: DataTable(
                                               columns: [
                                                 DataColumn(
+                                                    label: Text("Accronyme",
+                                                        style: titleStyle)),
+                                                DataColumn(
                                                     label: Text("Etudiant(e)",
                                                         style: titleStyle)),
                                                 DataColumn(
@@ -177,23 +186,36 @@ class _ListInscriptionsState extends State<ListInscriptions> {
                                               rows: inscriptions
                                                   .map((inscription) {
                                                 final String etudiant =
-                                                    '${inscription.dossierAdmissionDTO.candidat.prenom} ${inscription.dossierAdmissionDTO.candidat.nom}';
+                                                    '${inscription.dossierAdmissionDto.candidat?.prenom} ${inscription.dossierAdmissionDto.candidat?.nom}';
                                                 return DataRow(
                                                   cells: [
+                                                    DataCell(CircleAvatar(
+                                                      backgroundColor:
+                                                          Colors.indigo[400],
+                                                      child: Text(
+                                                        getInitials(etudiant)
+                                                            .toUpperCase(),
+                                                        style: const TextStyle(
+                                                          color: Colors.white,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    )),
                                                     DataCell(Text(etudiant)),
                                                     DataCell(Text(getFiliereById(
                                                                 inscription
-                                                                    .filiereId)
+                                                                    .filiere)
                                                             ?.nomFiliere ??
                                                         "N/A")),
                                                     DataCell(Text(getNiveauById(
                                                                 inscription
-                                                                    .niveauId)
+                                                                    .niveau)
                                                             ?.nomNiveau ??
                                                         "N/A")),
                                                     DataCell(Text(getAnneeById(
                                                                 inscription
-                                                                    .anneeAcademiqueId)
+                                                                    .anneeAcademique)
                                                             ?.nomAnnee ??
                                                         "N/A")),
                                                     DataCell(
@@ -238,7 +260,7 @@ class _ListInscriptionsState extends State<ListInscriptions> {
   void _confirmDelete(int id) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
         return AlertDialog(
           title: const Text("Confirmation"),
           content: const Text(
@@ -246,20 +268,22 @@ class _ListInscriptionsState extends State<ListInscriptions> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Ferme la boîte de dialogue
+                Navigator.of(dialogContext).pop();
               },
               child: const Text('Annuler'),
             ),
             TextButton(
               onPressed: () {
-                // Appel à la méthode de suppression
+                Navigator.of(dialogContext).pop(); // Close dialog first
+
+                // Use the original context (from the screen) for ScaffoldMessenger
                 InscriptionService().deleteInscription(id).then((_) {
-                  // Rafraîchir la liste des niveaux
                   setState(() {
                     futureInscriptions =
                         InscriptionService().getAllInscriptions();
                   });
                   ScaffoldMessenger.of(context).showSnackBar(
+                    // <-- Use screen context
                     const SnackBar(
                       content: Text("Inscription supprimée avec succès"),
                       backgroundColor: Colors.green,
@@ -267,10 +291,10 @@ class _ListInscriptionsState extends State<ListInscriptions> {
                   );
                 }).catchError((error) {
                   ScaffoldMessenger.of(context).showSnackBar(
+                    // <-- Use screen context
                     SnackBar(content: Text("Erreur : $error")),
                   );
                 });
-                Navigator.of(context).pop(); // Ferme la boîte de dialogue
               },
               child: Text(
                 'Supprimer',

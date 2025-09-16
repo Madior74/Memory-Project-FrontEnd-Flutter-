@@ -5,9 +5,9 @@ final intituleStyle = const TextStyle(
 final tableauElementStyle = const TextStyle(color: Colors.black, fontSize: 15);
 
 final TextStyle titleStyle = TextStyle(
-    fontWeight: FontWeight.w600,
+    fontWeight: FontWeight.bold,
     fontSize: 14,
-    color: Colors.grey[700],
+    color: Colors.black,
     overflow: TextOverflow.ellipsis);
 
 final TextStyle firstTitleStyle = TextStyle(

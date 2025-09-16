@@ -1,37 +1,47 @@
-import 'package:school_management_system/Screen/Etudiants/Admission/dossier_admissionDTO.dart';
+import 'package:school_management_system/Screen/Etudiants/Admission/admission_dto.dart';
+import 'package:school_management_system/Screen/Etudiants/Admission/model_admission.dart';
 
 class InscriptionDTO {
-  final int? id;
-  final int filiereId;
-  final int niveauId;
-  final int anneeAcademiqueId;
-  final double montantVerse;
-  final DateTime? dateInscription;
-  final DossierAdmissionDTO dossierAdmissionDTO;
+  int id;
+  String prenom;
+  String nom;
+  int filiere;
+  int niveau;
+  int anneeAcademique;
+  DossierAdmissionDto dossierAdmissionDto;
+  DateTime dateInscription;
 
   InscriptionDTO({
-    this.id,
-    required this.filiereId,
-    required this.niveauId,
-    required this.anneeAcademiqueId,
-    required this.montantVerse,
+    required this.id,
+    required this.prenom,
+    required this.nom,
+    required this.filiere,
+    required this.niveau,
+    required this.anneeAcademique,
+    required this.dossierAdmissionDto,
     required this.dateInscription,
-    required this.dossierAdmissionDTO,
   });
 
-  factory InscriptionDTO.fromJson(Map<String, dynamic> json) {
-    return InscriptionDTO(
-      id: json['id'],
-      filiereId: json['filiere'] as int,
-      niveauId: json['niveau'] as int,
-      anneeAcademiqueId: json['anneeAcademique'] as int,
-      montantVerse: (json['montantVerse'] as num).toDouble(),
-      dateInscription: json['dateInscription'] != null
-          ? DateTime.parse(json['dateInscription'])
-          : null,
-      dossierAdmissionDTO: DossierAdmissionDTO.fromJson(
-        json['dossierAdmissionDTO'] as Map<String, dynamic>,
-      ),
-    );
-  }
+  factory InscriptionDTO.fromJson(Map<String, dynamic> json) => InscriptionDTO(
+        id: json["id"],
+        prenom: json["prenom"],
+        nom: json["nom"],
+        filiere: json["filiere"],
+        niveau: json["niveau"],
+        anneeAcademique: json["anneeAcademique"],
+        dossierAdmissionDto:
+            DossierAdmissionDto.fromJson(json["dossierAdmissionDTO"]),
+        dateInscription: DateTime.parse(json["dateInscription"]),
+      );
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "prenom": prenom,
+        "nom": nom,
+        "filiere": filiere,
+        "niveau": niveau,
+        "anneeAcademique": anneeAcademique,
+        "dossierAdmissionDTO": dossierAdmissionDto.toJson(),
+        "dateInscription": dateInscription.toIso8601String(),
+      };
 }

@@ -34,7 +34,6 @@ class _LoginScreenState extends State<LoginScreen> {
         );
         final role = data['user']['role'];
         // final user = data['user'];
-        print("le role est de :$role");
 
         // Redirigez l'utilisateur en fonction de son rôle
         if (role == "ROLE_ETUDIANT") {

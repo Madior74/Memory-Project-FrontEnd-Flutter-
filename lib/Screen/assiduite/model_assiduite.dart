@@ -5,13 +5,13 @@ class Assiduite {
   final int? id;
   final Etudiant etudiant;
   final Seance seance;
-  final String statutPresencr;
+  final String statutPresence;
 
   Assiduite({
     this.id,
     required this.etudiant,
     required this.seance,
-    required this.statutPresencr,
+    required this.statutPresence,
   });
 
   factory Assiduite.fromJson(Map<String, dynamic> json) {
@@ -19,14 +19,16 @@ class Assiduite {
         id: json['id'],
         etudiant: Etudiant.fromJson(json['etudiant']),
         seance: Seance.fromJson(json['seance']),
-        statutPresencr: json['statutPresencr']);
+        statutPresence: json['statutPresence']);
   }
 
   Map<String, dynamic> toJson() {
     return {
       'etudiant': etudiant.toJson(),
       'seance': seance.toJson(),
-      'statutPresencr': statutPresencr
+      'statutPresence': statutPresence
     };
   }
 }
+
+enum StatutPresence { present, absent, retard, exclus }

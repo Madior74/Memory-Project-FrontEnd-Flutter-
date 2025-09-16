@@ -192,6 +192,7 @@ class _UpdateProfesseurState extends State<UpdateProfesseur> {
               actions: [
                 TextButton(
                   onPressed: () {
+                    Navigator.of(context).pop();
                     Navigator.push(
                       context,
                       MaterialPageRoute(

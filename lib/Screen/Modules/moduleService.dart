@@ -16,11 +16,9 @@ class ModuleService {
     final response = await http.get(Uri.parse(baseUrl), headers: {
       "Authorization": "Bearer $token",
     });
-    print("Recuperation des Modules");
-    print(response.statusCode);
-    print(response.body);
+
     if (response.statusCode == 200 || response.statusCode == 201) {
-      Iterable jResponse = json.decode(response.body);
+      Iterable jResponse = json.decode(utf8.decode(response.bodyBytes));
       return List<Module>.from(
           jResponse.map((model) => Module.fromJson(model)));
     } else {
@@ -37,7 +35,8 @@ class ModuleService {
     });
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
+      final jsonResponse =
+          json.decode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
 
       // Vérifier si "data" est null ou vide
       final data = jsonResponse['data'] as List<dynamic>?;
@@ -95,15 +94,10 @@ class ModuleService {
       'creditModule': module.creditModule,
       'ue': {"id": module.ue!.id},
       'dateAjout': module.dateAjout!.toIso8601String().substring(0, 23),
-      'devoirNotes': module.devoirNotes
-          .map((note) => note.toJson())
-          .toList(), // Convertir les devoirNotes en JSON
+    
     });
 
-
-
     final response = await http.post(url, headers: headers, body: body);
-  
 
     if (response.statusCode == 200 || response.statusCode == 201) {
     } else {
@@ -120,7 +114,6 @@ class ModuleService {
         headers: {
           "Authorization": "Bearer $token",
         });
-
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       return json.decode(response.body) as bool;

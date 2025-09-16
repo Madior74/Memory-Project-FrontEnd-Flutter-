@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:school_management_system/Screen/Etudiants/Prinscription/model_prinscription.dart';
+import 'package:school_management_system/Screen/Etudiants/candidat/model_candidat.dart';
 import 'package:school_management_system/Screen/Region/model_region.dart';
 import 'package:school_management_system/Screen/Region/Departements/liste_des_departements.dart';
-import 'package:school_management_system/Screen/Etudiants/Prinscription/prinscription_service.dart';
+import 'package:school_management_system/Screen/Etudiants/candidat/prinscription_service.dart';
 import 'package:school_management_system/Screen/Region/regionService.dart';
 import 'package:school_management_system/Widgets/drawer.dart';
 import 'package:school_management_system/Widgets/my_appbar.dart';
@@ -22,7 +22,6 @@ class _ListeDesRegionsState extends State<ListeDesRegions> {
 
   final TextEditingController _nomRegionController = TextEditingController();
   //Recuperation de la liste des Etudiants
-  late Future<List<CandidatPreInscrit>> etudiants;
   late Future<int> count;
 
   @override

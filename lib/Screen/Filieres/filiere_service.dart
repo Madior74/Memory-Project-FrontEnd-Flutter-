@@ -68,7 +68,7 @@ class FiliereService {
         body: json.encode(filiere.toJson()),
       );
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return Filiere.fromJson(json.decode(response.body));
+        return Filiere.fromJson(json.decode(utf8.decode(response.bodyBytes)));
       } else {
         throw Exception(
             'Echec lors de l\'ajout  de la Filiere :${response.body}');

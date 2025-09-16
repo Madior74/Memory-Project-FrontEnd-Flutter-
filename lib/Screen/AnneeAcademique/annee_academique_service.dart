@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class AnneeAcademiqueService {
   final String baseUrl = AppConfig.baseUrl;
+  final http.Client _httpClient = http.Client();
 
   //Get
   Future<List<AnneeAcademique>> getSessions() async {
@@ -112,6 +113,49 @@ class AnneeAcademiqueService {
     }
   }
 
+  //Activer une annee
+  Future<void> activerAnnee(int anneeId) async {
+    try {
+      final pref = await SharedPreferences.getInstance();
+      final token = pref.getString('token');
+      final response = await _httpClient.post(
+        Uri.parse('$baseUrl/activate/$anneeId'), // À adapter selon ton endpoint
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode != 204) {
+        throw Exception("Erreur lors de l'activation de l'annee:");
+      }
+    } catch (e) {
+      throw Exception("Erreur lors de l'activation de l'annee:$e");
+    }
+  }
+
+  Future<void> toggleActivation(int anneeId) async {
+    try {
+      final pref = await SharedPreferences.getInstance();
+      final token = pref.getString('token');
+      // final endpoint = activer ? 'activate' : 'deactivate';
+
+      final response = await _httpClient.put(
+        Uri.parse('$baseUrl/annees/activate/$anneeId'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+      
+      if (response.statusCode != 204) {
+        throw Exception("Erreur HTTP: ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Erreur lors du changement d'état : $e");
+    }
+  }
+
 //Exist
   Future<bool> anneeExists(String nomAnnee) async {
     try {
@@ -134,20 +178,6 @@ class AnneeAcademiqueService {
       throw Exception('Erreur lors de la vérification des lannee');
     }
   }
-
-  //Annee En Cours
-  // Future<AnneeAcademique> getAnneeEnCours() async {
-  //   final pref = await SharedPreferences.getInstance();
-  //   final token = pref.getString('token');
-  //   final response = await http.get(Uri.parse('$baseUrl/en-cours'), headers: {
-  //     "Authorization": "Bearer $token",
-  //   });
-  //   if (response.statusCode == 200) {
-  //     return AnneeAcademique.fromJson(json.decode(response.body));
-  //   } else {
-  //     throw Exception('Failed to load current academic year');
-  //   }
-  // }
 
   Future<AnneeAcademique> getAnneeEnCours() async {
     final response = await HttpInterceptor.request(

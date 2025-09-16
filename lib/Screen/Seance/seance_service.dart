@@ -48,7 +48,7 @@ class SeanceService {
       "Authorization": "Bearer $token",
     });
     if (response.statusCode == 200) {
-      List<dynamic> data = jsonDecode(response.body);
+      List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
       return data.map((json) => Seance.fromJson(json)).toList();
     } else {
       throw Exception(
@@ -56,7 +56,7 @@ class SeanceService {
     }
   }
 
-  // ➕ Créer une nouvelle séance
+  // Créer une nouvelle séance
   Future<Seance> createSeance(Seance seance) async {
     final pref = await SharedPreferences.getInstance();
     final token = pref.getString('token');
@@ -68,13 +68,12 @@ class SeanceService {
       },
       body: jsonEncode(seance.toJson()),
     );
-    print("Recup de seance");
-    print(response.statusCode);
-    print(response.body);
+
 
     if (response.statusCode == 201 || response.statusCode == 200) {
       return Seance.fromJson(jsonDecode(response.body));
     } else {
+      print("Erreur lors de la création de la séance");
       throw Exception('Erreur lors de la création de la séance');
     }
   }
@@ -101,16 +100,27 @@ class SeanceService {
 
   //  Supprimer une séance
   Future<void> deleteSeance(int id) async {
-    final response = await _httpClient.delete(Uri.parse('$apiUrl/$id'));
+    try {
+      final pref = await SharedPreferences.getInstance();
+      final token = pref.getString('token');
+      final response = await _httpClient.delete(
+        Uri.parse('$apiUrl/$id'),
+        headers: {
+          'Content-Type': 'application/json',
+          "Authorization": "Bearer $token",
+        },
+      );
 
-    if (response.statusCode != 200 && response.statusCode != 204) {
-      throw Exception('Erreur lors de la suppression de la séance $id');
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw Exception('Erreur lors de la suppression de la séance $id');
+      }
+    } on Exception catch (e) {
+      throw Exception('Erreur lors de la suppression de la séance $e');
+      // TODO
     }
   }
 
   //Exister une séance
-
-  //Erreur avec  localdate
   Future<bool> seanceExists(BuildContext context, int moduleId,
       DateTime? dateSeance, TimeOfDay heureDebut, TimeOfDay heureFin) async {
     final pref = await SharedPreferences.getInstance();
@@ -127,8 +137,6 @@ class SeanceService {
           "Authorization": "Bearer $token",
         });
 
- 
-
     if (response.statusCode == 200 || response.statusCode == 201) {
       return json.decode(response.body) as bool;
     } else {
@@ -140,16 +148,6 @@ class SeanceService {
 // Fonction utilitaire
   String formatDateForServer(DateTime date) {
     return "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
-  }
-
-  //Volume Horaire restant
-  int getVolumeConsommeParModule(List<Seance> seances, Module module) {
-    return seances
-        .where((s) =>
-            s.module.id == module.id &&
-            s.statut.toLowerCase() != 'annulée') // Exclure les annulées
-        .map((s) => s.duree.inHours)
-        .fold(0, (a, b) => a + b);
   }
 
   ///Methode pour reporter ou annuler une seance
@@ -190,7 +188,7 @@ class SeanceService {
         (b.dateSeance ?? DateTime(0)).compareTo(a.dateSeance ?? DateTime(0)));
 
     return seancesDuModule.first.professeur;
+    
   }
 
-  //Methode de recupere
 }

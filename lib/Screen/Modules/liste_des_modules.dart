@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:school_management_system/Screen/Modules/module.dart';
 import 'package:school_management_system/Screen/Modules/moduleService.dart';
 import 'package:school_management_system/Screen/Seance/seance_by_module.dart.dart';
+import 'package:school_management_system/Screen/evaluation/evaluation_by_module.dart';
 import 'package:school_management_system/Widgets/drawer.dart';
 import 'package:school_management_system/Widgets/my_appbar.dart';
 import 'package:school_management_system/theme/colors.dart';
@@ -35,7 +36,6 @@ class _ListeDesModulesState extends State<ListeDesModules> {
         ),
         onPressed: () {},
       ),
-      backgroundColor: Colors.grey[300],
       body: Row(
         children: [
           const MyDrawer(),
@@ -76,11 +76,6 @@ class _ListeDesModulesState extends State<ListeDesModules> {
                             child: DataTable(
                                 columnSpacing: 20,
                                 horizontalMargin: 12,
-                                border: TableBorder.all(
-                                  color: Colors.grey.shade400,
-                                  width: 0.5,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
                                 columns: [
                                   DataColumn(
                                       label: Text(
@@ -107,24 +102,25 @@ class _ListeDesModulesState extends State<ListeDesModules> {
                                     "Action",
                                     style: titleStyle,
                                   )),
+                                  DataColumn(
+                                      label: Text(
+                                    "Action",
+                                    style: titleStyle,
+                                  )),
                                 ],
                                 rows: modules.map((modul) {
                                   return DataRow(cells: [
                                     DataCell(Text(
                                       modul.nomModule,
-                                      style: valueStyle,
                                     )),
                                     DataCell(Text(
                                       modul.volumeHoraire.toString(),
-                                      style: valueStyle,
                                     )),
                                     DataCell(Text(
                                       modul.creditModule.toString(),
-                                      style: valueStyle,
                                     )),
                                     DataCell(Text(
                                       modul.nomUE ?? "inconnu",
-                                      style: valueStyle,
                                     )),
                                     DataCell(TextButton.icon(
                                         icon: const Icon(
@@ -142,7 +138,27 @@ class _ListeDesModulesState extends State<ListeDesModules> {
                                               ));
                                         },
                                         label: Text(
-                                          "Liste des séances",
+                                          "Gestion des séances",
+                                          style: tableauElementStyle,
+                                        ))),
+                                    DataCell(TextButton.icon(
+                                        icon: const Icon(
+                                          Icons.visibility,
+                                          size: 30,
+                                        ),
+                                        onPressed: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    EvaluationByModule(
+                                                  module: modul,
+                                                
+                                                ),
+                                              ));
+                                        },
+                                        label: Text(
+                                          "Gestion des Evalution",
                                           style: tableauElementStyle,
                                         )))
                                   ]);

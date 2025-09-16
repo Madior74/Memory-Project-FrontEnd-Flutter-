@@ -1,4 +1,3 @@
-import 'package:school_management_system/Screen/Note/Devoir/model_devoir.dart';
 import 'package:school_management_system/Screen/UES/model_ue.dart';
 
 class Module {
@@ -7,9 +6,8 @@ class Module {
   final String? nomUE; // Nom du module
   final int volumeHoraire; // Volume horaire du module
   final double creditModule; // Crédits du module
-  final DateTime? dateAjout; // Date d'ajout du module
-  final UE? ue; // UE associée (peut être null)
-  final List<Devoir> devoirNotes; // Liste des devoirNotes associées
+  final DateTime? dateAjout; 
+  final UE? ue; 
 
   // Constructeur
   Module({
@@ -20,7 +18,6 @@ class Module {
     required this.creditModule,
     this.dateAjout,
     this.ue,
-    this.devoirNotes = const [], // Liste des devoirNotes initialisée par défaut
   });
 
   // Factory pour créer un Module à partir d'un JSON
@@ -35,11 +32,7 @@ class Module {
           ? DateTime.tryParse(json['dateAjout'])
           : null,
       ue: json['ue'] != null ? UE.fromJson(json['ue']) : null,
-      devoirNotes: (json['devoirNotes'] != null)
-          ? (json['devoirNotes'] as List)
-              .map((note) => Devoir.fromJson(note))
-              .toList()
-          : [],
+   
     );
   }
 
@@ -54,9 +47,7 @@ class Module {
 
       'ue':
           ue != null ? {'id': ue!.id} : null, // Envoyer uniquement l'ID de l'UE
-      'devoirNotes': devoirNotes
-          .map((note) => note.toJson())
-          .toList(), // Convertir les devoirNotes en JSON
+    
     };
   }
 }

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:school_management_system/Screen/Modules/module.dart';
+import 'package:school_management_system/Screen/Seance/seance_by_module.dart.dart';
 import 'package:school_management_system/Screen/UES/model_ue.dart';
 import 'package:school_management_system/Screen/Modules/moduleService.dart';
 import 'package:school_management_system/Screen/UES/ue_service.dart';
@@ -11,6 +12,7 @@ import 'package:school_management_system/Widgets/drawer.dart';
 import 'package:school_management_system/Widgets/module_card.dart';
 import 'package:school_management_system/Widgets/my_appbar.dart';
 import 'package:school_management_system/theme/colors.dart';
+import 'package:school_management_system/theme/my_styles.dart';
 
 class ModuleByUe extends StatefulWidget {
   final UE ue;
@@ -49,7 +51,6 @@ class _ModuleByUeState extends State<ModuleByUe> {
           _volumeHoraireController.clear();
         },
       ),
-      backgroundColor: myBackgroound,
       body: Row(
         children: [
           MyDrawer(),
@@ -82,22 +83,71 @@ class _ModuleByUeState extends State<ModuleByUe> {
                         ),
                       );
                     } else {
-                      List<Module> items = snapshot.data!;
-                      return GridView.builder(
-                        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                            maxCrossAxisExtent: 400,
-                            crossAxisSpacing: 10,
-                            mainAxisExtent: 180),
-                        itemCount: items.length,
-                        itemBuilder: (context, index) {
-                          final module = items[index];
-                          return ModuleCard(
-                            nomModule: module.nomModule,
-                            volumeHoraire: module.volumeHoraire,
-                            creditModule: module.creditModule,
-                            nomUE: widget.ue.nomUE,
-                          );
-                        },
+                      List<Module> modules = snapshot.data!;
+                      return Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: SingleChildScrollView(
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: DataTable(
+                                columnSpacing: 20,
+                                horizontalMargin: 12,
+                                columns: [
+                                  DataColumn(
+                                      label: Text(
+                                    "Module",
+                                    style: titleStyle,
+                                  )),
+                                  DataColumn(
+                                      label: Text(
+                                    "Volume Horaire",
+                                    style: titleStyle,
+                                  )),
+                                  DataColumn(
+                                      label: Text(
+                                    "Crédit",
+                                    style: titleStyle,
+                                  )),
+                                  DataColumn(
+                                      label: Text(
+                                    "Action",
+                                    style: titleStyle,
+                                  )),
+                                ],
+                                rows: modules.map((modul) {
+                                  return DataRow(cells: [
+                                    DataCell(Text(
+                                      modul.nomModule,
+                                    )),
+                                    DataCell(Text(
+                                      modul.volumeHoraire.toString(),
+                                    )),
+                                    DataCell(Text(
+                                      modul.creditModule.toString(),
+                                    )),
+                                    DataCell(TextButton.icon(
+                                        icon: const Icon(
+                                          Icons.visibility,
+                                          size: 30,
+                                        ),
+                                        onPressed: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    SeanceByModule(
+                                                  module: modul,
+                                                ),
+                                              ));
+                                        },
+                                        label: Text(
+                                          "Liste des séances",
+                                          style: tableauElementStyle,
+                                        )))
+                                  ]);
+                                }).toList()),
+                          ),
+                        ),
                       );
                     }
                   },
@@ -203,7 +253,6 @@ class _ModuleByUeState extends State<ModuleByUe> {
                         ue: widget.ue,
                         dateAjout: DateTime.now(),
                         nomModule: _nomModuleController.text,
-                        devoirNotes: [],
                         volumeHoraire:
                             int.parse(_volumeHoraireController.text));
 

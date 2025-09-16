@@ -9,20 +9,20 @@ import 'package:image_picker/image_picker.dart';
 import 'package:school_management_system/Screen/AnneeAcademique/annee_academique.dart';
 import 'package:school_management_system/Screen/AnneeAcademique/annee_academique_service.dart';
 import 'package:school_management_system/Screen/Region/Departements/departement.dart';
-import 'package:school_management_system/Screen/Etudiants/Prinscription/model_prinscription.dart';
+import 'package:school_management_system/Screen/Etudiants/candidat/model_candidat.dart';
 import 'package:school_management_system/Screen/Filieres/filiere.dart';
 import 'package:school_management_system/Screen/Niveaux/model_niveau.dart';
 import 'package:school_management_system/Screen/Region/model_region.dart';
-import 'package:school_management_system/Screen/Etudiants/Prinscription/liste_des_prinscrits.dart';
+import 'package:school_management_system/Screen/Etudiants/candidat/liste_des_candidats.dart';
 import 'package:school_management_system/Screen/Region/Departements/departementService.dart';
-import 'package:school_management_system/Screen/Etudiants/Prinscription/prinscription_service.dart';
+import 'package:school_management_system/Screen/Etudiants/candidat/prinscription_service.dart';
 import 'package:school_management_system/Screen/Filieres/filiere_service.dart';
 import 'package:school_management_system/Screen/Niveaux/niveau_service.dart';
 import 'package:school_management_system/Screen/Region/regionService.dart';
 import 'package:school_management_system/theme/colors.dart';
 
 class UpdatePrinscription extends StatefulWidget {
-  final CandidatPreInscrit etudiant;
+  final Candidat etudiant;
   const UpdatePrinscription({super.key, required this.etudiant});
 
   @override
@@ -238,24 +238,23 @@ class _UpdatePrinscriptionState extends State<UpdatePrinscription> {
       // Vérification de la session choisie
 
       // Création de l'objet Etudiant
-      final etudiant = CandidatPreInscrit(
+      final etudiant = Candidat(
           id: widget.etudiant.id,
           anneeAcademique: anneeChoisie,
-          prenom: _prenomEditController.text,
-          nom: _nomEditController.text,
-          adresse: _adresseEditController.text,
-          telephone: _telephoneEditController.text,
+          prenom: _prenomEditController.text.trim(),
+          nom: _nomEditController.text.trim(),
+          adresse: _adresseEditController.text.trim(),
+          telephone: _telephoneEditController.text.trim(),
           sexe: _selectedGender ?? 'Masculin',
-          email: _emailEditController.text,
+          email: _emailEditController.text.trim(),
           dateDeNaissance: _selectedDate ?? DateTime.now(),
           imagePath: _image?.path ?? '',
           paysDeNaissance: selectedCountry?.name ?? 'Senegal',
-          cni: _cniEditController.text,
-          ine: _ineEditController.text,
+          cni: _cniEditController.text.trim(),
+          ine: _ineEditController.text.trim(),
           departement: departementChoisi,
           filiereSouhaitee: filiereChoisie,
           niveauSouhaite: niveauChoisie,
-          dateAjout: DateTime.now(),
           region: regionChoisie);
 
       // Vérification de l'existence de l'email
@@ -276,7 +275,7 @@ class _UpdatePrinscriptionState extends State<UpdatePrinscription> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => const ListeDesPrinscrits()),
+                          builder: (context) => const ListeDesCandidats()),
                     );
                   },
                   child: const Text(

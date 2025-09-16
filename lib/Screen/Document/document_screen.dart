@@ -1,14 +1,13 @@
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:school_management_system/Screen/Document/documentService.dart';
 import 'package:school_management_system/Screen/Document/uploade_document_dialog.dart';
-import 'package:school_management_system/Screen/Etudiants/Prinscription/model_prinscription.dart';
+import 'package:school_management_system/Screen/Etudiants/candidat/model_candidat.dart';
 import 'package:school_management_system/Widgets/my_appbar.dart';
 import 'package:school_management_system/theme/colors.dart';
 
 class Documentscreen extends StatefulWidget {
-  final CandidatPreInscrit student;
+  final Candidat student;
 
   const Documentscreen({super.key, required this.student});
 
@@ -206,7 +205,6 @@ class _DocumentscreenState extends State<Documentscreen> {
         },
       ),
     );
-  
   }
 
   void _downloadDocument(int documentId) {

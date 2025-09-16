@@ -17,7 +17,7 @@ class UeService {
     });
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      Iterable jsonResponse = json.decode(response.body);
+      Iterable jsonResponse = json.decode(utf8.decode(response.bodyBytes));
       return List<UE>.from(jsonResponse.map((model) => UE.fromJson(model)));
     } else {
       throw Exception('Failed to load ues');
@@ -31,9 +31,9 @@ class UeService {
         .get(Uri.parse('$baseUrl/ues/semestre/$semestreId'), headers: {
       'Authorization': 'Bearer $token',
     });
- 
+
     if (response.statusCode == 200 || response.statusCode == 201) {
-      List<dynamic> data = json.decode(response.body);
+      List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
       return data.map((ue) => UE.fromJson(ue)).toList();
     } else {
       throw Exception('Failed to load ues');
@@ -52,27 +52,25 @@ class UeService {
     };
     final body = json.encode(ue.toJson());
 
-  
     final response = await http.post(url, headers: headers, body: body);
-
-  
 
     if (response.statusCode == 201 || response.statusCode == 200) {
     } else {
-    
       throw Exception("Erreur lors de l'ajout de l'UE : ${response.body}");
     }
   }
 
   //Delete
   Future<void> deleteUe(int id) async {
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('token');
     final response = await http.delete(
       Uri.parse('$baseUrl/ues/$id'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
+        "Authorization": "Bearer $token",
       },
     );
-  
 
     if (response.statusCode != 200 && response.statusCode != 200) {
       throw Exception('Échec de la suppression de l\'ue');
@@ -80,10 +78,13 @@ class UeService {
   }
 
   Future<UE> updateUE(UE ue) async {
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('token');
     final response = await http.put(
       Uri.parse('$baseUrl/ues/${ue.id}'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
+        "Authorization": "Bearer $token",
       },
       body: json.encode(ue
           .toJson()), // Utilise toJson() pour formater correctement les données
@@ -117,7 +118,6 @@ class UeService {
           "Authorization": "Bearer $token",
         });
 
-   
     if (response.statusCode == 200 || response.statusCode == 201) {
       return json.decode(response.body) as bool;
     } else {

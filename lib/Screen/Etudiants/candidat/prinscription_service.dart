@@ -1,6 +1,7 @@
 import 'dart:convert';
 
-import 'package:school_management_system/Screen/Etudiants/Prinscription/model_prinscription.dart';
+import 'package:school_management_system/Screen/Etudiants/candidat/candidat_request_dto.dart';
+import 'package:school_management_system/Screen/Etudiants/candidat/model_candidat.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:school_management_system/services/config.dart';
@@ -10,7 +11,7 @@ class PrinscriptionService {
   final String baseUrl = AppConfig.baseUrl;
 
   //Get all Etudiants
-  Future<List<CandidatPreInscrit>> getAllEtudiant() async {
+  Future<List<Candidat>> getAllEtudiant() async {
     try {
       final pref = await SharedPreferences.getInstance();
       final token = pref.getString('token');
@@ -24,13 +25,14 @@ class PrinscriptionService {
 
         return jsonResponse
             .map((etudiant) =>
-                CandidatPreInscrit.fromJson(etudiant as Map<String, dynamic>))
+                Candidat.fromJson(etudiant as Map<String, dynamic>))
             .toList();
       } else {
         throw Exception(
             "Erreur lors de la récupération des Etudiants ${response.statusCode}");
       }
     } catch (e) {
+      print('Erreur lors de la récupération des Etudiants $e');
       throw Exception('Erreur lors de la récupération des Etudiants $e');
     }
   }
@@ -63,7 +65,7 @@ class PrinscriptionService {
   }
 
   //dossier complet
-  Future<List<CandidatPreInscrit>> getEtudiantsAvecTroisDocuments() async {
+  Future<List<CandidatRequestDto>> getEtudiantsAvecTroisDocuments() async {
     try {
       final pref = await SharedPreferences.getInstance();
       final token = pref.getString('token');
@@ -77,7 +79,7 @@ class PrinscriptionService {
         List<dynamic> jsonResponse = json.decode(response.body);
         return jsonResponse
             .map((etudiant) =>
-                CandidatPreInscrit.fromJson(etudiant as Map<String, dynamic>))
+                CandidatRequestDto.fromJson(etudiant as Map<String, dynamic>))
             .toList();
       } else {
         throw Exception(
@@ -91,10 +93,13 @@ class PrinscriptionService {
 
   //Supprimer un Etudiant
   Future<void> deleteEtudiant(int id) async {
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('token');
     final response = await http.delete(
       Uri.parse('$baseUrl/candidat-pre-inscrit/$id'),
       headers: {
         'Content-type': 'application/json;charset=UTF-8',
+        "Authorization": "Bearer $token",
       },
     );
 
@@ -121,7 +126,7 @@ class PrinscriptionService {
   }
 
   //mise a jour d'un etudiant
-  Future<CandidatPreInscrit> updateEtudiant(CandidatPreInscrit etudiant) async {
+  Future<Candidat> updateEtudiant(Candidat etudiant) async {
     final pref = await SharedPreferences.getInstance();
     final token = pref.getString('token');
     final response = await http.put(
@@ -133,7 +138,7 @@ class PrinscriptionService {
         body: json.encode(etudiant.toJson()));
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return CandidatPreInscrit.fromJson(json.decode(response.body));
+      return Candidat.fromJson(json.decode(response.body));
     } else {
       throw Exception(
           "Echec lors de  la mise a jour de l'etudiant ${response.body}");
@@ -141,15 +146,14 @@ class PrinscriptionService {
   }
 
   //recuperer les etudiants d'une Filiere
-  Future<List<CandidatPreInscrit>> getEtudiantsByFiliereId(
-      int filiereId) async {
+  Future<List<Candidat>> getEtudiantsByFiliereId(int filiereId) async {
     final response = await http
         .get(Uri.parse('$baseUrl/candidat-pre-inscrit/filiere/$filiereId'));
 
     if (response.statusCode == 200) {
       List<dynamic> jsonResponse = json.decode(response.body);
       return jsonResponse
-          .map((etudiant) => CandidatPreInscrit.fromJson(etudiant))
+          .map((etudiant) => Candidat.fromJson(etudiant))
           .toList();
     } else {
       throw Exception('Échec de la récupération des étudiants');
@@ -168,7 +172,7 @@ class PrinscriptionService {
   }
 
 // Récupérer les étudiants d'un niveau
-  Future<List<CandidatPreInscrit>> getEtudiantsByNiveauId(int niveauId) async {
+  Future<List<Candidat>> getEtudiantsByNiveauId(int niveauId) async {
     try {
       final response = await http
           .get(Uri.parse('$baseUrl/candidat-pre-inscrit/niveau/$niveauId'));
@@ -177,7 +181,7 @@ class PrinscriptionService {
         List<dynamic> jsonResponse = json.decode(response.body);
         return jsonResponse
             .map((etudiant) =>
-                CandidatPreInscrit.fromJson(etudiant as Map<String, dynamic>))
+                Candidat.fromJson(etudiant as Map<String, dynamic>))
             .toList();
       } else if (response.statusCode == 204) {
         return []; // Retourne une liste vide si aucun étudiant n'est trouvé
@@ -193,15 +197,14 @@ class PrinscriptionService {
   }
 
   //recuperer les etudiants d'une session
-  Future<List<CandidatPreInscrit>> getEtudiantsBySessionId(
-      int sessionId) async {
+  Future<List<Candidat>> getEtudiantsBySessionId(int sessionId) async {
     final response = await http
         .get(Uri.parse('$baseUrl/candidat-pre-inscrit/session/$sessionId'));
 
     if (response.statusCode == 200) {
       List<dynamic> jsonResponse = json.decode(response.body);
       return jsonResponse
-          .map((etudiant) => CandidatPreInscrit.fromJson(etudiant))
+          .map((etudiant) => Candidat.fromJson(etudiant))
           .toList();
     } else {
       throw Exception('Échec de la récupération des étudiants');

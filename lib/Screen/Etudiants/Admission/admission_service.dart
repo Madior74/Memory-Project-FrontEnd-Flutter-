@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart' as _httpClient;
+import 'package:school_management_system/Screen/Etudiants/Admission/admission_dto.dart';
 import 'package:school_management_system/Screen/Etudiants/Admission/model_admission.dart';
 import 'package:school_management_system/services/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -9,7 +11,7 @@ class DossierAdmissionService {
   final String baseUrl = AppConfig.baseUrl;
 
   //Recuperer les dossiers
-  Future<List<DossierAdmission>> getAllDossiers() async {
+  Future<List<DossierAdmissionDto>> getAllDossiers() async {
     try {
       final pref = await SharedPreferences.getInstance();
       final token = pref.getString('token');
@@ -22,7 +24,7 @@ class DossierAdmissionService {
 
         return jsonResponse
             .map((dossier) =>
-                DossierAdmission.fromJson(dossier as Map<String, dynamic>))
+                DossierAdmissionDto.fromJson(dossier as Map<String, dynamic>))
             .toList();
       } else {
         throw Exception(
@@ -31,6 +33,25 @@ class DossierAdmissionService {
     } catch (e) {
       throw Exception(
           "Error lors de la recupération des dossiers d'admission:$e");
+    }
+  }
+
+  //Dossier Admission by EtudiantId
+  Future<Map<String, dynamic>> getDossierAdmissionByEtudiant(
+    int etudiantId,
+  ) async {
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('token');
+
+    final response = await _httpClient
+        .get(Uri.parse('$baseUrl/dossiers/etudiant/${etudiantId}'), headers: {
+      "Authorization": "Bearer $token",
+    });
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return json.decode(response.body);
+    } else {
+      throw Exception(
+          'Erreur lors de la vérification de l\'existence de la séance');
     }
   }
 
@@ -46,6 +67,9 @@ class DossierAdmissionService {
             'Authorization': 'Bearer $token',
           },
           body: jsonEncode(dossierAdmissionData));
+      print("Ajout Admi");
+      print(response.statusCode);
+      print(response.body);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body) as Map<String, dynamic>;
@@ -72,10 +96,6 @@ class DossierAdmissionService {
         body: jsonEncode(dossier.toJson()),
       );
 
-      print("mis a jour admission");
-      print(response.statusCode);
-      print("id envoyé ${id}");
-      print("Échec de la mise à jour du dossier : ${response.body}");
       if (response.statusCode != 200) {
         throw Exception(
             "Échec de la mise à jour du dossier : ${response.body}");

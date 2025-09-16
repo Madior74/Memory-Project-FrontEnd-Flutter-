@@ -70,6 +70,7 @@ class Professeur {
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'nom': nom,
       'prenom': prenom,
       'adresse': adresse,

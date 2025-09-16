@@ -1,9 +1,6 @@
-
 import 'package:flutter/material.dart';
 import 'package:school_management_system/Screen/AnneeAcademique/annee_academique.dart';
 import 'package:school_management_system/Screen/Modules/module.dart';
-import 'package:school_management_system/Screen/Note/Devoir/model_devoir.dart';
-import 'package:school_management_system/Screen/Note/model_examen.dart';
 import 'package:school_management_system/Screen/Professeurs/model_professeur.dart';
 import 'package:school_management_system/Screen/Salle/model_salle.dart';
 
@@ -21,8 +18,7 @@ class Seance {
   final AnneeAcademique anneeAcademique;
 
   final bool estAnnulee;
-  final List<Devoir>? devoirs;
-  final List<Examen>? examens;
+
 
   Seance({
     this.id,
@@ -35,14 +31,17 @@ class Seance {
     required this.professeur,
     required this.anneeAcademique,
     this.estAnnulee = false,
-    this.devoirs,
-    this.examens,
+
   });
 
   // --- Méthodes de sérialisation JSON ---
   factory Seance.fromJson(Map<String, dynamic> json) {
-    final debutParts = json['heureDebut'].split(':');
-    final finParts = json['heureFin'].split(':');
+
+    String heureDebutStr = json['heureDebut'] ?? '00:00';
+    String heureFinStr = json['heureFin'] ?? '00:00';
+
+    final debutParts = heureDebutStr.split(':');
+    final finParts = heureFinStr.split(':');
 
     final heureDebut = TimeOfDay(
         hour: int.parse(debutParts[0]), minute: int.parse(debutParts[1]));
@@ -63,12 +62,7 @@ class Seance {
       professeur: Professeur.fromJson(json['professeur']),
       anneeAcademique: AnneeAcademique.fromJson(json['anneeAcademique']),
       estAnnulee: json['estAnnulee'] ?? false,
-      devoirs: json['devoirs'] != null
-          ? (json['devoirs'] as List).map((d) => Devoir.fromJson(d)).toList()
-          : null,
-      examens: json['examens'] != null
-          ? (json['examens'] as List).map((e) => Examen.fromJson(e)).toList()
-          : null,
+     
     );
   }
 
@@ -125,7 +119,8 @@ class Seance {
 
   String get dureeHMin {
     final d = duree;
-    return '${d.inHours}h ${d.inMinutes % 60}min';
+    // return '${d.inHours}h ${d.inMinutes % 60}min';
+    return '${d.inHours}h ';
   }
 
   //Le status

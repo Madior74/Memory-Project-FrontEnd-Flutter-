@@ -3,10 +3,12 @@ class AnneeAcademique {
   final String nomAnnee;
   final DateTime? dateDebut;
   final DateTime? dateFin;
+  final bool? active;
 
   AnneeAcademique({
     this.id,
     required this.nomAnnee,
+     this.active,
     required this.dateDebut, // Obligatoire
     required this.dateFin, // Obligatoire
   });
@@ -15,6 +17,7 @@ class AnneeAcademique {
   factory AnneeAcademique.fromJson(Map<String, dynamic> json) {
     return AnneeAcademique(
       id: json['id'],
+      active:json['active']?? false,
       nomAnnee: json['nomAnnee'] ?? "",
       dateDebut:
           json['dateDebut'] != null ? DateTime.parse(json['dateDebut']) : null,
@@ -26,6 +29,7 @@ class AnneeAcademique {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'active':active,
       'nomAnnee': nomAnnee,
       'dateDebut': dateDebut?.toIso8601String().substring(0, 10),
       'dateFin': dateFin?.toIso8601String().substring(0, 10)

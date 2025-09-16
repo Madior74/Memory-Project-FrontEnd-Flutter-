@@ -8,16 +8,17 @@ import 'package:school_management_system/Screen/Niveaux/model_niveau.dart';
 class Etudiant {
   final int? id;
   final DossierAdmission? dossierAdmission;
+
   final Filiere? filiere;
   final Niveau? niveau;
   final AnneeAcademique? anneeAcademique;
-  final double montantVerse;
+  final bool paye;
 
   Etudiant({
     this.id,
+    required this.paye,
     required this.anneeAcademique,
     required this.filiere,
-    required this.montantVerse,
     required this.niveau,
     required this.dossierAdmission,
   });
@@ -25,12 +26,12 @@ class Etudiant {
   factory Etudiant.fromJson(Map<String, dynamic> json) {
     return Etudiant(
       id: json['id'],
+      paye: json['paye'] ?? false,
       filiere:
           json['filiere'] != null ? Filiere.fromJson(json['filiere']) : null,
       anneeAcademique: json['anneeAcademique'] != null
           ? AnneeAcademique.fromJson(json['anneeAcademique'])
           : null,
-      montantVerse: json['montantVerse']?.toDouble() ?? 0.0,
       niveau: json['niveau'] != null ? Niveau.fromJson(json['niveau']) : null,
       dossierAdmission: json['dossierAdmission'] != null
           ? DossierAdmission.fromJson(json['dossierAdmission'])
@@ -40,11 +41,12 @@ class Etudiant {
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'dossierAdmission': {'id': dossierAdmission?.id},
       'filiere': {'id': filiere?.id},
       'niveau': {'id': niveau?.id},
       'anneeAcademique': {'id': anneeAcademique?.id},
-      'montantVerse': montantVerse,
+      'paye': paye,
     };
   }
 }

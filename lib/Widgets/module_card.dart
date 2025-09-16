@@ -39,10 +39,11 @@ class ModuleCard extends StatelessWidget {
                   Text(
                     nomModule,
                     style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.primary,
-                    ),
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.primary,
+                        overflow: TextOverflow.ellipsis),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),

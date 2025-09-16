@@ -49,15 +49,7 @@ class _UeBySemestreState extends State<UeBySemestre> {
     }
   }
 
-//   // Méthode pour ajouter un module
-//  Future<void> _addModule(int ueId, String nomModule, int volumeHoraire, double creditModule) async {
-//   await ModuleService().addModule(ueId, nomModule, volumeHoraire, creditModule);
 
-//   // Rafraîchir les données
-//   setState(() {
-//     futureUes = UeService().getUesBySemestre(widget.semestre.id!);
-//   });
-// }
 
 // Future<void> _updateModule(int moduleId, String nomModule, int volumeHoraire, double creditModule) async {
 //   await ModuleService().updateModule(moduleId, nomModule, volumeHoraire, creditModule);
@@ -307,67 +299,6 @@ class _UeBySemestreState extends State<UeBySemestre> {
               ),
             ],
           ),
-          // actions: [
-          //   //Bouton annuler
-          //   const ButtonAnnuler(),
-          //   //Bouton Ajouter
-          //   TextButton(
-          //       onPressed: () async {
-          //         print("Bouton Ajout de Module Selesctionnee");
-          //         print(volumeHoraireController.text);
-          //         print(creditModule);
-          //         print(nomController.text);
-          //         if (_formKey.currentState!.validate()) {
-          //           //creation de l'objet Module avec les donnees entrees
-          //           final module = Module(
-          //               creditModule: selectedCredit ?? 0,
-          //               ue: ue,
-          //               dateAjout: DateTime.now(),
-          //               nomModule: nomController.text,
-          //               devoirNotes: [],
-          //               volumeHoraire: int.parse(volumeHoraireController.text));
-
-          //           //Envoyer les donnees
-          //           try {
-          //             String moduleName = nomController.text;
-          //             bool exists =
-          //                 await ModuleService().moduleExist(moduleName, ue.id!);
-          //             if (exists) {
-          //               ScaffoldMessenger.of(context)
-          //                   .showSnackBar(const SnackBar(
-          //                       backgroundColor: Colors.red,
-          //                       content: Text(
-          //                         "Un Module avec ce nom existe dèja ",
-          //                         style: TextStyle(color: Colors.white),
-          //                       )));
-
-          //               return;
-          //             }
-          //             await ModuleService().addModuleToUE(ue.id!, module);
-          //             setState(() {
-          //               futureModules = ModuleService().getModulesByUE(ue.id!);
-          //             });
-          //             ScaffoldMessenger.of(context).showSnackBar(
-          //               const SnackBar(
-          //                   backgroundColor: Colors.green,
-          //                   content: Text("Module ajouté avec succès !")),
-          //             );
-          //             await ModuleService().getModulesByUE(ue.id!);
-          //             Navigator.pop(context, true);
-          //           } catch (e) {
-          //             ScaffoldMessenger.of(context).showSnackBar(
-          //               SnackBar(content: Text("Erreur : $e")),
-          //             );
-          //             print("Erreur:$e");
-          //           }
-          //         }
-          //       },
-          //       child: const Text(
-          //         "Ajouter",
-          //         style: TextStyle(
-          //             color: Colors.blue, fontWeight: FontWeight.bold),
-          //       ))
-          // ],
           actions: [
             TextButton(
               onPressed: () {
@@ -382,7 +313,6 @@ class _UeBySemestreState extends State<UeBySemestre> {
                     ue: ue,
                     dateAjout: DateTime.now(),
                     nomModule: nomController.text,
-                    devoirNotes: [],
                     volumeHoraire: int.parse(volumeHoraireController.text));
                 await ModuleService().addModuleToUE(ue.id!, module);
                 setState(() {
@@ -441,7 +371,7 @@ class _UeBySemestreState extends State<UeBySemestre> {
             ),
             TextButton(
               onPressed: () async {
-                // await _updateModule(
+                // await ModuleService(). _updateModule(
                 //   module.id!,
                 //   nomController.text,
                 //   int.parse(volumeHoraireController.text),
@@ -591,20 +521,22 @@ class _UeBySemestreState extends State<UeBySemestre> {
                         return;
                       }
 
-                      await UeService().addUeToSemestre(semestre.id!, ue);
-                      setState(() {
-                        futureUes =
-                            UeService().getUesBySemestre(widget.semestre.id!);
+                      await UeService()
+                          .addUeToSemestre(semestre.id!, ue)
+                          .then((_) {
+                        setState(() {
+                          futureUes =
+                              UeService().getUesBySemestre(widget.semestre.id!);
+                        });
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              backgroundColor: Colors.green,
+                              content: Text("UE ajoutée avec succès !")),
+                        );
                       });
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            backgroundColor: Colors.green,
-                            content: Text("UE ajoutée avec succès !")),
-                      );
+
                       Navigator.of(context)
                           .pop(); // Fermer la boîte de dialogue
-
-                          
                     } catch (e) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text("Erreur : $e")),
