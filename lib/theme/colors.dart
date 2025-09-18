@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 var myblueColor = const Color.fromARGB(255, 6, 6, 99);
-var myredColor = const Color.fromARGB(255, 143, 2, 2);
+var myredColor = const Color.fromARGB(242, 196, 41, 41);
 var myDrawerColol = const Color.fromARGB(255, 3, 44, 51);
 
 var myBackgroound = Colors.grey.shade300;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:school_management_system/Screen/evaluation/Note/model_note.dart';
+import 'package:school_management_system/Screen/Note/model_note.dart';
 
 class CreateEvaluationDto {
   int? id;

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/src/material/time.dart';
 import 'package:http/http.dart' as http;
+import 'package:school_management_system/Screen/evaluation/evaluation_dto.dart';
 import 'package:school_management_system/Screen/evaluation/model_evaluation.dart';
 import 'package:school_management_system/services/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -29,6 +30,26 @@ class EvaluationService {
     }
   }
 
+  //with dto
+  Future<List<EvaluationDto>> getAllEvaluationsWithDto() async {
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('token');
+    final response = await _httpClient.get(
+      Uri.parse('$baseUrl/dto'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      List jsonResponse = json.decode(response.body);
+      return jsonResponse.map((e) => EvaluationDto.fromJson(e)).toList();
+    } else {
+      throw Exception('Failed to load evaluations');
+    }
+  }
+
 //Evaluatiom By module
 
   Future<List<Evaluation>> getEvaluationByModule(int moduleId) async {
@@ -41,9 +62,36 @@ class EvaluationService {
         'Authorization': 'Bearer $token',
       },
     );
+    print("ev add");
+    print(response.statusCode);
+    print(response.body);
     if (response.statusCode == 200) {
       List jsonResponse = json.decode(response.body);
       return jsonResponse.map((e) => Evaluation.fromJson(e)).toList();
+    } else {
+      throw Exception('Failed to load evaluations');
+    }
+  }
+
+
+  //Evaluatiom By module with Dto
+
+  Future<List<EvaluationDto>> getEvaluationByModuleWithDTO(int moduleId) async {
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('token');
+    final response = await _httpClient.get(
+      Uri.parse('$baseUrl/module/$moduleId/dto'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    print("ev get");
+    print(response.statusCode);
+    print(response.body);
+    if (response.statusCode == 200) {
+      List jsonResponse = json.decode(response.body);
+      return jsonResponse.map((e) => EvaluationDto.fromJson(e)).toList();
     } else {
       throw Exception('Failed to load evaluations');
     }
@@ -90,7 +138,6 @@ class EvaluationService {
       },
       body: json.encode(evaluation.toJson()),
     );
- 
 
     if (response.statusCode == 200) {
       return Evaluation.fromJson(json.decode(response.body));

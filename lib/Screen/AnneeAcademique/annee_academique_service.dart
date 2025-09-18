@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:school_management_system/Screen/AnneeAcademique/annee_academique.dart';
 import 'package:http/http.dart' as http;
 import 'package:school_management_system/services/config.dart';
-import 'package:school_management_system/services/http_interceptor.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AnneeAcademiqueService {
@@ -15,7 +14,7 @@ class AnneeAcademiqueService {
     try {
       final pref = await SharedPreferences.getInstance();
       final token = pref.getString('token');
-      print("token:$token");
+     
       if (token == null) {
         throw Exception("Token non trouvé");
       }
@@ -24,17 +23,25 @@ class AnneeAcademiqueService {
         'Content-Type': 'application/json',
       });
 
+      print("📡 Réponse GET - Status: ${response.statusCode}");
+      print("📡 Body: ${response.body}");
+
       if (response.statusCode == 200) {
         Iterable jsonResponse = json.decode(response.body);
-        return List<AnneeAcademique>.from(
+        List<AnneeAcademique> annees = List<AnneeAcademique>.from(
             jsonResponse.map((model) => AnneeAcademique.fromJson(model)));
+        print("✅ ${annees.length} années récupérées");
+        for (var annee in annees) {
+          print("   - ${annee.nomAnnee}: active=${annee.active}, état=${annee.etat}");
+        }
+        return annees;
       } else {
         throw Exception(
             'Failed to load Année Academiques:${response.statusCode}');
       }
     } catch (e) {
-      print("Erreur lors de la Mise a jour des Rôles");
-      throw Exception("Erreur lors de la Mise a jour des Rôles");
+      print("❌ Erreur lors de la récupération des années: $e");
+      throw Exception("Erreur lors de la récupération des années: $e");
     }
   }
 
@@ -138,7 +145,8 @@ class AnneeAcademiqueService {
     try {
       final pref = await SharedPreferences.getInstance();
       final token = pref.getString('token');
-      // final endpoint = activer ? 'activate' : 'deactivate';
+      print("🔄 Tentative d'activation/désactivation de l'année ID: $anneeId");
+      print("🔗 URL: $baseUrl/annees/activate/$anneeId");
 
       final response = await _httpClient.put(
         Uri.parse('$baseUrl/annees/activate/$anneeId'),
@@ -148,10 +156,15 @@ class AnneeAcademiqueService {
         },
       );
       
-      if (response.statusCode != 204) {
-        throw Exception("Erreur HTTP: ${response.statusCode}");
+      print("📡 Réponse du serveur - Status: ${response.statusCode}");
+      print("📡 Body: ${response.body}");
+      
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw Exception("Erreur HTTP: ${response.statusCode} - ${response.body}");
       }
+      
     } catch (e) {
+      print("❌ Erreur lors du changement d'état : $e");
       throw Exception("Erreur lors du changement d'état : $e");
     }
   }
@@ -179,16 +192,5 @@ class AnneeAcademiqueService {
     }
   }
 
-  Future<AnneeAcademique> getAnneeEnCours() async {
-    final response = await HttpInterceptor.request(
-      "GET",
-      "$baseUrl/annees/en-cours",
-    );
-
-    if (response.statusCode == 200) {
-      return AnneeAcademique.fromJson(json.decode(response.body));
-    } else {
-      throw Exception('Failed to load current academic year');
-    }
-  }
+ 
 }

@@ -15,7 +15,6 @@ class Seance {
 
   final Module module;
   final Professeur professeur;
-  final AnneeAcademique anneeAcademique;
 
   final bool estAnnulee;
 
@@ -29,7 +28,6 @@ class Seance {
     required this.dateSeance,
     required this.module,
     required this.professeur,
-    required this.anneeAcademique,
     this.estAnnulee = false,
 
   });
@@ -60,7 +58,6 @@ class Seance {
       heureFin: heureFin,
       module: Module.fromJson(json['module']),
       professeur: Professeur.fromJson(json['professeur']),
-      anneeAcademique: AnneeAcademique.fromJson(json['anneeAcademique']),
       estAnnulee: json['estAnnulee'] ?? false,
      
     );
@@ -79,7 +76,6 @@ class Seance {
       'salleId': salle?.id,
       'moduleId': module.id,
       'professeurId': professeur.id,
-      'anneeAcademiqueId': anneeAcademique.id,
       'estEnLigne': estEnLigne,
     };
   }

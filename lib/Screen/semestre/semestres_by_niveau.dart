@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:school_management_system/Screen/Etudiants/Inscription/InscriptionService.dart';
-import 'package:school_management_system/Screen/Etudiants/Inscription/inscription_dto.dart';
+import 'package:school_management_system/Screen/Etudiants/Inscription/etudiant_dto.dart';
 import 'package:school_management_system/Screen/Filieres/filiere.dart';
 import 'package:school_management_system/Screen/Niveaux/model_niveau.dart';
 import 'package:school_management_system/Screen/semestre/model_semestre.dart';
@@ -22,7 +22,7 @@ class SemestreByNiveau extends StatefulWidget {
 }
 
 class _SemestreByNiveauState extends State<SemestreByNiveau> {
-  late Future<List<InscriptionDTO>> futureEtudiants;
+  late Future<List<EtudiantDTO>> futureEtudiants;
 
   late Future<List<Semestre>> futureSemestres;
   // late Future<List<Etudiant>> futureEtudiants;

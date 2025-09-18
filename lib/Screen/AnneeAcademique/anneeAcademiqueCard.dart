@@ -21,7 +21,7 @@ class AnneeAcademiqueCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool isActif = annee.etat.toLowerCase().contains('en cours');
+    bool isActif = annee.active ?? false;
 
     return Card(
       color: Colors.white,
@@ -214,6 +214,9 @@ class AnneeAcademiqueCard extends StatelessWidget {
   /// Gestion de l'activation/désactivation
   Future<void> _handleToggleActivation(
       BuildContext context, bool isActif) async {
+    print("🎯 Clic sur activation/désactivation - État actuel: $isActif");
+    print("🎯 Année ID: ${annee.id}, Active: ${annee.active}");
+    
     final service = AnneeAcademiqueService();
     final confirmed = await showDialog<bool>(
       context: context,
@@ -240,10 +243,17 @@ class AnneeAcademiqueCard extends StatelessWidget {
       ),
     );
 
-    if (confirmed != true) return;
+    if (confirmed != true) {
+      print("❌ Utilisateur a annulé l'opération");
+      return;
+    }
+
+    print("✅ Confirmation reçue, appel du service...");
 
     try {
       await service.toggleActivation(annee.id!);
+      print("✅ Service appelé avec succès, rafraîchissement de l'UI...");
+      
       if (!SchedulerBinding.instance.schedulerPhase.index.isInRange(0, 4))
         return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -254,8 +264,11 @@ class AnneeAcademiqueCard extends StatelessWidget {
           backgroundColor: isActif ? Colors.red : Colors.green,
         ),
       );
+      print("🔄 Appel du callback onToggleActivation...");
       onToggleActivation?.call();
+      print("✅ Callback appelé");
     } catch (e) {
+      print("❌ Erreur lors de l'activation/désactivation: $e");
       if (!SchedulerBinding.instance.schedulerPhase.index.isInRange(0, 4))
         return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -276,6 +289,8 @@ class AnneeAcademiqueCard extends StatelessWidget {
         return Colors.green;
       case "terminee":
         return Colors.red;
+      case "desactivee":
+        return Colors.orange;
       default:
         return Colors.grey;
     }

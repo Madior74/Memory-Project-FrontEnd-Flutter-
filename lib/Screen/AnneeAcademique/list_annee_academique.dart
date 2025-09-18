@@ -26,9 +26,11 @@ class _ListSessionState extends State<ListSession> {
   }
 
   void _refreshList() {
+    print("🔄 Rafraîchissement de la liste des années académiques...");
     setState(() {
       futureSessions = AnneeAcademiqueService().getSessions();
     });
+    print("✅ Liste rafraîchie");
   }
 
   @override

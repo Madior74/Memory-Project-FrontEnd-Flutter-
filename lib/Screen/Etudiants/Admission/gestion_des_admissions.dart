@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:school_management_system/Screen/Etudiants/Admission/admission_dto.dart';
 import 'package:school_management_system/Screen/Etudiants/Admission/model_admission.dart';
 import 'package:school_management_system/Screen/Etudiants/Inscription/InscriptionService.dart';
-import 'package:school_management_system/Screen/Etudiants/Inscription/inscription_dto.dart';
+import 'package:school_management_system/Screen/Etudiants/Inscription/etudiant_dto.dart';
 import 'package:school_management_system/Screen/Etudiants/Inscription/nouvelle_inscriptions.dart';
 import 'package:school_management_system/Screen/Etudiants/candidat/candidat_request_dto.dart';
 import 'package:school_management_system/Screen/Etudiants/candidat/model_candidat.dart';
@@ -32,7 +32,7 @@ class _GestionDesAdmissionsState extends State<GestionDesAdmissions> {
   List<Filiere> futuresFiliere = [];
   List<Niveau> futuresNiveau = [];
   List<DossierAdmissionDto> futureDossiers = [];
-  List<InscriptionDTO> futureInscriptions = [];
+  List<EtudiantDTO> futureInscriptions = [];
 
   // Variables pour le chargement et les erreurs
   bool _isLoadingDossiers = true;
@@ -70,7 +70,7 @@ class _GestionDesAdmissionsState extends State<GestionDesAdmissions> {
 
   Future<void> fetchInscrits() async {
     try {
-      List<InscriptionDTO> listeEtudiantInscrits =
+      List<EtudiantDTO> listeEtudiantInscrits =
           await InscriptionService().getAllInscriptions();
       setState(() {
         futureInscriptions = listeEtudiantInscrits;

@@ -3,7 +3,7 @@ import 'package:school_management_system/Screen/AnneeAcademique/annee_academique
 import 'package:school_management_system/Screen/AnneeAcademique/annee_academique_service.dart';
 import 'package:school_management_system/Screen/Etudiants/Admission/gestion_des_admissions.dart';
 import 'package:school_management_system/Screen/Etudiants/Inscription/InscriptionService.dart';
-import 'package:school_management_system/Screen/Etudiants/Inscription/inscription_dto.dart';
+import 'package:school_management_system/Screen/Etudiants/Inscription/etudiant_dto.dart';
 import 'package:school_management_system/Screen/Filieres/filiere.dart';
 import 'package:school_management_system/Screen/Filieres/filiere_service.dart';
 import 'package:school_management_system/Screen/Niveaux/model_niveau.dart';
@@ -23,7 +23,7 @@ class ListInscriptions extends StatefulWidget {
 }
 
 class _ListInscriptionsState extends State<ListInscriptions> {
-  late Future<List<InscriptionDTO>> futureInscriptions;
+  late Future<List<EtudiantDTO>> futureInscriptions;
   late Future<List<Filiere>> futureFilieres;
   late Future<List<Niveau>> futureNiveaux;
   late Future<List<AnneeAcademique>> futureAnnees;
@@ -69,7 +69,7 @@ class _ListInscriptionsState extends State<ListInscriptions> {
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.only(top: 10.0),
-                      child: FutureBuilder<List<InscriptionDTO>>(
+                      child: FutureBuilder<List<EtudiantDTO>>(
                         future: futureInscriptions,
                         builder: (context, inscriptionSnapshot) {
                           if (inscriptionSnapshot.connectionState ==
@@ -120,7 +120,7 @@ class _ListInscriptionsState extends State<ListInscriptions> {
                                           );
                                         }
 
-                                        final List<InscriptionDTO>
+                                        final List<EtudiantDTO>
                                             inscriptions =
                                             inscriptionSnapshot.data!;
                                         final List<Filiere> filieres =

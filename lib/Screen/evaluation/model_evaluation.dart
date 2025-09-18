@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:school_management_system/Screen/Modules/module.dart';
 import 'package:school_management_system/Screen/Professeurs/model_professeur.dart';
-import 'package:school_management_system/Screen/evaluation/Note/model_note.dart';
+import 'package:school_management_system/Screen/Salle/model_salle.dart';
+import 'package:school_management_system/Screen/Note/model_note.dart';
 
 class Evaluation {
   int? id;
@@ -13,17 +14,19 @@ class Evaluation {
   final Module? module;
   final Professeur? professeur;
   final List<Note>? notes;
+  final Salle? salle;
 
-  Evaluation({
-    this.id,
-    required this.type,
-    this.dateEvaluation,
-    required this.heureDebut,
-    required this.heureFin,
-    required this.module,
-    required this.professeur,
-    this.notes,
-  });
+  Evaluation(
+      {this.id,
+      required this.type,
+      this.dateEvaluation,
+      required this.heureDebut,
+      required this.heureFin,
+      required this.module,
+      required this.professeur,
+      this.notes,
+      required this.salle,
+      r});
 
   // Méthode pour désérialiser un JSON en objet Evaluation
   factory Evaluation.fromJson(Map<String, dynamic> json) {
@@ -39,6 +42,7 @@ class Evaluation {
     return Evaluation(
       id: json['id'],
       type: json['type'],
+      salle: json['salle'] != null ? Salle.fromJson(json['salle']) : null,
       dateEvaluation: json['dateEvaluation'] != null
           ? DateTime.parse(json['dateEvaluation'])
           : null,
@@ -70,6 +74,12 @@ class Evaluation {
       'module': module?.toJson(),
       'professeur': professeur?.toJson(),
       'notes': notes?.map((note) => note.toJson()).toList(),
+      'salle': salle?.toJson(),
     };
+  }
+
+  //methodes
+  int getDureeEnHeur() {
+    return heureFin.hour - heureDebut.hour;
   }
 }

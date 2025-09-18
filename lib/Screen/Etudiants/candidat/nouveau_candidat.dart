@@ -170,7 +170,7 @@ class _NouvellePriscriptionState extends State<NouvellePriscription> {
           automaticallyImplyLeading: true,
           iconTheme: IconThemeData(color: Colors.white),
           title: const Text(
-            "NOUVEAU ETUDIANT",
+            "NOUVELLE CANDIDATURE",
             style: TextStyle(color: Colors.white, fontSize: 25),
           ),
           centerTitle: true,

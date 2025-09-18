@@ -1,7 +1,7 @@
 import 'package:school_management_system/Screen/Etudiants/Admission/admission_dto.dart';
 import 'package:school_management_system/Screen/Etudiants/Admission/model_admission.dart';
 
-class InscriptionDTO {
+class EtudiantDTO {
   int id;
   String prenom;
   String nom;
@@ -11,7 +11,7 @@ class InscriptionDTO {
   DossierAdmissionDto dossierAdmissionDto;
   DateTime dateInscription;
 
-  InscriptionDTO({
+  EtudiantDTO({
     required this.id,
     required this.prenom,
     required this.nom,
@@ -22,7 +22,7 @@ class InscriptionDTO {
     required this.dateInscription,
   });
 
-  factory InscriptionDTO.fromJson(Map<String, dynamic> json) => InscriptionDTO(
+  factory EtudiantDTO.fromJson(Map<String, dynamic> json) => EtudiantDTO(
         id: json["id"],
         prenom: json["prenom"],
         nom: json["nom"],

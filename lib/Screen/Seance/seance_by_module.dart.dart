@@ -304,7 +304,7 @@ class _SeanceByModuleState extends State<SeanceByModule> {
     List<Seance> seances = await futureSeances;
     Professeur? profParDefaut =
         SeanceService().getDernierProfesseurPourModule(widget.module!, seances);
-   
+
     bool isEditMode = seance != null;
     int? seanceId = seance?.id;
     String title =
@@ -546,8 +546,7 @@ class _SeanceByModuleState extends State<SeanceByModule> {
                     label: Text(isEditMode ? "Modifier" : 'Ajouter'),
                     onPressed: () async {
                       // Récupérer l’année académique en cours
-                      final anneeEnCours =
-                          await AnneeAcademiqueService().getAnneeEnCours();
+
                       // Vérification des champs obligatoires
                       if (!_formKey.currentState!.validate() ||
                           _selectedProfesseur == null ||
@@ -587,7 +586,6 @@ class _SeanceByModuleState extends State<SeanceByModule> {
                         module: widget.module!,
                         professeur: futuresprofesseur
                             .firstWhere((p) => p.id == _selectedProfesseur),
-                        anneeAcademique: anneeEnCours,
 
                         // semestre: futuresSemestre
                         //     .firstWhere((s) => s.id == selectedSemestre),
@@ -645,10 +643,12 @@ class _SeanceByModuleState extends State<SeanceByModule> {
       }
       // Enregistrement de la séance
       await SeanceService().createSeance(cours).then((_) {
-        setState(() {
-          futureSeances =
-              SeanceService().getSeancesByModuleId(widget.module!.id!);
-        });
+        if (mounted) {
+          setState(() {
+            futureSeances =
+                SeanceService().getSeancesByModuleId(widget.module!.id!);
+          });
+        }
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

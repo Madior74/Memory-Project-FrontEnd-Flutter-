@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:school_management_system/Screen/Etudiants/Inscription/etudiant.dart';
-import 'package:school_management_system/Screen/Etudiants/Inscription/inscription_dto.dart';
+import 'package:school_management_system/Screen/Etudiants/Inscription/etudiant_dto.dart';
 import 'package:school_management_system/services/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -40,7 +40,24 @@ class InscriptionService {
   }
 
   //Recuperer les Inscriptions
-  Future<List<InscriptionDTO>> getAllInscriptions() async {
+  Future<List<Etudiant>> getAllInscriptionWDTO() async {
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('token');
+    final response = await http.get(Uri.parse('$baseUrl/all'), headers: {
+      'Authorization': 'Bearer $token',
+    });
+
+    if (response.statusCode == 200) {
+      Iterable jsonResponse = json.decode(response.body);
+      return List<Etudiant>.from(
+          jsonResponse.map((ins) => Etudiant.fromJson(ins)));
+    } else {
+      throw Exception('Erreur lors de la recuperation des Inscriptions');
+    }
+  }
+
+  //Recuperer les Inscriptions avec DTO
+  Future<List<EtudiantDTO>> getAllInscriptions() async {
     final pref = await SharedPreferences.getInstance();
     final token = pref.getString('token');
     final response = await http.get(Uri.parse('$baseUrl'), headers: {
@@ -49,8 +66,8 @@ class InscriptionService {
 
     if (response.statusCode == 200) {
       Iterable jsonResponse = json.decode(response.body);
-      return List<InscriptionDTO>.from(
-          jsonResponse.map((ins) => InscriptionDTO.fromJson(ins)));
+      return List<EtudiantDTO>.from(
+          jsonResponse.map((ins) => EtudiantDTO.fromJson(ins)));
     } else {
       throw Exception('Erreur lors de la recuperation des Inscriptions');
     }
@@ -97,7 +114,7 @@ class InscriptionService {
   }
 
 // Récupérer les étudiants d'un niveau
-  Future<List<InscriptionDTO>> getEtudiantsByNiveauId(int niveauId) async {
+  Future<List<EtudiantDTO>> getEtudiantsByNiveauId(int niveauId) async {
     final pref = await SharedPreferences.getInstance();
     final token = pref.getString('token');
     final response =
@@ -112,7 +129,7 @@ class InscriptionService {
       List<dynamic> jsonResponse = json.decode(response.body);
       return jsonResponse
           .map((etudiant) =>
-              InscriptionDTO.fromJson(etudiant as Map<String, dynamic>))
+              EtudiantDTO.fromJson(etudiant as Map<String, dynamic>))
           .toList();
     } else if (response.statusCode == 204) {
       return []; // Retourne une liste vide si aucun étudiant n'est trouvé

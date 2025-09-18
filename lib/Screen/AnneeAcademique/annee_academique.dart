@@ -9,8 +9,8 @@ class AnneeAcademique {
     this.id,
     required this.nomAnnee,
      this.active,
-    required this.dateDebut, // Obligatoire
-    required this.dateFin, // Obligatoire
+     this.dateDebut, // Obligatoire
+     this.dateFin, // Obligatoire
   });
 
   // Méthode pour convertir un JSON en objet Session
@@ -49,6 +49,11 @@ class AnneeAcademique {
 
     if (dateDebut == null || dateFin == null) {
       return "Non définie";
+    }
+
+    // Si l'année n'est pas active, elle est désactivée
+    if (active == false) {
+      return "Désactivée";
     }
 
     if (now.isBefore(dateDebut!)) {

@@ -1,9 +1,17 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:school_management_system/Screen/Etudiants/Inscription/InscriptionService.dart';
+import 'package:school_management_system/Screen/Etudiants/Inscription/etudiant.dart';
 import 'package:school_management_system/Screen/Modules/module.dart';
+import 'package:school_management_system/Screen/Note/note_by_evaluation.dart';
+import 'package:school_management_system/Screen/Professeurs/Professeur_service.dart';
 import 'package:school_management_system/Screen/Professeurs/model_professeur.dart';
+import 'package:school_management_system/Screen/Salle/model_salle.dart';
+import 'package:school_management_system/Screen/Salle/salle_service.dart';
 import 'package:school_management_system/Screen/Seance/model_seance.dart';
 import 'package:school_management_system/Screen/Seance/seance_service.dart';
+import 'package:school_management_system/Screen/evaluation/evaluation_dto.dart';
 import 'package:school_management_system/Screen/evaluation/evaluation_service.dart';
 import 'package:school_management_system/Screen/evaluation/model_evaluation.dart';
 import 'package:school_management_system/Widgets/button_annuler.dart';
@@ -21,7 +29,11 @@ class EvaluationByModule extends StatefulWidget {
 }
 
 class _EvaluationByModuleState extends State<EvaluationByModule> {
-  late Future<List<Evaluation>> futuresEvaluations;
+  List<Salle> futureSalles = [];
+  List<Professeur> futureProfs = [];
+  List<Etudiant> futureEtudiant = [];
+
+  late Future<List<EvaluationDto>> futuresEvaluations;
   late Future<List<Seance>> futureSeances;
   Seance? lastSeancen;
 
@@ -30,9 +42,48 @@ class _EvaluationByModuleState extends State<EvaluationByModule> {
     // TODO: implement initState
     super.initState();
     recupererDerniereSeance();
+    fetchSalle();
+    fetchprof();
+    fetchEtudiants();
     futuresEvaluations =
-        EvaluationService().getEvaluationByModule(widget.module.id!);
+        EvaluationService().getEvaluationByModuleWithDTO(widget.module.id!);
     futureSeances = SeanceService().getSeancesByModuleId(widget.module!.id!);
+  }
+
+  void fetchSalle() async {
+    try {
+      List<Salle> sallesData = await SalleService().getAllSalles();
+
+      setState(() {
+        futureSalles = sallesData;
+      });
+    } catch (e) {
+      print("Erreur lors de la recuperation des Salles de Classe: $e");
+    }
+  }
+
+  void fetchprof() async {
+    try {
+      List<Professeur> profList = await ProfesseurService().fetchprofesseurs();
+      setState(() {
+        futureProfs = profList;
+      });
+    } catch (e) {
+      print("Erreur lors de la recuperation des Profs: $e");
+    }
+  }
+
+//Recuperer les etudiants
+  void fetchEtudiants() async {
+    try {
+      List<Etudiant> etudiantList =
+          await InscriptionService().getAllInscriptionWDTO();
+      setState(() {
+        futureEtudiant = etudiantList;
+      });
+    } catch (e) {
+      print("Erreur lors de la recuperation des Profs: $e");
+    }
   }
 
   Future<void> recupererDerniereSeance() async {
@@ -96,7 +147,7 @@ class _EvaluationByModuleState extends State<EvaluationByModule> {
                       ),
                     );
                   } else {
-                    List<Evaluation> evalues = snapshot.data!;
+                    List<EvaluationDto> evalues = snapshot.data!;
 
                     return SizedBox(
                       width: double.infinity,
@@ -121,7 +172,17 @@ class _EvaluationByModuleState extends State<EvaluationByModule> {
                               )),
                               DataColumn(
                                   label: Text(
+                                "Durée(H)",
+                                style: titleStyle,
+                              )),
+                              DataColumn(
+                                  label: Text(
                                 "Date Evaluation",
+                                style: titleStyle,
+                              )),
+                              DataColumn(
+                                  label: Text(
+                                "Salle",
                                 style: titleStyle,
                               )),
                               DataColumn(
@@ -132,6 +193,11 @@ class _EvaluationByModuleState extends State<EvaluationByModule> {
                               DataColumn(
                                   label: Text(
                                 "Heure de Fin",
+                                style: titleStyle,
+                              )),
+                              DataColumn(
+                                  label: Text(
+                                "Notes",
                                 style: titleStyle,
                               )),
                               DataColumn(
@@ -149,40 +215,51 @@ class _EvaluationByModuleState extends State<EvaluationByModule> {
                                 return "${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}";
                               }
 
+                              final moduleName = ev.moduleId == widget.module.id
+                                  ? widget.module.nomModule
+                                  : "N/A";
+
+                              final prof = futureProfs.firstWhereOrNull(
+                                  (prof) => prof.id == ev.professeurId);
+
+                              final salleC = futureSalles.firstWhereOrNull(
+                                  (sl) => sl.id == ev.salleId);
                               return DataRow(cells: [
                                 DataCell(SizedBox(
                                   width: 150,
                                   child: Tooltip(
-                                    message: ev.module?.nomModule,
+                                    message: moduleName,
                                     child: Text(
-                                      ev.module!.nomModule,
+                                      moduleName,
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
                                 )),
-                                DataCell(Text(
-                                    '${ev.professeur?.prenom}  ${ev.professeur?.nom}')),
+                                DataCell(Text('${prof?.prenom}  ${prof?.nom}')),
                                 DataCell(
                                   Text(ev.type),
+                                ),
+                                DataCell(
+                                  Text(ev.getDureeEnHeur().toString()),
                                 ),
                                 DataCell(Text(ev.dateEvaluation!
                                     .toIso8601String()
                                     .substring(0, 10))),
+                                DataCell(Text(salleC?.nomSalle ?? "N/A")),
                                 DataCell(Text(formatTimeOfDay(ev.heureDebut))),
                                 DataCell(Text(formatTimeOfDay(ev.heureFin))),
-                                // DataCell(TextButton.icon(
-                                //   onPressed: () {
-                                //     //   Navigator.push(
-                                //     //       context,
-                                //     //       MaterialPageRoute(
-                                //     //         builder: (context) =>
-                                //     //             AssiduiteByModule(
-                                //     //                 ev: ev),
-                                //     //       ));
-                                //   },
-                                //   label: Text("Gérer"),
-                                //   icon: Icon(Icons.person_add_disabled_rounded),
-                                // )),
+                                DataCell(TextButton.icon(
+                                  onPressed: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              NoteByEvaluation(evaluationId: ev.id),
+                                        ));
+                                  },
+                                  label: Text("Gérer"),
+                                  icon: Icon(Icons.person_add_disabled_rounded),
+                                )),
                                 DataCell(Row(
                                   children: [
                                     TextButton.icon(
@@ -190,8 +267,7 @@ class _EvaluationByModuleState extends State<EvaluationByModule> {
                                           Icons.edit,
                                           color: Colors.blue,
                                         ),
-                                        onPressed: () => showEvaluationDialog(
-                                            evaluation: ev),
+                                        onPressed: () {},
                                         label: const Text("Modifier")),
                                     const SizedBox(
                                       width: 15,
@@ -230,6 +306,8 @@ class _EvaluationByModuleState extends State<EvaluationByModule> {
             : listType.isNotEmpty
                 ? listType[0]
                 : null;
+    int? _selectedSalle;
+
     // Date et heure
     TimeOfDay? _heureDebut;
     TimeOfDay? _heureFin;
@@ -393,6 +471,33 @@ class _EvaluationByModuleState extends State<EvaluationByModule> {
                           ),
                         ),
                       ),
+
+                      const SizedBox(height: 16),
+
+                      //Salle
+                      DropdownButtonFormField<int>(
+                        decoration: InputDecoration(
+                          labelText: 'Salle',
+                          prefixIcon: const Icon(Icons.meeting_room),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                        ),
+                        value: _selectedSalle,
+                        items: futureSalles
+                            .map((s) => DropdownMenuItem(
+                                value: s.id,
+                                child: Text(s.nomSalle ?? 'Non spécifié')))
+                            .toList(),
+                        onChanged: (value) =>
+                            setState(() => _selectedSalle = value),
+                        validator: (value) {
+                          if (value == null) {
+                            return "Veuillez sélectionner la salle ";
+                          }
+
+                          return null;
+                        },
+                      ),
                     ],
                   ),
                 ),
@@ -401,6 +506,8 @@ class _EvaluationByModuleState extends State<EvaluationByModule> {
                 ButtonAnnuler(),
                 TextButton.icon(
                   onPressed: () async {
+                    final salleCorrespondante = futureSalles
+                        .firstWhereOrNull((sc) => sc.id == _selectedSalle);
                     if (_formKey.currentState!.validate()) {
                       // Création ou mise à jour de l'évaluation
                       Evaluation newEval = Evaluation(
@@ -411,7 +518,7 @@ class _EvaluationByModuleState extends State<EvaluationByModule> {
                         heureFin: _heureFin ?? TimeOfDay.now(),
                         module: widget.module, // Utilise le module actuel
                         professeur: defaultProf,
-
+                        salle: salleCorrespondante,
                         notes: evaluation?.notes,
                       );
 
@@ -426,7 +533,7 @@ class _EvaluationByModuleState extends State<EvaluationByModule> {
                         // Rafraîchir la liste
                         setState(() {
                           futuresEvaluations = EvaluationService()
-                              .getEvaluationByModule(widget.module.id!);
+                              .getEvaluationByModuleWithDTO(widget.module.id!);
                         });
 
                         Navigator.of(context).pop(); // Ferme le dialogue
@@ -484,8 +591,8 @@ class _EvaluationByModuleState extends State<EvaluationByModule> {
       // Enregistrement evaluation
       await EvaluationService().addEvaluation(evaluation).then((_) {
         setState(() {
-          futuresEvaluations =
-              EvaluationService().getEvaluationByModule(widget.module!.id!);
+          futuresEvaluations = EvaluationService()
+              .getEvaluationByModuleWithDTO(widget.module!.id!);
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -539,8 +646,8 @@ class _EvaluationByModuleState extends State<EvaluationByModule> {
           .updateEvaluation(evaluation.id!, evaluation)
           .then((_) {
         setState(() {
-          futuresEvaluations =
-              EvaluationService().getEvaluationByModule(widget.module!.id!);
+          futuresEvaluations = EvaluationService()
+              .getEvaluationByModuleWithDTO(widget.module!.id!);
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -567,7 +674,7 @@ class _EvaluationByModuleState extends State<EvaluationByModule> {
       await EvaluationService().deleteEvaluation(evaluId);
       setState(() {
         futuresEvaluations =
-            EvaluationService().getEvaluationByModule(widget.module.id!);
+            EvaluationService().getEvaluationByModuleWithDTO(widget.module.id!);
       });
     } catch (e) {
       print("Erreur lors de la suppression de la séance: $e");

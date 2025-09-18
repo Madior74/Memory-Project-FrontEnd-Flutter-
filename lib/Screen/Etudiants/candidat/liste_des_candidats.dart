@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:school_management_system/Screen/Etudiants/Inscription/InscriptionService.dart';
 import 'package:school_management_system/Screen/Etudiants/Inscription/etudiant.dart';
-import 'package:school_management_system/Screen/Etudiants/Inscription/inscription_dto.dart';
+import 'package:school_management_system/Screen/Etudiants/Inscription/etudiant_dto.dart';
 import 'package:school_management_system/Screen/Etudiants/candidat/model_candidat.dart';
 import 'package:school_management_system/Screen/Etudiants/candidat/detail_prinscrit.dart';
 import 'package:school_management_system/Screen/Etudiants/candidat/nouveau_candidat.dart';
@@ -24,7 +24,7 @@ class ListeDesCandidats extends StatefulWidget {
 class _ListeDesCandidatsState extends State<ListeDesCandidats> {
   late Future<List<Candidat>> futuresEtudiants;
 
-  List<InscriptionDTO> _etudiant = [];
+  List<EtudiantDTO> _etudiant = [];
 
   //initiale
   String getInitials(String name) {
@@ -36,7 +36,7 @@ class _ListeDesCandidatsState extends State<ListeDesCandidats> {
     try {
       final dejaInscrit = await InscriptionService().getAllInscriptions();
       setState(() {
-        _etudiant = dejaInscrit.cast<InscriptionDTO>();
+        _etudiant = dejaInscrit.cast<EtudiantDTO>();
         print("Etudiants prinscrit");
         print(_etudiant.toList());
       });
@@ -71,7 +71,7 @@ class _ListeDesCandidatsState extends State<ListeDesCandidats> {
               ));
         },
       ),
-      backgroundColor: myBackgroound,
+
       // appBar: MyAppbar(title: "Liste des Etudiants"),
       body: Row(
         children: [
@@ -80,7 +80,7 @@ class _ListeDesCandidatsState extends State<ListeDesCandidats> {
             child: Column(
               children: [
                 MyAppbar(
-                  title: "Etudiants Prinscrits",
+                  title: "Liste des candidats",
                 ),
                 Expanded(
                     child: FutureBuilder(
@@ -174,7 +174,7 @@ class _ListeDesCandidatsState extends State<ListeDesCandidats> {
                               return DataRow(
                                 cells: [
                                   DataCell(CircleAvatar(
-                                    backgroundColor: Colors.indigo[400],
+                                    backgroundColor: myDrawerColol,
                                     child: Text(
                                       getInitials(etudiant).toUpperCase(),
                                       style: const TextStyle(
@@ -297,7 +297,7 @@ class _ListeDesCandidatsState extends State<ListeDesCandidats> {
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case "incomplet":
-        return Colors.red;
+        return myredColor;
       case "complet":
         return Colors.green;
       default:
@@ -306,6 +306,6 @@ class _ListeDesCandidatsState extends State<ListeDesCandidats> {
   }
 
   Color _getNumberColor(int nbDoc) {
-    return nbDoc < 3 ? Colors.red : Colors.green;
+    return nbDoc < 3 ? myredColor : Colors.green;
   }
 }
