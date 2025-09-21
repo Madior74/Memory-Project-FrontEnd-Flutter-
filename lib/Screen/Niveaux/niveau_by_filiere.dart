@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:school_management_system/Screen/Filieres/filiere.dart';
 import 'package:school_management_system/Screen/Niveaux/model_niveau.dart';
+import 'package:school_management_system/Screen/Niveaux/niveau_card.dart';
 import 'package:school_management_system/Screen/semestre/semestres_by_niveau.dart';
 import 'package:school_management_system/Screen/Niveaux/niveau_service.dart';
-import 'package:school_management_system/Widgets/back_bouton.dart';
 import 'package:school_management_system/Widgets/drawer.dart';
 import 'package:school_management_system/Widgets/my_appbar.dart';
 import 'package:school_management_system/theme/colors.dart';
@@ -33,6 +33,10 @@ class _ListesNiveauxState extends State<ListesNiveaux> {
   void initState() {
     super.initState();
     futureNiveau = NiveauService().getNiveauxByFiliere(widget.filiere.id!);
+  }
+
+  Future<int> getEtudiantCountByNiveauId(int niveauId) async {
+    return NiveauService().getEtudiantsCountByNiveauId(niveauId);
   }
 
   // Acronyme
@@ -92,83 +96,39 @@ class _ListesNiveauxState extends State<ListesNiveaux> {
                           padding: const EdgeInsets.all(30),
                           gridDelegate:
                               const SliverGridDelegateWithMaxCrossAxisExtent(
-                            maxCrossAxisExtent: 250, // Largeur max d'une carte
+                            maxCrossAxisExtent: 330, // Largeur max d'une carte
                             mainAxisSpacing: 25,
                             crossAxisSpacing: 25,
+                            mainAxisExtent: 250,
                             childAspectRatio: 1,
                           ),
                           itemCount: items.length,
                           itemBuilder: (context, index) {
                             final niveau = items[index];
 
-                            return InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        SemestreByNiveau(niveau: niveau),
-                                  ),
-                                );
-                              },
-                              child: Card(
-                                elevation: 2,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: LayoutBuilder(
-                                    builder: (context, constraints) {
-                                      double fontSize =
-                                          constraints.maxHeight / 5;
-
-                                      return Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.end,
-                                            children: [
-                                              IconButton(
-                                                icon: const Icon(Icons.delete,
-                                                    size: 24,
-                                                    color: Colors.red),
-                                                onPressed: () {
-                                                  _confirmDelete(
-                                                      items[index].id!);
-                                                },
-                                              ),
-                                            ],
-                                          ),
-                                          Text(
-                                            getAcronym(
-                                                widget.filiere.nomFiliere +
-                                                    niveau.nomNiveau),
-                                            style: TextStyle(
-                                              fontSize: fontSize,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.blueAccent,
-                                            ),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                          const SizedBox(height: 10),
-                                          Text(
-                                            niveau.nomNiveau,
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 16,
-                                            ),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        ],
+                            return FutureBuilder(
+                                future: getEtudiantCountByNiveauId(niveau.id!),
+                                builder: (context, countSnapshot) {
+                                  final etudiantNumber =
+                                      countSnapshot.data ?? 0;
+                                
+                                  return NiveauCard(
+                                    accronyme: getAcronym(niveau.nomNiveau),
+                                    nomNiveau: widget.filiere.nomFiliere,
+                                    nobreEtudiant: etudiantNumber,
+                                    niveauTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              SemestreByNiveau(niveau: niveau),
+                                        ),
                                       );
                                     },
-                                  ),
-                                ),
-                              ),
-                            );
+                                    supprimeTap: () =>
+                                        _confirmDelete(niveau.id!),
+                                  );
+                                });
                           },
                         );
                       }

@@ -197,6 +197,11 @@ class _EvaluationByModuleState extends State<EvaluationByModule> {
                               )),
                               DataColumn(
                                   label: Text(
+                                "Status",
+                                style: titleStyle,
+                              )),
+                              DataColumn(
+                                  label: Text(
                                 "Notes",
                                 style: titleStyle,
                               )),
@@ -226,7 +231,7 @@ class _EvaluationByModuleState extends State<EvaluationByModule> {
                                   (sl) => sl.id == ev.salleId);
                               return DataRow(cells: [
                                 DataCell(SizedBox(
-                                  width: 150,
+                                  width: 40,
                                   child: Tooltip(
                                     message: moduleName,
                                     child: Text(
@@ -248,13 +253,18 @@ class _EvaluationByModuleState extends State<EvaluationByModule> {
                                 DataCell(Text(salleC?.nomSalle ?? "N/A")),
                                 DataCell(Text(formatTimeOfDay(ev.heureDebut))),
                                 DataCell(Text(formatTimeOfDay(ev.heureFin))),
+                                DataCell(Text(
+                                  ev.statut,
+                                  style: TextStyle(color: ev.statutColor),
+                                )),
                                 DataCell(TextButton.icon(
                                   onPressed: () {
                                     Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) =>
-                                              NoteByEvaluation(evaluationId: ev.id),
+                                              NoteByEvaluation(
+                                                  evaluationId: ev.id),
                                         ));
                                   },
                                   label: Text("Gérer"),
@@ -566,11 +576,10 @@ class _EvaluationByModuleState extends State<EvaluationByModule> {
     );
   }
 
+  //Le status
+
 //Ajouter Seance
   Future<void> saveEvaluation(Evaluation evaluation) async {
-    DateTime? dateCours = DateTime.parse(
-        evaluation.dateEvaluation!.toIso8601String().substring(0, 10));
-
     try {
       bool existe = await EvaluationService().evaluationExist(
           evaluation.module!.id!,

@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:school_management_system/Screen/Etudiants/Inscription/InscriptionService.dart';
 import 'package:school_management_system/Screen/Etudiants/Inscription/etudiant_dto.dart';
+import 'package:school_management_system/Screen/Etudiants/candidat/prinscription_service.dart';
 import 'package:school_management_system/Screen/Filieres/filiere.dart';
 import 'package:school_management_system/Screen/Niveaux/model_niveau.dart';
 import 'package:school_management_system/Screen/semestre/model_semestre.dart';
 import 'package:school_management_system/Screen/UES/ue_by_semestre.dart';
 import 'package:school_management_system/Screen/Niveaux/niveau_service.dart';
 import 'package:school_management_system/Screen/semestre/semestre_service.dart';
+import 'package:school_management_system/Widgets/button_annuler.dart';
 import 'package:school_management_system/Widgets/drawer.dart';
 import 'package:school_management_system/Widgets/my_appbar.dart';
 import 'package:school_management_system/Widgets/semestre_card.dart';
 import 'package:school_management_system/theme/colors.dart';
+import 'package:school_management_system/theme/my_styles.dart';
 
 class SemestreByNiveau extends StatefulWidget {
   final Niveau niveau;
@@ -151,182 +154,253 @@ class _SemestreByNiveauState extends State<SemestreByNiveau> {
           //MyDrawer
           const MyDrawer(),
           Expanded(
-            child: Column(
-              children: [
-                MyAppbar(
-                  title: "${widget.niveau.nomNiveau}  Liste des Semestres",
-                ),
-                Expanded(
-                  child: FutureBuilder<List<Semestre>>(
-                    future: futureSemestres,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      } else if (snapshot.hasError) {
-                        print("Erreur FutureBuilder: ${snapshot.error}");
-                        return Center(
-                          child: Text("Erreur: ${snapshot.error}"),
-                        );
-                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                        return const Center(
-                          child: Text("Aucun Semestre trouvé"),
-                        );
-                      } else {
-                        List<Semestre> items = snapshot.data!;
-                        return GridView.builder(
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 4,
-                                  crossAxisSpacing: 30.0,
-                                  mainAxisSpacing: 30.0,
-                                  childAspectRatio: 1,
-                                  mainAxisExtent: 360),
-                          itemCount: items.length,
-                          itemBuilder: (context, index) {
-                            final semes = items[index];
-
-                            return Padding(
-                              padding: const EdgeInsets.only(left: 25.0),
-                              child: SemestreCard(
-                                  totalModules: semes.getTotalModules(),
-                                  ontapBouton: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => UeBySemestre(
-                                          semestre: semes,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  supprimeBouton: () {
-                                    _confirmDelete(items[index].id!);
-                                  },
-                                  title: '${semes.nomSemestre}',
-                                  nbreUE: semes.ues.length,
-                                  totalCredits: semes.getTotalCredits()),
-                            );
-                          },
-                        );
-                      }
-                    },
-                  ),
-                )
-              ],
+              child: Column(children: [
+            MyAppbar(
+              title: "${widget.niveau.nomNiveau}  Liste des Semestres",
             ),
-          ),
+            Expanded(
+              child: DefaultTabController(
+                  length: 2,
+                  child: Column(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey[50],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        margin: const EdgeInsets.all(8),
+                        child: TabBar(
+                          tabs: const [
+                            Tab(
+                              text: "Liste des Semestres ",
+                            ),
+                            Tab(
+                              text: "Liste des Etudiants ",
+                            )
+                          ],
+                          indicator: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            color: myDrawerColol,
+                          ),
+                          labelColor: Colors.white,
+                          unselectedLabelColor: Colors.grey[600],
+                          labelStyle:
+                              const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      Expanded(
+                        child: TabBarView(
+                          children: [
+                            // Liste des Admissions
+                            buildListeSemestres(context),
+                            buildListesEtudiants(context)
+                          ],
+                        ),
+                      )
+                    ],
+                  )),
+            )
+          ])),
         ],
       ),
     );
   }
 
+  Widget buildListeSemestres(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        FutureBuilder<List<Semestre>>(
+          future: futureSemestres,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            } else if (snapshot.hasError) {
+              print("Erreur FutureBuilder: ${snapshot.error}");
+              return Center(
+                child: Text("Erreur: ${snapshot.error}"),
+              );
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return const Center(
+                child: Text("Aucun Semestre trouvé"),
+              );
+            } else {
+              List<Semestre> items = snapshot.data!;
+              return Expanded(
+                child: GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 4,
+                      crossAxisSpacing: 30.0,
+                      mainAxisSpacing: 30.0,
+                      childAspectRatio: 1,
+                      mainAxisExtent: 360),
+                  itemCount: items.length,
+                  itemBuilder: (context, index) {
+                    final semes = items[index];
+
+                    return Padding(
+                      padding: const EdgeInsets.only(left: 25.0),
+                      child: SemestreCard(
+                          totalModules: semes.getTotalModules(),
+                          ontapBouton: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => UeBySemestre(
+                                  semestre: semes,
+                                ),
+                              ),
+                            );
+                          },
+                          supprimeBouton: () {
+                            _confirmDelete(items[index].id!);
+                          },
+                          title: '${semes.nomSemestre}',
+                          nbreUE: semes.ues.length,
+                          totalCredits: semes.getTotalCredits()),
+                    );
+                  },
+                ),
+              );
+            }
+          },
+        )
+      ],
+    );
+  }
+
   // //Liste des Etudiants
-  // Widget buildListesEtudiants(BuildContext context) {
-  //   return SingleChildScrollView(
-  //     child: Column(
-  //       mainAxisSize:
-  //           MainAxisSize.min, // Ajouté pour éviter le conflit de hauteur
-  //       children: [
-  //         FutureBuilder<List<InscriptionDTO>>(
-  //           future: futureEtudiants,
-  //           builder: (context, snapshot) {
-  //             if (snapshot.connectionState == ConnectionState.waiting) {
-  //               return const Center(child: CircularProgressIndicator());
-  //             } else if (snapshot.hasError) {
-  //               print("Erreur : ${snapshot.error}");
-  //               return Center(
-  //                 child: Text(
-  //                   "Erreur : ${snapshot.error}",
-  //                   style: const TextStyle(color: Colors.red),
-  //                 ),
-  //               );
-  //             } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-  //               return const Center(
-  //                 child: Text(
-  //                   "Aucun étudiant trouvé",
-  //                   style: TextStyle(color: Colors.grey),
-  //                 ),
-  //               );
-  //             } else {
-  //               List<InscriptionDTO> inscriptions = snapshot.data!;
+  Widget buildListesEtudiants(BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize:
+            MainAxisSize.min, // Ajouté pour éviter le conflit de hauteur
+        children: [
+          FutureBuilder<List<EtudiantDTO>>(
+            future: futureEtudiants,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                print("Erreur : ${snapshot.error}");
+                return Center(
+                  child: Text(
+                    "Erreur : ${snapshot.error}",
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                );
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const Center(
+                  child: Text(
+                    "Aucun étudiant trouvé",
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                );
+              } else {
+                List<EtudiantDTO> inscriptions = snapshot.data!;
 
-  //               return DataTable(
-  //                   columns: [
-  //                     DataColumn(
-  //                         label: Text(
-  //                       "Etudiant(e)",
-  //                       style: titleStyle,
-  //                     )),
-  //                     DataColumn(
-  //                         label: Text(
-  //                       "Actions",
-  //                       style: titleStyle,
-  //                     )),
-  //                   ],
-  //                   rows: inscriptions.map((inscription) {
-  //                     return DataRow(cells: [
-  //                       DataCell(Text(
-  //                         "${inscription.dossierAdmissionDTO?.candidat?.prenom} ${inscription.dossierAdmissionDTO?.candidat?.nom}",
-  //                       )),
-  //                       DataCell(TextButton.icon(
-  //                           onPressed: () => _confirmDelete(inscription.id!),
-  //                           label: Icon(
-  //                             Icons.delete,
-  //                             color: Colors.red,
-  //                           )))
-  //                     ]);
-  //                   }).toList());
-  //             }
-  //           },
-  //         )
-  //       ],
-  //     ),
-  //   );
-  // }
+                return SizedBox(
+                  width: double.infinity,
+                  child: DataTable(
+                      columns: [
+                        DataColumn(
+                            label: Text(
+                          "Prénom",
+                          style: titleStyle,
+                        )),
+                        DataColumn(
+                            label: Text(
+                          "Nom",
+                          style: titleStyle,
+                        )),
+                        DataColumn(
+                            label: Text(
+                          "Email",
+                          style: titleStyle,
+                        )),
+                        DataColumn(
+                            label: Text(
+                          "Actions",
+                          style: titleStyle,
+                        )),
+                      ],
+                      rows: inscriptions.map((inscription) {
+                        final prenom =
+                            inscription.dossierAdmissionDto?.candidat?.prenom;
+                        final nom =
+                            inscription.dossierAdmissionDto?.candidat?.nom;
+                        final email =
+                            inscription.dossierAdmissionDto?.candidat?.email;
+                        return DataRow(cells: [
+                          DataCell(Text(
+                            prenom.toString(),
+                          )),
+                          DataCell(Text(
+                            nom.toString(),
+                          )),
+                          DataCell(Text(
+                            email.toString(),
+                          )),
+                          DataCell(TextButton.icon(
+                              onPressed: () => _confirmDelete(inscription.id!),
+                              label: Icon(
+                                Icons.delete,
+                                color: Colors.red,
+                              )))
+                        ]);
+                      }).toList()),
+                );
+              }
+            },
+          )
+        ],
+      ),
+    );
+  }
 
-  // //Supprimer un Etudiant
+  //Supprimer un Etudiant
 
-  // void _confirmerSuppression(int id) {
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         content: const Text("Voulez-vous Vraiment supprimer cet Etudiant ??"),
-  //         actions: [
-  //           const ButtonAnnuler(),
-  //           TextButton(
-  //               onPressed: () {
-  //                 PrinscriptionService().deleteEtudiant(id).then((_) {
-  //                   setState(
-  //                     () {
-  //                       futureEtudiants = InscriptionService()
-  //                           .getEtudiantsByNiveauId(widget.niveau.id!);
-  //                     },
-  //                   );
+  void _confirmerSuppression(int id) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: const Text("Voulez-vous Vraiment supprimer cet Etudiant ??"),
+          actions: [
+            const ButtonAnnuler(),
+            TextButton(
+                onPressed: () {
+                  PrinscriptionService().deleteEtudiant(id).then((_) {
+                    setState(
+                      () {
+                        futureEtudiants = InscriptionService()
+                            .getEtudiantsByNiveauId(widget.niveau.id!);
+                      },
+                    );
 
-  //                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-  //                       backgroundColor: Colors.green,
-  //                       content: Text(
-  //                         "Etudiant supprimé avec Succès",
-  //                         style: TextStyle(color: Colors.white),
-  //                       )));
-  //                 }).catchError((error) {
-  //                   ScaffoldMessenger.of(context).showSnackBar(
-  //                     SnackBar(
-  //                         backgroundColor: Colors.red,
-  //                         content: Text("Erreur : $error")),
-  //                   );
-  //                 });
-  //                 Navigator.of(context).pop();
-  //               },
-  //               child: const Text("Supprimer"))
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        backgroundColor: Colors.green,
+                        content: Text(
+                          "Etudiant supprimé avec Succès",
+                          style: TextStyle(color: Colors.white),
+                        )));
+                  }).catchError((error) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                          backgroundColor: Colors.red,
+                          content: Text("Erreur : $error")),
+                    );
+                  });
+                  Navigator.of(context).pop();
+                },
+                child: const Text("Supprimer"))
+          ],
+        );
+      },
+    );
+  }
 
   // Supprimer un niveau
   void _confirmDelete(int id) {

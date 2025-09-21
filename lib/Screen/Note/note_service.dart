@@ -45,9 +45,7 @@ class NoteService {
         body: jsonEncode(note.toJson()),
       );
 
-      print("note add");
-      print(response.statusCode);
-      print(response.body);
+   
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return NoteDTO.fromJson(json.decode(utf8.decode(response.bodyBytes)));

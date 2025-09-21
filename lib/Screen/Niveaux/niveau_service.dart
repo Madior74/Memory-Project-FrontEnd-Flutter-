@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class NiveauService {
   final String baseUrl = AppConfig.baseUrl;
+  final http.Client _httpClient = http.Client();
 
   // Récupérer les niveaux pour une filière
   Future<List<Niveau>> getNiveauxByFiliere(int filiereId) async {
@@ -104,11 +105,15 @@ class NiveauService {
 
   // Delete a niveau
   Future<void> deleteNiveau(int id) async {
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('token');
+
     final response = await http.delete(
       Uri.parse('$baseUrl/$id'),
       headers: {
         "Accept": "application/json",
-        "content-type": "application/json"
+        "content-type": "application/json",
+        'Authorization': 'Bearer $token',
       },
     );
 
@@ -126,6 +131,22 @@ class NiveauService {
       return jsonDecode(response.body) as bool;
     } else {
       throw Exception("Erreur lors de la vérification du niveau");
+    }
+  }
+
+  //Nombre d'etudianta
+  Future<int> getEtudiantsCountByNiveauId(int niveauId) async {
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('token');
+    final response = await _httpClient
+        .get(Uri.parse('$baseUrl/niveaux/$niveauId/etudiants/count'), headers: {
+      "Authorization": "Bearer $token",
+    });
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body)['count'];
+    } else {
+      throw Exception('Erreur lors de la récupération du nombre d\'étudiants');
     }
   }
 }

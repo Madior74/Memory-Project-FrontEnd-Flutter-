@@ -78,7 +78,44 @@ class EvaluationDto {
         "anneeAcademiqueId": anneeAcademiqueId,
         "notes": List<dynamic>.from(notes.map((x) => x.toJson())),
       };
+
+    //methodes
   int getDureeEnHeur() {
     return heureFin.hour - heureDebut.hour;
+  }
+
+  
+  bool get isConsidereeDeroulee {
+    if (dateEvaluation == null) return false;
+    final fin = DateTime(
+      dateEvaluation!.year,
+      dateEvaluation!.month,
+      dateEvaluation!.day,
+      heureFin.hour,
+      heureFin.minute,
+    );
+    return fin.isBefore(DateTime.now());
+  }
+
+   String get statut {
+    if (isConsidereeDeroulee) return 'Déroulée';
+    if (dateEvaluation != null && dateEvaluation!.isAfter(DateTime.now())) {
+      return 'Programmée';
+    }
+    return 'En Cours';
+  }
+
+  Color get statutColor {
+    switch (statut) {
+      case 'Annulée':
+        return Colors.red;
+
+      case 'Déroulée':
+        return Colors.grey;
+      case 'Programmée':
+        return Colors.green;
+      default:
+        return Colors.blueGrey;
+    }
   }
 }

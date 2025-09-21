@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class FiliereService {
   final String baseUrl = AppConfig.baseUrl;
+  final http.Client _httpClient = http.Client();
 
   //Get
   Future<List<Filiere>> getFilieres() async {
@@ -81,10 +82,18 @@ class FiliereService {
   //Delete
 
   Future<void> deleteFiliere(int id) async {
-    final response = await http.delete(Uri.parse('$baseUrl/filieres/$id'),
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('token');
+
+    final response = await _httpClient.delete(
+        Uri.parse('$baseUrl/filieres/deleteFiliere/$id'),
         headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8'
+          'Content-Type': 'application/json; charset=UTF-8',
+          "Authorization": "Bearer $token",
         });
+
+    print('Erreur lors de la suppression : ${response.statusCode}');
+    print('Erreur lors de la suppression : ${response.body}');
 
     if (response.statusCode != 200 && response.statusCode != 201) {
       throw Exception('Échec de la suppression de la Filière');

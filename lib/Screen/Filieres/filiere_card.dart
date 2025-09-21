@@ -2,20 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:school_management_system/theme/colors.dart';
 
-class FiliereCaard extends StatelessWidget {
+class FiliereCard extends StatelessWidget {
   final String accronyme;
   final String nomFiliere;
   final int nobreEtudiant;
-  final int nbredeModule;
+  final int? nbredeModule;
   final void Function()? niveauTap;
   final void Function()? supprimeTap;
 
-  const FiliereCaard({
+  const FiliereCard({
     super.key,
     required this.accronyme,
     required this.nomFiliere,
     required this.nobreEtudiant,
-    required this.nbredeModule,
+     this.nbredeModule,
     required this.niveauTap,
     required this.supprimeTap,
   });

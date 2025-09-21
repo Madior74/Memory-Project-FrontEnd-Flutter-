@@ -14,7 +14,7 @@ class AnneeAcademiqueService {
     try {
       final pref = await SharedPreferences.getInstance();
       final token = pref.getString('token');
-     
+
       if (token == null) {
         throw Exception("Token non trouvé");
       }
@@ -23,17 +23,14 @@ class AnneeAcademiqueService {
         'Content-Type': 'application/json',
       });
 
-      print("📡 Réponse GET - Status: ${response.statusCode}");
-      print("📡 Body: ${response.body}");
-
       if (response.statusCode == 200) {
         Iterable jsonResponse = json.decode(response.body);
         List<AnneeAcademique> annees = List<AnneeAcademique>.from(
             jsonResponse.map((model) => AnneeAcademique.fromJson(model)));
-        print("✅ ${annees.length} années récupérées");
-        for (var annee in annees) {
-          print("   - ${annee.nomAnnee}: active=${annee.active}, état=${annee.etat}");
-        }
+        // print("✅ ${annees.length} années récupérées");
+        // for (var annee in annees) {
+        //   print("   - ${annee.nomAnnee}: active=${annee.active}, état=${annee.etat}");
+        // }
         return annees;
       } else {
         throw Exception(
@@ -155,14 +152,14 @@ class AnneeAcademiqueService {
           'Authorization': 'Bearer $token',
         },
       );
-      
+
       print("📡 Réponse du serveur - Status: ${response.statusCode}");
       print("📡 Body: ${response.body}");
-      
+
       if (response.statusCode != 200 && response.statusCode != 204) {
-        throw Exception("Erreur HTTP: ${response.statusCode} - ${response.body}");
+        throw Exception(
+            "Erreur HTTP: ${response.statusCode} - ${response.body}");
       }
-      
     } catch (e) {
       print("❌ Erreur lors du changement d'état : $e");
       throw Exception("Erreur lors du changement d'état : $e");
@@ -191,6 +188,4 @@ class AnneeAcademiqueService {
       throw Exception('Erreur lors de la vérification des lannee');
     }
   }
-
- 
 }

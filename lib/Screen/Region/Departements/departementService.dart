@@ -30,31 +30,16 @@ class DepartementService {
     }
   }
 
-  ///////
-  Future<Filiere?> getFiliereByNiveauId(int niveauId) async {
-    try {
-      final response = await http.get(Uri.parse('$baseUrl/departements/$niveauId/filiere'));
-      print("Recuperation de la filiere");
-      print('$baseUrl/$niveauId/filiere');
-      print(response);
-      print(response.statusCode);
-
-      if (response.statusCode == 200) {
-        var filiereJson = jsonDecode(response.body);
-        return Filiere.fromJson(filiereJson); // Conversion en objet Filiere
-      } else {
-        throw Exception('Erreur lors de la récupération de la filière');
-      }
-    } catch (e) {
-      throw Exception('Erreur lors de la récupération de la filière : $e');
-    }
-  }
-
   Future<void> addDepartementToRegion(
       int regionId, String nomDepartement) async {
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('token');
     final response = await http.post(
       Uri.parse('$baseUrl/departements/departement/$regionId'),
-      headers: {'Content-Type': 'application/json'},
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
       body: json.encode({'nomDepartement': nomDepartement}),
     );
     print("ReponseAfter");
@@ -100,14 +85,16 @@ class DepartementService {
 
   // Delete a niveau
   Future<void> deleteDepartement(int id) async {
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('token');
     final response = await http.delete(
       Uri.parse('$baseUrl/departements/$id'),
       headers: {
         "Accept": "application/json",
-        "content-type": "application/json"
+        "content-type": "application/json",
+        'Authorization': 'Bearer $token',
       },
     );
-
 
     if (response.statusCode != 200 && response.statusCode != 201) {
       throw Exception('Echec de la supression du Niveau');
@@ -115,10 +102,20 @@ class DepartementService {
   }
 
   Future<bool> departementExist(String depName, int regionId) async {
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('token');
     final response = await http.get(
-      Uri.parse('$baseUrl/departements/exists?nomDepartement=$depName&regionId=$regionId'),
+      Uri.parse(
+          '$baseUrl/departements/exists?nomDepartement=$depName&regionId=$regionId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
     );
-
+    print("ReponseAfter");
+    print(response);
+    print(response.statusCode);
+    print(response.body);
     if (response.statusCode == 200) {
       return jsonDecode(response.body) as bool;
     } else {

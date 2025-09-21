@@ -3,10 +3,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:school_management_system/Screen/Etudiants/candidat/model_candidat.dart';
 import 'package:school_management_system/Screen/Filieres/filiere.dart';
-import 'package:school_management_system/Screen/Niveaux/list_niveau.dart';
+import 'package:school_management_system/Screen/Niveaux/niveau_by_filiere.dart';
 import 'package:school_management_system/Screen/Filieres/filiere_service.dart';
 import 'package:school_management_system/Widgets/drawer.dart';
-import 'package:school_management_system/Widgets/filiere_caard.dart';
+import 'package:school_management_system/Screen/Filieres/filiere_card.dart';
 import 'package:school_management_system/Widgets/my_appbar.dart';
 import 'package:school_management_system/theme/colors.dart';
 
@@ -26,6 +26,7 @@ class _ListFilieresState extends State<ListFilieres> {
   //Recuperation de la liste des Etudiants
   late Future<List<Candidat>> etudiants;
   late Future<int> count;
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -127,7 +128,7 @@ class _ListFilieresState extends State<ListFilieres> {
                                   builder: (context, countSnapshot) {
                                     int nombreEtudiants =
                                         countSnapshot.data ?? 0;
-                                    return FiliereCaard(
+                                    return FiliereCard(
                                       niveauTap: () {
                                         Navigator.push(
                                             context,
@@ -225,22 +226,31 @@ class _ListFilieresState extends State<ListFilieres> {
                   ),
                 ),
                 TextButton(
-                  onPressed: () {
-                    Filiere nouveauFiliere = Filiere(
-                        nomFiliere: _nomFiliereController.text,
-                        description: _descriptionController.text);
-                    if (_formKey.currentState!.validate()) {
-                      saveFiliere(nouveauFiliere).then((_) {
-                        Navigator.pop(context);
-                      });
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text("Veuillez entrer un nom de Filiere")),
-                      );
-                    }
-                  },
-                  child: const Text('Ajouter'),
+                  onPressed: isLoading
+                      ? null
+                      : () {
+                          Filiere nouveauFiliere = Filiere(
+                              nomFiliere: _nomFiliereController.text,
+                              description: _descriptionController.text);
+                          if (_formKey.currentState!.validate()) {
+                            saveFiliere(nouveauFiliere).then((_) {
+                              Navigator.pop(context);
+                            });
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text(
+                                      "Veuillez entrer un nom de Filiere")),
+                            );
+                          }
+                        },
+                  child: isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(),
+                        )
+                      : const Text('Ajouter'), 
                 ),
               ],
             );
@@ -254,82 +264,112 @@ class _ListFilieresState extends State<ListFilieres> {
 
   Future<void> saveFiliere(Filiere filiere) async {
     try {
+      setState(() {
+        isLoading = true;
+      });
       // Vérification si la filière existe déjà
       bool exists = await FiliereService().filiereExists(filiere.nomFiliere);
       if (exists) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            backgroundColor: Colors.red,
-            content: Text("Une filière avec ce nom existe déjà"),
-          ),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              backgroundColor: Colors.red,
+              content: Text("Une filière avec ce nom existe déjà"),
+            ),
+          );
+        }
+        setState(() {
+          isLoading = false;
+        });
         return;
       }
 
       await FiliereService().createFiliere(filiere);
 
-      setState(() {
-        futureFilieres = FiliereService().getFilieres();
-      });
+      if (mounted) {
+        setState(() {
+          futureFilieres = FiliereService().getFilieres();
+        });
 
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        backgroundColor: Colors.green,
-        content: Text(
-          "Filière ajoutée avec succès",
-          style: TextStyle(color: Colors.white),
-        ),
-      ));
-    } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.red,
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          backgroundColor: Colors.green,
           content: Text(
-            "Erreur lors de l'ajout : $error",
-            style: const TextStyle(color: Colors.white),
+            "Filière ajoutée avec succès",
+            style: TextStyle(color: Colors.white),
           ),
-        ),
-      );
-      print('Echec lors de l\'ajout  de la Filiere : $error');
+        ));
+      }
+    } catch (error) {
+      setState(() {
+        isLoading = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red,
+            content: Text(
+              "Erreur lors de l'ajout : $error",
+              style: const TextStyle(color: Colors.white),
+            ),
+          ),
+        );
+      }
+      print('Echec lors de l\'ajout de la Filiere : $error');
     }
   }
-
   //Supprimer une Filiere
 
   void _confirmDelete(int id) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
+        // 👈 Use distinct name to avoid confusion
         return AlertDialog(
           title: const Text("Confirmation"),
           content:
-              const Text("Êtes-vous sûr de vouloir supprimer cette Filiere ?"),
+              const Text("Êtes-vous sûr de vouloir supprimer cette Filière ?"),
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Ferme la boîte de dialogue
+                Navigator.of(dialogContext).pop(); // Close dialog
               },
               child: const Text('Annuler'),
             ),
             TextButton(
-              onPressed: () {
-                // Appel à la méthode de suppression
-                FiliereService().deleteFiliere(id).then((_) {
-                  // Rafraîchir la liste des Filieres
+              onPressed: () async {
+                // Keep dialog open during deletion
+                try {
+                  await FiliereService().deleteFiliere(id);
+
+                  // Only proceed if widget is still alive
+                  if (!mounted) return;
+
+                  // Refresh list
                   setState(() {
                     futureFilieres = FiliereService().getFilieres();
                   });
+
+                  // Show success snackbar
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text("Filiere supprimée avec succès"),
+                      content: Text("Filière supprimée avec succès"),
                       backgroundColor: Colors.green,
                     ),
                   );
-                }).catchError((error) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Erreur : $error")),
-                  );
-                });
-                Navigator.of(context).pop(); // Ferme la boîte de dialogue
+                } catch (error) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text("Erreur lors de la suppression : $error"),
+                      ),
+                    );
+                  }
+                } finally {
+                  // Always close dialog after operation (success or error)
+                  if (Navigator.of(dialogContext).canPop()) {
+                    Navigator.of(dialogContext).pop();
+                  }
+                }
               },
               child: Text(
                 'Supprimer',

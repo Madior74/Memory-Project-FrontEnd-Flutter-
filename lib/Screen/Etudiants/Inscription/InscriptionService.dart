@@ -121,9 +121,7 @@ class InscriptionService {
         await http.get(Uri.parse('$baseUrl/niveau/$niveauId'), headers: {
       "Authorization": "Bearer $token",
     });
-    print("Etudiant by niveau");
-    print(response.statusCode);
-    print(response.body);
+   
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       List<dynamic> jsonResponse = json.decode(response.body);
