@@ -19,6 +19,7 @@ class _ListSessionState extends State<ListSession> {
   DateTime? dateDebutChoisie;
   DateTime? dateFinChoisie;
   final _formKey = GlobalKey<FormState>();
+  bool isLoading = false;
   @override
   void initState() {
     super.initState();
@@ -184,6 +185,9 @@ class _ListSessionState extends State<ListSession> {
   Future<void> saveAnne(
       String sessionName, DateTime? dateDebut, DateTime? dateFin) async {
     try {
+      setState(() {
+        isLoading = true;
+      });
       // Créer une instance de Session avec le bon nom
       AnneeAcademique newSession = AnneeAcademique(
           dateFin: dateFin, dateDebut: dateDebut, nomAnnee: sessionName);
@@ -191,36 +195,48 @@ class _ListSessionState extends State<ListSession> {
       //Verification de l'existence de l'annee
       bool exists = await AnneeAcademiqueService().anneeExists(sessionName);
       if (exists) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            backgroundColor: Colors.red,
-            content: Text("Une Année avec ce nom existe déjà"),
-          ),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              backgroundColor: Colors.red,
+              content: Text("Une Année avec ce nom existe déjà"),
+            ),
+          );
+        }
+        setState(() {
+          isLoading = false;
+        });
         return;
       }
 
       // Appeler le service pour ajouter la session
       await AnneeAcademiqueService().createSession(newSession);
 
-      // Rafraîchir la liste des sessions après l'ajout
-      setState(() {
-        futureSessions = AnneeAcademiqueService().getSessions();
-      });
+      if (mounted) {
+        // Rafraîchir la liste des sessions après l'ajout
+        setState(() {
+          futureSessions = AnneeAcademiqueService().getSessions();
+        });
 
-      // Afficher un message de succès
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            backgroundColor: Colors.green,
-            content: Text("Session ajoutée avec succès")),
-      );
+        // Afficher un message de succès
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              backgroundColor: Colors.green,
+              content: Text("Session ajoutée avec succès")),
+        );
+      }
     } catch (error) {
+      setState(() {
+        isLoading = false;
+      });
       print("Errors lors de la creation");
       print(error);
       // Gestion des erreurs
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Erreur lors de l'ajout : $error")),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Erreur lors de l'ajout : $error")),
+        );
+      }
     }
   }
 
@@ -338,40 +354,48 @@ class _ListSessionState extends State<ListSession> {
                       style: TextStyle(color: Colors.red),
                     )),
                 TextButton(
-                    onPressed: () {
-                      if (_selectedDateDebut == null ||
-                          _selectedDateFin == null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text(
-                                    "Veuillez sélectionner les deux dates")));
-                        return;
-                      }
+                    onPressed: isLoading
+                        ? null
+                        : () {
+                            if (_selectedDateDebut == null ||
+                                _selectedDateFin == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text(
+                                          "Veuillez sélectionner les deux dates")));
+                              return;
+                            }
 
-                      if (_selectedDateDebut!.isAfter(_selectedDateFin!)) {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                            content: Text(
-                                "La date de Début ne peut pas être après la date de fin")));
-                        return;
-                      }
-                      String sessionName =
-                          '${_selectedDateDebut?.year}/${_selectedDateFin?.year}';
+                            if (_selectedDateDebut!.isAfter(_selectedDateFin!)) {
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                                  content: Text(
+                                      "La date de Début ne peut pas être après la date de fin")));
+                              return;
+                            }
+                            String sessionName =
+                                '${_selectedDateDebut?.year}/${_selectedDateFin?.year}';
 
-                      if (isEditMode) {
-                        updateSession(sessionId!, sessionName,
-                                _selectedDateDebut, _selectedDateFin)
-                            .then((_) {
-                          Navigator.of(context).pop();
-                        });
-                      } else {
-                        saveAnne(sessionName, _selectedDateDebut,
-                                _selectedDateFin)
-                            .then((_) {
-                          Navigator.of(context).pop();
-                        });
-                      }
-                    },
-                    child: Text(isEditMode ? "Modifier" : "Enregistrer"))
+                            if (isEditMode) {
+                              updateSession(sessionId!, sessionName,
+                                      _selectedDateDebut, _selectedDateFin)
+                                  .then((_) {
+                                Navigator.of(context).pop();
+                              });
+                            } else {
+                              saveAnne(sessionName, _selectedDateDebut,
+                                      _selectedDateFin)
+                                  .then((_) {
+                                Navigator.of(context).pop();
+                              });
+                            }
+                          },
+                    child: isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(),
+                          )
+                        : Text(isEditMode ? "Modifier" : "Enregistrer"))
               ],
             );
           });

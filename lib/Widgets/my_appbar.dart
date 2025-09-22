@@ -4,7 +4,9 @@ import 'package:school_management_system/theme/colors.dart';
 
 class MyAppbar extends StatelessWidget {
   final String title;
-  const MyAppbar({super.key, required this.title});
+  final void Function()? refreshButton;
+
+  const MyAppbar({super.key, required this.title,  this.refreshButton});
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +37,12 @@ class MyAppbar extends StatelessWidget {
               ),
 
               const SizedBox(width: 40), // ou un bouton d'action si besoin
+              IconButton(
+                  onPressed: refreshButton,
+                  icon: Icon(
+                    Icons.refresh,
+                    color: Colors.white,
+                  ))
             ],
           ),
         ),

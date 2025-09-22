@@ -19,6 +19,7 @@ class ListeDesRegions extends StatefulWidget {
 
 class _ListeDesRegionsState extends State<ListeDesRegions> {
   late Future<List<Region>> futureRegions;
+  bool isLoading = false;
 
   final TextEditingController _nomRegionController = TextEditingController();
   //Recuperation de la liste des Etudiants
@@ -245,20 +246,28 @@ class _ListeDesRegionsState extends State<ListeDesRegions> {
                   ),
                 ),
                 TextButton(
-                  onPressed: () {
-                    String regionName = _nomRegionController.text;
-                    if (regionName.isNotEmpty) {
-                      saveRegion(regionName).then((_) {
-                        Navigator.pop(context);
-                      });
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text("Veuillez entrer un nom de Region")),
-                      );
-                    }
-                  },
-                  child: const Text('Ajouter'),
+                  onPressed: isLoading
+                      ? null
+                      : () {
+                          String regionName = _nomRegionController.text;
+                          if (regionName.isNotEmpty) {
+                            saveRegion(regionName).then((_) {
+                              Navigator.pop(context);
+                            });
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text("Veuillez entrer un nom de Region")),
+                            );
+                          }
+                        },
+                  child: isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(),
+                        )
+                      : const Text('Ajouter'),
                 ),
               ],
             );
@@ -271,45 +280,59 @@ class _ListeDesRegionsState extends State<ListeDesRegions> {
   // Dans ListeDesRegions.dart
 
   Future<void> saveRegion(String regionName) async {
-    print(regionName);
     try {
+      setState(() {
+        isLoading = true;
+      });
       // Vérification si la Region existe déjà
       bool exists = await RegionService().regionExists(regionName);
       if (exists) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            backgroundColor: Colors.red,
-            content: Text("Une Region avec ce nom existe déjà"),
-          ),
-        );
-        return; // Sortir si elle existe déjà
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              backgroundColor: Colors.red,
+              content: Text("Une Region avec ce nom existe déjà"),
+            ),
+          );
+        }
+        setState(() {
+          isLoading = false;
+        });
+        return;
       }
 
       Region nouveauRegion = Region(nomRegion: regionName);
       print(nouveauRegion);
       await RegionService().createRegion(nouveauRegion);
 
-      setState(() {
-        futureRegions = RegionService().getRegion();
-      });
+      if (mounted) {
+        setState(() {
+          futureRegions = RegionService().getRegion();
+        });
 
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        backgroundColor: Colors.green,
-        content: Text(
-          "Region ajoutée avec succès",
-          style: TextStyle(color: Colors.white),
-        ),
-      ));
-    } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.red,
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          backgroundColor: Colors.green,
           content: Text(
-            "Erreur lors de l'ajout : $error",
-            style: const TextStyle(color: Colors.white),
+            "Region ajoutée avec succès",
+            style: TextStyle(color: Colors.white),
           ),
-        ),
-      );
+        ));
+      }
+    } catch (error) {
+      setState(() {
+        isLoading = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red,
+            content: Text(
+              "Erreur lors de l'ajout : $error",
+              style: const TextStyle(color: Colors.white),
+            ),
+          ),
+        );
+      }
       print('Echec lors de l\'ajout  de la Region : $error');
     }
   }

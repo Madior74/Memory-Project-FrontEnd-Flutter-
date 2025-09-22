@@ -27,6 +27,7 @@ class _ModuleByUeState extends State<ModuleByUe> {
   late Future<List<UE>> futureUEs;
   final _nomModuleController = TextEditingController();
   final _volumeHoraireController = TextEditingController();
+  bool isLoading = false;
 
   final _formKey = GlobalKey<FormState>();
 
@@ -245,57 +246,79 @@ class _ModuleByUeState extends State<ModuleByUe> {
             const ButtonAnnuler(),
             //Bouton Ajouter
             TextButton(
-                onPressed: () async {
-                  if (_formKey.currentState!.validate()) {
-                    //creation de l'objet Module avec les donnees entrees
-                    final module = Module(
-                        creditModule: selectedCredit ?? 0,
-                        ue: widget.ue,
-                        dateAjout: DateTime.now(),
-                        nomModule: _nomModuleController.text,
-                        volumeHoraire:
-                            int.parse(_volumeHoraireController.text));
+                onPressed: isLoading
+                    ? null
+                    : () async {
+                        if (_formKey.currentState!.validate()) {
+                          //creation de l'objet Module avec les donnees entrees
+                          final module = Module(
+                              creditModule: selectedCredit ?? 0,
+                              ue: widget.ue,
+                              dateAjout: DateTime.now(),
+                              nomModule: _nomModuleController.text,
+                              volumeHoraire:
+                                  int.parse(_volumeHoraireController.text));
 
-                    //Envoyer les donnees
-                    try {
-                      String moduleName = _nomModuleController.text;
-                      bool exists =
-                          await ModuleService().moduleExist(moduleName, ue.id!);
-                      if (exists) {
-                        ScaffoldMessenger.of(context)
-                            .showSnackBar(const SnackBar(
-                                backgroundColor: Colors.red,
-                                content: Text(
-                                  "Un Module avec ce nom existe dèja ",
-                                  style: TextStyle(color: Colors.white),
-                                )));
-
-                        return;
-                      }
-                      await ModuleService().addModuleToUE(ue.id!, module);
-                      setState(() {
-                        futureModules = ModuleService().getModulesByUE(ue.id!);
-                      });
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            backgroundColor: Colors.green,
-                            content: Text("Module ajouté avec succès !")),
-                      );
-                      await ModuleService().getModulesByUE(widget.ue.id!);
-                      Navigator.pop(context, true);
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Erreur : $e")),
-                      );
-                      print("Erreur:$e");
-                    }
-                  }
-                },
-                child: const Text(
-                  "Ajouter",
-                  style: TextStyle(
-                      color: Colors.blue, fontWeight: FontWeight.bold),
-                ))
+                          //Envoyer les donnees
+                          try {
+                            setState(() {
+                              isLoading = true;
+                            });
+                            String moduleName = _nomModuleController.text;
+                            bool exists =
+                                await ModuleService().moduleExist(moduleName, ue.id!);
+                            if (exists) {
+                              if (mounted) {
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(const SnackBar(
+                                        backgroundColor: Colors.red,
+                                        content: Text(
+                                          "Un Module avec ce nom existe dèja ",
+                                          style: TextStyle(color: Colors.white),
+                                        )));
+                              }
+                              setState(() {
+                                isLoading = false;
+                              });
+                              return;
+                            }
+                            await ModuleService().addModuleToUE(ue.id!, module);
+                            if (mounted) {
+                              setState(() {
+                                futureModules = ModuleService().getModulesByUE(ue.id!);
+                              });
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    backgroundColor: Colors.green,
+                                    content: Text("Module ajouté avec succès !")),
+                              );
+                              await ModuleService().getModulesByUE(widget.ue.id!);
+                              Navigator.pop(context, true);
+                            }
+                          } catch (e) {
+                            setState(() {
+                              isLoading = false;
+                            });
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text("Erreur : $e")),
+                              );
+                            }
+                            print("Erreur:$e");
+                          }
+                        }
+                      },
+                child: isLoading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(),
+                      )
+                    : const Text(
+                        "Ajouter",
+                        style: TextStyle(
+                            color: Colors.blue, fontWeight: FontWeight.bold),
+                      ))
           ],
         );
       },

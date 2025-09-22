@@ -9,8 +9,7 @@ class AuthService {
   static const String _accessTokenKey = 'access_token';
   static const String _refreshTokenKey = 'refresh_token';
 
-
-   static String get accessTokenKey => _accessTokenKey;
+  static String get accessTokenKey => _accessTokenKey;
   static String get refreshTokenKey => _refreshTokenKey;
 
   Future<Map<String, String>> get authHeaders async {
@@ -32,7 +31,9 @@ class AuthService {
       headers: {'Content-Type': 'application/json'},
       body: json.encode({'email': email, 'password': password}),
     );
-
+    print(
+      ('$baseUrl/auth/login'),
+    );
     print('Statut HTTP : ${response.statusCode}');
     print('Réponse : ${response.body}');
 

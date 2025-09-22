@@ -20,6 +20,7 @@ class ListeDesDepartements extends StatefulWidget {
 class _ListeDesDepartementsState extends State<ListeDesDepartements> {
   late Future<List<Departement>> futureDepartement;
   final _nomDepartementController = TextEditingController();
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -247,20 +248,28 @@ class _ListeDesDepartementsState extends State<ListeDesDepartements> {
               ),
             ),
             TextButton(
-              onPressed: () {
-                String nomdep = _nomDepartementController.text;
-                if (nomdep.isNotEmpty) {
-                  saveDepartement(nomdep).then((_) {
-                    Navigator.pop(context);
-                  });
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text("Veuillez entrer un nom de departement")),
-                  );
-                }
-              },
-              child: const Text('Ajouter'),
+              onPressed: isLoading
+                  ? null
+                  : () {
+                      String nomdep = _nomDepartementController.text;
+                      if (nomdep.isNotEmpty) {
+                        saveDepartement(nomdep).then((_) {
+                          Navigator.pop(context);
+                        });
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text("Veuillez entrer un nom de departement")),
+                        );
+                      }
+                    },
+              child: isLoading
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(),
+                    )
+                  : const Text('Ajouter'),
             ),
           ],
         );
@@ -280,39 +289,54 @@ class _ListeDesDepartementsState extends State<ListeDesDepartements> {
     }
 
     try {
+      setState(() {
+        isLoading = true;
+      });
       bool exists =
           await DepartementService().departementExist(dpm, widget.region.id!);
       if (exists) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-                "Un Departement avec ce nom existe déjà dans cette Region."),
-            backgroundColor: Colors.red,
-          ),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                  "Un Departement avec ce nom existe déjà dans cette Region."),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        setState(() {
+          isLoading = false;
+        });
         return;
       }
 
       await DepartementService().addDepartementToRegion(widget.region.id!, dpm);
 
-      setState(() {
-        futureDepartement =
-            DepartementService().getDepartementByRegion(widget.region.id!);
-      });
+      if (mounted) {
+        setState(() {
+          futureDepartement =
+              DepartementService().getDepartementByRegion(widget.region.id!);
+        });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Niveau ajouté avec succès."),
-          backgroundColor: Colors.green,
-        ),
-      );
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Département ajouté avec succès."),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Erreur lors de l'ajout : $error"),
-          backgroundColor: Colors.red,
-        ),
-      );
+      setState(() {
+        isLoading = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Erreur lors de l'ajout : $error"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 

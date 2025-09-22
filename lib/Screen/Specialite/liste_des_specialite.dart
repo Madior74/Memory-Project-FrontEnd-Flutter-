@@ -22,6 +22,7 @@ class _ListeDesSpecialiteState extends State<ListeDesSpecialite> {
   late Future<List<Specialite>> futureSpecialites;
   String? selectedNivel;
   final _formKey = GlobalKey<FormState>();
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -196,25 +197,33 @@ class _ListeDesSpecialiteState extends State<ListeDesSpecialite> {
               ),
             ),
             TextButton(
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  final Specialite specialite = Specialite(
-                    nom: nomController.text,
-                    description: descriptionController.text,
-                  );
+              onPressed: isLoading
+                  ? null
+                  : () {
+                      if (_formKey.currentState!.validate()) {
+                        final Specialite specialite = Specialite(
+                          nom: nomController.text,
+                          description: descriptionController.text,
+                        );
 
-                  if (isEditMode) {
-                    updateSpecialite(specialiteId!, specialite).then((_) {
-                      Navigator.of(context).pop();
-                    });
-                  } else {
-                    saveSpecialite(specialite).then((_) {
-                      Navigator.of(context).pop();
-                    });
-                  }
-                }
-              },
-              child: Text(isEditMode ? "Mettre à jour" : "Ajouter"),
+                        if (isEditMode) {
+                          updateSpecialite(specialiteId!, specialite).then((_) {
+                            Navigator.of(context).pop();
+                          });
+                        } else {
+                          saveSpecialite(specialite).then((_) {
+                            Navigator.of(context).pop();
+                          });
+                        }
+                      }
+                    },
+              child: isLoading
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(),
+                    )
+                  : Text(isEditMode ? "Mettre à jour" : "Ajouter"),
             ),
           ],
         );
@@ -224,36 +233,51 @@ class _ListeDesSpecialiteState extends State<ListeDesSpecialite> {
 
   Future<void> saveSpecialite(Specialite specialite) async {
     try {
+      setState(() {
+        isLoading = true;
+      });
       bool exists = await SpecialiteService().specialiteExist(specialite.nom!);
       if (exists) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Une Specialité existe déjà avec ce nom."),
-            backgroundColor: Colors.red,
-          ),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Une Specialité existe déjà avec ce nom."),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        setState(() {
+          isLoading = false;
+        });
         return;
       }
 
       await SpecialiteService().addSpecialite(specialite);
 
-      setState(() {
-        futureSpecialites = SpecialiteService().getAllSpecialites();
-      });
+      if (mounted) {
+        setState(() {
+          futureSpecialites = SpecialiteService().getAllSpecialites();
+        });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Niveau ajouté avec succès."),
-          backgroundColor: Colors.green,
-        ),
-      );
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Spécialité ajoutée avec succès."),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Erreur lors de l'ajout : $error"),
-          backgroundColor: Colors.red,
-        ),
-      );
+      setState(() {
+        isLoading = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Erreur lors de l'ajout : $error"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 

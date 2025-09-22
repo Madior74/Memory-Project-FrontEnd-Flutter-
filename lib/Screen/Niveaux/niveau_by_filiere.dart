@@ -20,6 +20,7 @@ class ListesNiveaux extends StatefulWidget {
 class _ListesNiveauxState extends State<ListesNiveaux> {
   late Future<List<Niveau>> futureNiveau;
   String? selectedNivel;
+  bool isLoading = false;
 
   final List<String> nivels = [
     'Licence 1',
@@ -191,20 +192,28 @@ class _ListesNiveauxState extends State<ListesNiveaux> {
               ),
             ),
             TextButton(
-              onPressed: () {
-                if (selectedNivel != null && selectedNivel!.isNotEmpty) {
-                  saveNiveau(selectedNivel!).then((_) {
-                    Navigator.pop(context);
-                  });
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Veuillez sélectionner un niveau"),
-                    ),
-                  );
-                }
-              },
-              child: const Text('Ajouter'),
+              onPressed: isLoading
+                  ? null
+                  : () {
+                      if (selectedNivel != null && selectedNivel!.isNotEmpty) {
+                        saveNiveau(selectedNivel!).then((_) {
+                          Navigator.pop(context);
+                        });
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Veuillez sélectionner un niveau"),
+                          ),
+                        );
+                      }
+                    },
+              child: isLoading
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(),
+                    )
+                  : const Text('Ajouter'),
             ),
           ],
         );
@@ -224,38 +233,53 @@ class _ListesNiveauxState extends State<ListesNiveaux> {
     }
 
     try {
+      setState(() {
+        isLoading = true;
+      });
       bool exists =
           await NiveauService().niveauExist(niveauName, widget.filiere.id!);
       if (exists) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content:
-                Text("Un niveau avec ce nom existe déjà dans cette filière."),
-            backgroundColor: Colors.red,
-          ),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content:
+                  Text("Un niveau avec ce nom existe déjà dans cette filière."),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        setState(() {
+          isLoading = false;
+        });
         return;
       }
 
       await NiveauService().addNiveauToFiliere(widget.filiere.id!, niveauName);
 
-      setState(() {
-        futureNiveau = NiveauService().getNiveauxByFiliere(widget.filiere.id!);
-      });
+      if (mounted) {
+        setState(() {
+          futureNiveau = NiveauService().getNiveauxByFiliere(widget.filiere.id!);
+        });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Niveau ajouté avec succès."),
-          backgroundColor: Colors.green,
-        ),
-      );
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Niveau ajouté avec succès."),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Erreur lors de l'ajout : $error"),
-          backgroundColor: Colors.red,
-        ),
-      );
+      setState(() {
+        isLoading = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Erreur lors de l'ajout : $error"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 

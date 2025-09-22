@@ -250,7 +250,7 @@ class _ListFilieresState extends State<ListFilieres> {
                           width: 20,
                           child: CircularProgressIndicator(),
                         )
-                      : const Text('Ajouter'), 
+                      : const Text('Ajouter'),
                 ),
               ],
             );

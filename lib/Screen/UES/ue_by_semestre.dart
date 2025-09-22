@@ -29,6 +29,7 @@ class _UeBySemestreState extends State<UeBySemestre> {
   late int? selectedSemestre = 0;
   late List<Niveau> filteredNiveaux = [];
   late List<Niveau> allNiveaux = [];
+  bool isLoading = false;
 
   final List<int> credits = [4, 5, 6];
 
@@ -495,57 +496,79 @@ class _UeBySemestreState extends State<UeBySemestre> {
 
               // Bouton Ajouter
               TextButton(
-                onPressed: () async {
-                  if (_formKey.currentState!.validate()) {
-                    // Créer un objet UE avec les données saisies
-                    final ue = UE(
-                      nomUE: _nomUEController.text,
-                      codeUE: _codeUEController.text,
-                      semestre: semestre,
-                      dateAjout: DateTime.now(),
-                      modules: [],
-                    );
+                onPressed: isLoading
+                    ? null
+                    : () async {
+                        if (_formKey.currentState!.validate()) {
+                          // Créer un objet UE avec les données saisies
+                          final ue = UE(
+                            nomUE: _nomUEController.text,
+                            codeUE: _codeUEController.text,
+                            semestre: semestre,
+                            dateAjout: DateTime.now(),
+                            modules: [],
+                          );
 
-                    // Envoyer l'UE à l'API Spring Boot
-                    try {
-                      String ueName = _nomUEController.text;
-                      bool exists =
-                          await UeService().ueExist(ueName, semestre.id!);
-                      if (exists) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            backgroundColor: myredColor,
-                            content: const Text(
-                              "Une UE avec ce nom existe dèja 😔",
-                              style: TextStyle(color: Colors.white),
-                            )));
-                        return;
-                      }
+                          // Envoyer l'UE à l'API Spring Boot
+                          try {
+                            setState(() {
+                              isLoading = true;
+                            });
+                            String ueName = _nomUEController.text;
+                            bool exists =
+                                await UeService().ueExist(ueName, semestre.id!);
+                            if (exists) {
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                    backgroundColor: myredColor,
+                                    content: const Text(
+                                      "Une UE avec ce nom existe dèja 😔",
+                                      style: TextStyle(color: Colors.white),
+                                    )));
+                              }
+                              setState(() {
+                                isLoading = false;
+                              });
+                              return;
+                            }
 
-                      await UeService()
-                          .addUeToSemestre(semestre.id!, ue)
-                          .then((_) {
-                        setState(() {
-                          futureUes =
-                              UeService().getUesBySemestre(widget.semestre.id!);
-                        });
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              backgroundColor: Colors.green,
-                              content: Text("UE ajoutée avec succès !")),
-                        );
-                      });
-
-                      Navigator.of(context)
-                          .pop(); // Fermer la boîte de dialogue
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Erreur : $e")),
-                      );
-                      print("Erreurrr:$e");
-                    }
-                  }
-                },
-                child: const Text("Ajouter"),
+                            await UeService()
+                                .addUeToSemestre(semestre.id!, ue)
+                                .then((_) {
+                              if (mounted) {
+                                setState(() {
+                                  futureUes =
+                                      UeService().getUesBySemestre(widget.semestre.id!);
+                                });
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      backgroundColor: Colors.green,
+                                      content: Text("UE ajoutée avec succès !")),
+                                );
+                                Navigator.of(context)
+                                    .pop(); // Fermer la boîte de dialogue
+                              }
+                            });
+                          } catch (e) {
+                            setState(() {
+                              isLoading = false;
+                            });
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text("Erreur : $e")),
+                              );
+                            }
+                            print("Erreurrr:$e");
+                          }
+                        }
+                      },
+                child: isLoading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(),
+                      )
+                    : const Text("Ajouter"),
               ),
             ],
           );

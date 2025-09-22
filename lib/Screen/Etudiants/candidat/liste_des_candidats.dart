@@ -47,6 +47,14 @@ class _ListeDesCandidatsState extends State<ListeDesCandidats> {
     }
   }
 
+  void _refreshList() {
+    print("🔄 Rafraîchissement de la liste des  candidats...");
+    setState(() {
+      futuresEtudiants = PrinscriptionService().getAllEtudiant();
+    });
+    print("✅ Liste rafraîchie");
+  }
+
   @override
   void initState() {
     super.initState();
@@ -81,6 +89,7 @@ class _ListeDesCandidatsState extends State<ListeDesCandidats> {
               children: [
                 MyAppbar(
                   title: "Liste des candidats",
+                  refreshButton: _refreshList,
                 ),
                 Expanded(
                     child: FutureBuilder(

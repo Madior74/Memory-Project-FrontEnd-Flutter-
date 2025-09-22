@@ -30,6 +30,7 @@ class _SemestreByNiveauState extends State<SemestreByNiveau> {
   late Future<List<Semestre>> futureSemestres;
   // late Future<List<Etudiant>> futureEtudiants;
   String? selectedSemestre;
+  bool isLoading = false;
   @override
   void initState() {
     super.initState();
@@ -85,18 +86,26 @@ class _SemestreByNiveauState extends State<SemestreByNiveau> {
     }
 
     try {
+      setState(() {
+        isLoading = true;
+      });
       // Récupérer la filière associée au niveau
       Filiere? filiere =
           await NiveauService().getFiliereByNiveauId(widget.niveau.id!);
 
       if (filiere == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content:
-                Text("Erreur : La filière associée au niveau est manquante."),
-            backgroundColor: Colors.red,
-          ),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content:
+                  Text("Erreur : La filière associée au niveau est manquante."),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        setState(() {
+          isLoading = false;
+        });
         return;
       }
 
@@ -104,12 +113,17 @@ class _SemestreByNiveauState extends State<SemestreByNiveau> {
       bool exists =
           await SemestreService().semestreExist(nomSemestre, widget.niveau.id!);
       if (exists) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Un Semestre avec ce nom existe déjà."),
-            backgroundColor: Colors.red,
-          ),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Un Semestre avec ce nom existe déjà."),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        setState(() {
+          isLoading = false;
+        });
         return;
       }
 
@@ -119,24 +133,31 @@ class _SemestreByNiveauState extends State<SemestreByNiveau> {
         nomSemestre, // Passe la filière récupérée ici
       );
 
-      setState(() {
-        futureSemestres =
-            SemestreService().getSemestreByNiveau(widget.niveau.id!);
-      });
+      if (mounted) {
+        setState(() {
+          futureSemestres =
+              SemestreService().getSemestreByNiveau(widget.niveau.id!);
+        });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Semestre ajouté avec succès."),
-          backgroundColor: Colors.green,
-        ),
-      );
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Semestre ajouté avec succès."),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Erreur lors de l'ajout : $error"),
-          backgroundColor: Colors.red,
-        ),
-      );
+      setState(() {
+        isLoading = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Erreur lors de l'ajout : $error"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -498,20 +519,28 @@ class _SemestreByNiveauState extends State<SemestreByNiveau> {
               ),
             ),
             TextButton(
-              onPressed: () {
-                if (selectedSemestre != null && selectedSemestre!.isNotEmpty) {
-                  saveSemestre(selectedSemestre!).then((_) {
-                    Navigator.pop(context);
-                  });
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Veuillez sélectionner un Semestre"),
-                    ),
-                  );
-                }
-              },
-              child: const Text('Ajouter'),
+              onPressed: isLoading
+                  ? null
+                  : () {
+                      if (selectedSemestre != null && selectedSemestre!.isNotEmpty) {
+                        saveSemestre(selectedSemestre!).then((_) {
+                          Navigator.pop(context);
+                        });
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Veuillez sélectionner un Semestre"),
+                          ),
+                        );
+                      }
+                    },
+              child: isLoading
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(),
+                    )
+                  : const Text('Ajouter'),
             ),
           ],
         );
